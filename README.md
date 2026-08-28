@@ -14,37 +14,70 @@ AHC のコンテスト中に、自分の `main.cpp` へ直接コピーして使�
 ローカルファイルを参照する手順、生成スクリプト、実行時ファイルは必要ありません。
 各パーツは標準ライブラリの依存も含め、ファイル全体を単独で貼れる形にします。
 初心者がそのまま読めるように、カスタム `namespace` や複雑な共通基盤は使わず、
-原則として 1 ファイルに短い `struct` を 1 つだけ置きます。
+原則として 1 ファイルを 1 機能だけにします。
 
 考え方は [Luzhiled's Library](https://ei1333.github.io/library/) のような、必要な実装を
 探して自分のコードへ取り込める競技プログラミング用ライブラリを参考にしています。
 
-## Library Files
+## まずはこの4つ
 
-### Utility
+初めて使うなら、次の4ファイルだけ見れば十分です。
 
-- [`library/timer.hpp`](library/timer.hpp) — 時間制限を管理する `Timer`
-- [`library/random.hpp`](library/random.hpp) — 標準乱数を使う `Random`
+- [`timer.hpp`](library/timer.hpp) — 時間切れ判定と進捗率
+- [`random.hpp`](library/random.hpp) — 整数・小数・shuffle・重み付き抽選
+- [`time-based-simulated-annealing.hpp`](library/time-based-simulated-annealing.hpp) —
+  タイマー内蔵の焼きなまし
+- [`best-keeper.hpp`](library/best-keeper.hpp) — 今までで一番良い解を保存
 
-### Heuristic
+各ファイルの先頭にも、短い使い方例を書いてあります。もう少し長い例は
+[`USAGE.md`](USAGE.md) にあります。
 
-- [`library/simulated-annealing.hpp`](library/simulated-annealing.hpp) —
-  温度計算と遷移受理を担当する `SimulatedAnnealing`
+## パーツ一覧
 
-各 `.hpp` は別のライブラリファイルを参照しません。たとえば焼きなましだけが必要なら
-`simulated-annealing.hpp` だけをコピーできます。時間ベースで進捗を管理したい場合は、
-`timer.hpp` もコピーして `Timer::progress()` の値を渡します。
+### 時間・乱数・小道具
 
-貼り付け後は、名前空間を付けずにそのまま使えます。
+| ファイル | できること |
+|---|---|
+| [`timer.hpp`](library/timer.hpp) | 経過時間・残り時間・進捗率 |
+| [`random.hpp`](library/random.hpp) | 型を選べる乱数、ランダム選択、重み付き選択 |
+| [`chmin-chmax.hpp`](library/chmin-chmax.hpp) | 値が良くなる時だけ更新 |
+| [`schedule.hpp`](library/schedule.hpp) | 時間経過に合わせて値を変化 |
+| [`best-keeper.hpp`](library/best-keeper.hpp) | best score と best state を保存 |
+| [`top-k.hpp`](library/top-k.hpp) | 良い候補を上位 K 個だけ保存 |
+
+### 探索
+
+| ファイル | できること |
+|---|---|
+| [`simulated-annealing.hpp`](library/simulated-annealing.hpp) | 外部から進捗率を渡す焼きなまし |
+| [`time-based-simulated-annealing.hpp`](library/time-based-simulated-annealing.hpp) | タイマー内蔵の焼きなまし |
+
+### データ構造
+
+| ファイル | できること |
+|---|---|
+| [`cumulative-sum.hpp`](library/cumulative-sum.hpp) | 1次元累積和 |
+| [`cumulative-sum-2d.hpp`](library/cumulative-sum-2d.hpp) | 2次元累積和 |
+| [`coordinate-compression.hpp`](library/coordinate-compression.hpp) | 座標圧縮 |
+| [`dsu.hpp`](library/dsu.hpp) | Union-Find |
+| [`rollback-array.hpp`](library/rollback-array.hpp) | 変更を過去の状態へ戻せる配列 |
+| [`rollback-dsu.hpp`](library/rollback-dsu.hpp) | 過去の状態へ戻せる Union-Find |
+| [`stamp-array.hpp`](library/stamp-array.hpp) | ほぼ O(1) で初期化し直せる配列 |
+
+`int` 固定である必要がないパーツはテンプレートにしています。たとえば、次のように
+得点は `double`、解は `vector<int>` のように自由に選べます。
 
 ```cpp
-Timer timer;
-Random random(123);
-SimulatedAnnealing annealing(100.0, 1.0, 123);
+BestKeeper<double, vector<int>> best(initial_score, initial_answer);
+CumulativeSum<long long> sum(values);
+RollbackArray<string> names(initial_names);
 ```
 
-GitHub 上ではパーツのファイルを開き、右上のコピーアイコン、または Raw 表示から
-全体をコピーしてください。
+各 `.hpp` は別のライブラリファイルを参照しません。必要なファイルだけを丸ごと
+コピーできます。貼り付け後はカスタム名前空間を付けず、そのまま使えます。
+
+GitHub 上ではファイルを開き、右上のコピーアイコン、または Raw 表示から全体を
+コピーしてください。
 
 ## 最小テンプレート
 

@@ -4,6 +4,11 @@
 #include <cstdint>
 #include <random>
 
+// 進捗率を自分で渡す焼きなまし。
+// 使い方:
+// SimulatedAnnealing sa(100.0, 1.0, 123);
+// double improvement = new_score - current_score;  // 最大化
+// if (sa.accept(improvement, timer.progress(1900.0))) { ... }
 struct SimulatedAnnealing {
   double start_temperature;
   double end_temperature;
@@ -29,13 +34,14 @@ struct SimulatedAnnealing {
   // improvement は「変更後がどれだけ良くなるか」。
   // 最大化: new_score - current_score
   // 最小化: current_cost - new_cost
-  bool accept(double improvement, double progress) {
-    if (improvement >= 0.0) return true;
+  template <class Score>
+  bool accept(Score improvement, double progress) {
+    const double value = static_cast<double>(improvement);
+    if (value >= 0.0) return true;
 
     const double probability =
-        std::exp(improvement / temperature(progress));
+        std::exp(value / temperature(progress));
     std::uniform_real_distribution<double> distribution(0.0, 1.0);
     return distribution(engine) < probability;
   }
 };
-
