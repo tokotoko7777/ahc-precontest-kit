@@ -1,10 +1,9 @@
 #include <algorithm>
 #include <array>
 #include <cassert>
-#include <cstdint>
 
-#include "library/ahc/random.hpp"
-#include "library/ahc/timer.hpp"
+#include "parts/random.hpp"
+#include "parts/timer.hpp"
 
 int main() {
   ahc::Random first(42);

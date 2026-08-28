@@ -9,6 +9,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Verify library and bundled source
+      - name: Verify copyable parts and template
         run: make verify
-

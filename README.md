@@ -1,74 +1,64 @@
 # ahc-precontest-kit
 
-AHC で繰り返し使う小さな C++ 部品を、提出コードへ取り込むためのライブラリです。
+AHC のコンテスト中に、自分の `main.cpp` へ直接コピーして使う C++ パーツ集です。
 
-## 最重要: 提出するのは 1 ファイル
+## 使い方
 
-AtCoder からこのリポジトリを参照することはできません。開発中の
-`#include "library/..."` は整理のための記述であり、提出前に必ず中身を展開します。
+コンテスト中に編集するファイルは `main.cpp` だけです。
 
-使い方は次のどちらかです。
+1. 下の一覧から必要なパーツを開く。
+2. ファイル全体をコピーする。
+3. 自分の `main.cpp` の `main` 関数より上へ貼り付ける。
+4. そのまま `main.cpp` だけをコンパイル・提出する。
 
-1. 必要な `.hpp` の中身を自分の `main.cpp` へコピーする。
-2. `tools/bundle.py` でローカル `#include` を再帰的に展開し、単一の
-   `submission.cpp` を作る。
+ローカルファイルを参照する手順、生成スクリプト、実行時ファイルは必要ありません。
+各パーツは標準ライブラリの依存も含め、ファイル全体を単独で貼れる形にします。
 
-手作業のコピー漏れを避けられるため、通常は 2 を推奨します。考え方は
-[Luzhiled's Library](https://ei1333.github.io/library/) の、機能ごとにヘッダを分けて
-検証し、提出時に Bundle する構成を参考にしています。
+考え方は [Luzhiled's Library](https://ei1333.github.io/library/) のような、必要な実装を
+探して自分のコードへ取り込める競技プログラミング用ライブラリを参考にしています。
 
-## ディレクトリ
+## パーツ一覧
 
-```text
-library/ahc/          コピー可能なヘッダライブラリ
-examples/             利用例
-tests/                ライブラリと Bundle の検証
-tools/bundle.py       ローカル include を展開する単一ファイル化ツール
+### 基本
+
+- [`parts/timer.hpp`](parts/timer.hpp) — 時間制限を管理する `ahc::Timer`
+- [`parts/random.hpp`](parts/random.hpp) — 再現可能な高速乱数生成器 `ahc::Random`
+
+GitHub 上ではパーツのファイルを開き、右上のコピーアイコン、または Raw 表示から
+全体をコピーしてください。
+
+## 最小テンプレート
+
+[`template/main.cpp`](template/main.cpp) は、パーツを貼る位置だけを示す最小構成です。
+テンプレートにもローカルファイルへの依存はありません。
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+// 必要な parts/*.hpp の中身をここへ貼る。
+
+int main() {
+  ios::sync_with_stdio(false);
+  cin.tie(nullptr);
+
+  // 問題固有の処理を書く。
+}
 ```
 
-各ヘッダは、単体で `main.cpp` に貼り付けても使えるようにします。外部パッケージや
-実行時ファイルには依存せず、標準ライブラリと `library/` 内の明示された依存だけを
-使用します。
+## パーツ追加時の約束
 
-## Bundle の使い方
+- ファイル全体を `main.cpp` の上部へ貼るだけで使えること。
+- ローカルファイルへの `#include "..."` を含めないこと。
+- 外部パッケージや実行時ファイルに依存しないこと。
+- 問題固有の `main` 関数や入出力を含めないこと。
+- 使用する標準ヘッダをパーツ自身に記載すること。
+- 最小のテストを追加すること。
 
-このリポジトリ内で開発する場合:
+## リポジトリ側の検証
 
-```bash
-python3 tools/bundle.py examples/basic.cpp -o submission.cpp
-g++ -std=c++17 -O2 -Wall -Wextra -pedantic submission.cpp
-```
-
-別のコンテスト用ディレクトリに `main.cpp` がある場合:
-
-```bash
-python3 /path/to/ahc-precontest-kit/tools/bundle.py \
-  /path/to/contest/main.cpp \
-  -I /path/to/ahc-precontest-kit \
-  -o /path/to/contest/submission.cpp
-```
-
-`submission.cpp` には `#include "..."` が残りません。このファイルだけを提出します。
-標準ライブラリの `#include <...>` はそのまま残ります。
-
-## 収録済み
-
-- [`library/ahc/timer.hpp`](library/ahc/timer.hpp): `steady_clock` ベースの時間管理
-- [`library/ahc/random.hpp`](library/ahc/random.hpp): 再現可能な高速乱数生成
-
-## 検証
+パーツ集を更新するときだけ、次を実行します。コンテスト中の利用には不要です。
 
 ```bash
 make verify
 ```
-
-ライブラリの単体テスト、Bundle 後の「ローカル include が残っていないこと」、および
-生成した単一 C++ ファイルのコンパイルを確認します。
-
-## ライブラリ追加時の約束
-
-- 1 機能を 1 つの `.hpp` にまとめる。
-- ヘッダ単体で貼り付け可能にする。
-- `main` 関数や問題固有の入出力をライブラリへ入れない。
-- 依存は標準ライブラリ、または `library/` 内の相対 include に限定する。
-- API の最小利用例とテストを追加する。

@@ -5,10 +5,11 @@ CXXFLAGS ?= -std=c++17 -O2 -Wall -Wextra -pedantic
 
 verify:
 	mkdir -p build
-	$(CXX) $(CXXFLAGS) -I. tests/library_test.cpp -o build/library_test
-	./build/library_test
-	python3 -m unittest tests/test_bundle.py
+	$(CXX) $(CXXFLAGS) -x c++ -fsyntax-only parts/timer.hpp
+	$(CXX) $(CXXFLAGS) -x c++ -fsyntax-only parts/random.hpp
+	$(CXX) $(CXXFLAGS) -I. tests/parts_test.cpp -o build/parts_test
+	./build/parts_test
+	$(CXX) $(CXXFLAGS) template/main.cpp -o build/template
 
 clean:
-	rm -rf build submission.cpp
-
+	rm -rf build
