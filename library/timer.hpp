@@ -1,8 +1,8 @@
-// AHC PART: Timer
+// AHC LIBRARY: Timer
 // Copy this whole file above main().
 
-#ifndef AHC_PRECONTEST_KIT_PART_TIMER_HPP
-#define AHC_PRECONTEST_KIT_PART_TIMER_HPP
+#ifndef AHC_PRECONTEST_KIT_LIBRARY_TIMER_HPP
+#define AHC_PRECONTEST_KIT_LIBRARY_TIMER_HPP
 
 #include <chrono>
 
@@ -39,5 +39,5 @@ class Timer {
 
 }  // namespace ahc
 
-#endif  // AHC_PRECONTEST_KIT_PART_TIMER_HPP
+#endif  // AHC_PRECONTEST_KIT_LIBRARY_TIMER_HPP
 

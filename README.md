@@ -17,12 +17,21 @@ AHC のコンテスト中に、自分の `main.cpp` へ直接コピーして使�
 考え方は [Luzhiled's Library](https://ei1333.github.io/library/) のような、必要な実装を
 探して自分のコードへ取り込める競技プログラミング用ライブラリを参考にしています。
 
-## パーツ一覧
+## Library Files
 
-### 基本
+### Utility
 
-- [`parts/timer.hpp`](parts/timer.hpp) — 時間制限を管理する `ahc::Timer`
-- [`parts/random.hpp`](parts/random.hpp) — 再現可能な高速乱数生成器 `ahc::Random`
+- [`library/timer.hpp`](library/timer.hpp) — 時間制限を管理する `ahc::Timer`
+- [`library/random.hpp`](library/random.hpp) — 再現可能な高速乱数生成器 `ahc::Random`
+
+### Heuristic
+
+- [`library/simulated-annealing.hpp`](library/simulated-annealing.hpp) —
+  温度計算と遷移受理を担当する `ahc::SimulatedAnnealing`
+
+各 `.hpp` は別のライブラリファイルを参照しません。たとえば焼きなましだけが必要なら
+`simulated-annealing.hpp` だけをコピーできます。時間ベースで進捗を管理したい場合は、
+`timer.hpp` もコピーして `Timer::progress()` の値を渡します。
 
 GitHub 上ではパーツのファイルを開き、右上のコピーアイコン、または Raw 表示から
 全体をコピーしてください。
@@ -36,7 +45,7 @@ GitHub 上ではパーツのファイルを開き、右上のコピーアイコ�
 #include <bits/stdc++.h>
 using namespace std;
 
-// 必要な parts/*.hpp の中身をここへ貼る。
+// 必要な library/*.hpp の中身をここへ貼る。
 
 int main() {
   ios::sync_with_stdio(false);
@@ -46,7 +55,7 @@ int main() {
 }
 ```
 
-## パーツ追加時の約束
+## ライブラリ追加時の約束
 
 - ファイル全体を `main.cpp` の上部へ貼るだけで使えること。
 - ローカルファイルへの `#include "..."` を含めないこと。

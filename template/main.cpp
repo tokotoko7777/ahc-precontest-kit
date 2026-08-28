@@ -2,7 +2,7 @@
 
 using namespace std;
 
-// Copy the contents of the required parts/*.hpp files here.
+// Copy the contents of the required library/*.hpp files here.
 
 int main() {
   ios::sync_with_stdio(false);
@@ -10,4 +10,3 @@ int main() {
 
   // Write problem-specific code here.
 }
-

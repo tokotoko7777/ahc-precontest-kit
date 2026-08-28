@@ -1,8 +1,8 @@
-// AHC PART: Random
+// AHC LIBRARY: Random
 // Copy this whole file above main().
 
-#ifndef AHC_PRECONTEST_KIT_PART_RANDOM_HPP
-#define AHC_PRECONTEST_KIT_PART_RANDOM_HPP
+#ifndef AHC_PRECONTEST_KIT_LIBRARY_RANDOM_HPP
+#define AHC_PRECONTEST_KIT_LIBRARY_RANDOM_HPP
 
 #include <cassert>
 #include <cstdint>
@@ -71,5 +71,5 @@ class Random {
 
 }  // namespace ahc
 
-#endif  // AHC_PRECONTEST_KIT_PART_RANDOM_HPP
+#endif  // AHC_PRECONTEST_KIT_LIBRARY_RANDOM_HPP
 

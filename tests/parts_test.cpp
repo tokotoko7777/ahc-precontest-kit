@@ -1,9 +1,11 @@
 #include <algorithm>
 #include <array>
 #include <cassert>
+#include <cmath>
 
-#include "parts/random.hpp"
-#include "parts/timer.hpp"
+#include "library/random.hpp"
+#include "library/simulated-annealing.hpp"
+#include "library/timer.hpp"
 
 int main() {
   ahc::Random first(42);
@@ -29,5 +31,17 @@ int main() {
   assert(timer.elapsed_ms() >= 0.0);
   assert(0.0 <= timer.progress(1000.0));
   assert(timer.progress(0.0) == 1.0);
-}
 
+  ahc::SimulatedAnnealing annealing(100.0, 1.0, 987654321);
+  assert(std::abs(annealing.temperature(0.0) - 100.0) < 1e-12);
+  assert(std::abs(annealing.temperature(1.0) - 1.0) < 1e-12);
+  assert(annealing.accept(0.0, 0.5));
+  assert(annealing.accept(1.0, 0.5));
+
+  ahc::SimulatedAnnealing annealing_first(10.0, 0.1, 1234);
+  ahc::SimulatedAnnealing annealing_second(10.0, 0.1, 1234);
+  for (int i = 0; i < 1000; ++i) {
+    assert(annealing_first.accept(-1.0, 0.5) ==
+           annealing_second.accept(-1.0, 0.5));
+  }
+}
