@@ -13,6 +13,8 @@ AHC のコンテスト中に、自分の `main.cpp` へ直接コピーして使�
 
 ローカルファイルを参照する手順、生成スクリプト、実行時ファイルは必要ありません。
 各パーツは標準ライブラリの依存も含め、ファイル全体を単独で貼れる形にします。
+初心者がそのまま読めるように、カスタム `namespace` や複雑な共通基盤は使わず、
+原則として 1 ファイルに短い `struct` を 1 つだけ置きます。
 
 考え方は [Luzhiled's Library](https://ei1333.github.io/library/) のような、必要な実装を
 探して自分のコードへ取り込める競技プログラミング用ライブラリを参考にしています。
@@ -21,17 +23,25 @@ AHC のコンテスト中に、自分の `main.cpp` へ直接コピーして使�
 
 ### Utility
 
-- [`library/timer.hpp`](library/timer.hpp) — 時間制限を管理する `ahc::Timer`
-- [`library/random.hpp`](library/random.hpp) — 再現可能な高速乱数生成器 `ahc::Random`
+- [`library/timer.hpp`](library/timer.hpp) — 時間制限を管理する `Timer`
+- [`library/random.hpp`](library/random.hpp) — 標準乱数を使う `Random`
 
 ### Heuristic
 
 - [`library/simulated-annealing.hpp`](library/simulated-annealing.hpp) —
-  温度計算と遷移受理を担当する `ahc::SimulatedAnnealing`
+  温度計算と遷移受理を担当する `SimulatedAnnealing`
 
 各 `.hpp` は別のライブラリファイルを参照しません。たとえば焼きなましだけが必要なら
 `simulated-annealing.hpp` だけをコピーできます。時間ベースで進捗を管理したい場合は、
 `timer.hpp` もコピーして `Timer::progress()` の値を渡します。
+
+貼り付け後は、名前空間を付けずにそのまま使えます。
+
+```cpp
+Timer timer;
+Random random(123);
+SimulatedAnnealing annealing(100.0, 1.0, 123);
+```
 
 GitHub 上ではパーツのファイルを開き、右上のコピーアイコン、または Raw 表示から
 全体をコピーしてください。
@@ -58,6 +68,7 @@ int main() {
 ## ライブラリ追加時の約束
 
 - ファイル全体を `main.cpp` の上部へ貼るだけで使えること。
+- カスタム `namespace` や難しい共通基盤を使わないこと。
 - ローカルファイルへの `#include "..."` を含めないこと。
 - 外部パッケージや実行時ファイルに依存しないこと。
 - 問題固有の `main` 関数や入出力を含めないこと。
