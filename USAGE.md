@@ -179,6 +179,11 @@ if (dsu.same(a, b)) {
   cout << "connected\n";
 }
 cout << dsu.size(a) << '\n';
+cout << dsu.component_count() << '\n';
+
+for (const vector<int>& group : dsu.groups()) {
+  // 同じ連結成分の頂点が group に入る
+}
 ```
 
 ## RollbackArray

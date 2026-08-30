@@ -77,7 +77,7 @@ AHC のコンテスト中に、自分の `main.cpp` へ直接コピーして使�
 | [`cumulative-sum.hpp`](library/cumulative-sum.hpp) | 1次元累積和 |
 | [`cumulative-sum-2d.hpp`](library/cumulative-sum-2d.hpp) | 2次元累積和 |
 | [`coordinate-compression.hpp`](library/coordinate-compression.hpp) | 座標圧縮 |
-| [`dsu.hpp`](library/dsu.hpp) | Union-Find |
+| [`dsu.hpp`](library/dsu.hpp) | Union-Find。連結成分数とグループ一覧も取得可能 |
 | [`rollback-array.hpp`](library/rollback-array.hpp) | 変更を過去の状態へ戻せる配列 |
 | [`rollback-dsu.hpp`](library/rollback-dsu.hpp) | 過去の状態へ戻せる Union-Find |
 | [`stamp-array.hpp`](library/stamp-array.hpp) | ほぼ O(1) で初期化し直せる配列 |
@@ -112,6 +112,7 @@ GitHub 上ではファイルを開き、右上のコピーアイコン、また�
 | 問題 | 主に使うパーツ |
 |---|---|
 | [`practice/ahc006`](practice/ahc006/) | 焼きなまし、間引きタイマー、経路距離差分 |
+| [`practice/ahc007`](practice/ahc007/) | Union-Find、未来辺によるオンライン連結判断 |
 | [`practice/ahc021`](practice/ahc021/) | 木型ビームサーチ、Zobrist hash、状態重複除去 |
 
 各フォルダの `main.cpp` はローカルヘッダを参照しない、提出可能な単一ファイルです。
