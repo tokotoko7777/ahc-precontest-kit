@@ -12,6 +12,7 @@
 #include "library/axis-aligned-rectangle.hpp"
 #include "library/bellman-ford.hpp"
 #include "library/bipartite-matching.hpp"
+#include "library/bipartite-check.hpp"
 #include "library/binary-search-answer.hpp"
 #include "library/binary-trie.hpp"
 #include "library/best-keeper.hpp"
@@ -22,6 +23,7 @@
 #include "library/cumulative-sum-2d.hpp"
 #include "library/cumulative-sum.hpp"
 #include "library/dense-int-set.hpp"
+#include "library/difference-array-2d.hpp"
 #include "library/dsu.hpp"
 #include "library/dijkstra.hpp"
 #include "library/difference-array.hpp"
@@ -29,6 +31,7 @@
 #include "library/fast-io.hpp"
 #include "library/flat-grid.hpp"
 #include "library/floyd-warshall.hpp"
+#include "library/functional-graph.hpp"
 #include "library/fixed-vector.hpp"
 #include "library/graph-bfs.hpp"
 #include "library/grid-bfs.hpp"
@@ -47,7 +50,9 @@
 #include "library/random.hpp"
 #include "library/radix-heap.hpp"
 #include "library/range-add-range-minimum.hpp"
+#include "library/range-add-range-maximum.hpp"
 #include "library/range-add-range-sum.hpp"
+#include "library/range-assign-range-sum.hpp"
 #include "library/rollback-array.hpp"
 #include "library/rollback-dsu.hpp"
 #include "library/route-utils.hpp"
@@ -70,6 +75,7 @@
 #include "library/tree-beam-search.hpp"
 #include "library/tree-diameter.hpp"
 #include "library/two-sat.hpp"
+#include "library/weighted-dsu.hpp"
 #include "library/zobrist-hash.hpp"
 #include "library/zero-one-bfs.hpp"
 #include "library/z-algorithm.hpp"
@@ -1130,6 +1136,218 @@ int main() {
       }
       assert(tested_trie.size() == element_count);
       assert(tested_trie.count(value) == frequency[value]);
+    }
+  }
+
+  DifferenceArray2D<long long> difference_2d(3, 4);
+  difference_2d.add(0, 0, 3, 4, 1);
+  difference_2d.add(1, 1, 3, 4, 2);
+  assert(difference_2d.build() ==
+         std::vector<std::vector<long long>>(
+             {{1, 1, 1, 1}, {1, 3, 3, 3}, {1, 3, 3, 3}}));
+  assert(difference_2d.build_flat() ==
+         std::vector<long long>({1, 1, 1, 1, 1, 3, 3, 3, 1, 3, 3, 3}));
+
+  RangeAssignRangeSum<long long> assign_sum(
+      std::vector<long long>{1, 2, 3, 4, 5});
+  assign_sum.assign(1, 4, 10);
+  assert(assign_sum.query(0, 5) == 36);
+  assert(assign_sum.query(2, 4) == 20);
+  assign_sum.assign(0, 5, -2);
+  assert(assign_sum.all_sum() == -10 && assign_sum.get(3) == -2);
+
+  RangeAddRangeMaximum<long long> range_maximum(
+      std::vector<long long>{1, 5, 2, 4}, -(1LL << 60));
+  assert(range_maximum.query(0, 4) == 5);
+  range_maximum.add(2, 4, 10);
+  assert(range_maximum.query(0, 4) == 14);
+  assert(range_maximum.query(0, 2) == 5);
+  assert(range_maximum.get(2) == 12);
+
+  WeightedDsu<long long> weighted_dsu(4);
+  assert(weighted_dsu.unite(0, 1, 3));
+  assert(weighted_dsu.unite(1, 2, -2));
+  assert(weighted_dsu.same(0, 2));
+  assert(weighted_dsu.difference(0, 2) == 1);
+  assert(weighted_dsu.unite(0, 2, 1));
+  assert(!weighted_dsu.unite(0, 2, 2));
+  assert(weighted_dsu.component_count() == 2);
+
+  const auto bipartite_path = bipartite_check(
+      std::vector<std::vector<int>>{{1}, {0, 2}, {1, 3}, {2}});
+  assert(bipartite_path.bipartite && bipartite_path.component_count == 1);
+  for (int vertex = 0; vertex < 3; ++vertex) {
+    assert(bipartite_path.color[vertex] != bipartite_path.color[vertex + 1]);
+  }
+  assert(!bipartite_check(
+              std::vector<std::vector<int>>{{1, 2}, {0, 2}, {0, 1}})
+              .bipartite);
+
+  FunctionalGraph fixed_functional_graph({1, 2, 3, 2, 5, 4});
+  assert(fixed_functional_graph.jump(0, 5) == 3);
+  assert(fixed_functional_graph.jump(0, 1000000000000000000ULL) == 2);
+  assert(fixed_functional_graph.steps_to_cycle[0] == 2);
+  assert(fixed_functional_graph.cycle_entry[0] == 2);
+  assert(fixed_functional_graph.cycle_length(0) == 2);
+  assert(fixed_functional_graph.cycles.size() == 2);
+
+  for (int iteration = 0; iteration < 100; ++iteration) {
+    const int height = random.next_int(1, 11);
+    const int width = random.next_int(1, 11);
+    DifferenceArray2D<long long> tested_difference(height, width);
+    std::vector<std::vector<long long>> expected_grid(
+        height, std::vector<long long>(width, 0));
+    for (int operation = 0; operation < 100; ++operation) {
+      int top = random.next_int(0, height + 1);
+      int bottom = random.next_int(0, height + 1);
+      int left = random.next_int(0, width + 1);
+      int right = random.next_int(0, width + 1);
+      if (top > bottom) std::swap(top, bottom);
+      if (left > right) std::swap(left, right);
+      const long long amount = random.next_int(-10LL, 11LL);
+      tested_difference.add(top, left, bottom, right, amount);
+      for (int row = top; row < bottom; ++row) {
+        for (int column = left; column < right; ++column) {
+          expected_grid[row][column] += amount;
+        }
+      }
+    }
+    assert(tested_difference.build() == expected_grid);
+
+    const int n = random.next_int(1, 21);
+    std::vector<long long> plain_values(n);
+    for (long long& value : plain_values) value = random.next_int(-20LL, 21LL);
+    RangeAssignRangeSum<long long> tested_assign(plain_values);
+    RangeAddRangeMaximum<long long> tested_maximum(plain_values,
+                                                    -(1LL << 60));
+    std::vector<long long> assigned_values = plain_values;
+    std::vector<long long> maximum_values = plain_values;
+    for (int operation = 0; operation < 200; ++operation) {
+      int left = random.next_int(0, n + 1);
+      int right = random.next_int(0, n + 1);
+      if (left > right) std::swap(left, right);
+      const int type = random.next_int(0, 4);
+      if (type == 0) {
+        const long long value = random.next_int(-20LL, 21LL);
+        tested_assign.assign(left, right, value);
+        for (int i = left; i < right; ++i) assigned_values[i] = value;
+      } else if (type == 1) {
+        const long long amount = random.next_int(-10LL, 11LL);
+        tested_maximum.add(left, right, amount);
+        for (int i = left; i < right; ++i) maximum_values[i] += amount;
+      } else if (type == 2) {
+        long long expected = 0;
+        for (int i = left; i < right; ++i) expected += assigned_values[i];
+        assert(tested_assign.query(left, right) == expected);
+      } else {
+        long long expected = -(1LL << 60);
+        for (int i = left; i < right; ++i) {
+          expected = std::max(expected, maximum_values[i]);
+        }
+        assert(tested_maximum.query(left, right) == expected);
+      }
+    }
+  }
+
+  for (int iteration = 0; iteration < 100; ++iteration) {
+    const int n = random.next_int(2, 13);
+    WeightedDsu<long long> tested_weighted_dsu(n);
+    std::vector<std::vector<std::pair<int, long long>>> constraints(n);
+    for (int operation = 0; operation < 200; ++operation) {
+      const int a = random.next_int(0, n);
+      const int b = random.next_int(0, n);
+      const long long requested_difference = random.next_int(-30LL, 31LL);
+      std::vector<char> visited(n, false);
+      std::vector<long long> potential(n, 0);
+      std::vector<int> queue{a};
+      visited[a] = true;
+      for (int head = 0; head < static_cast<int>(queue.size()); ++head) {
+        const int vertex = queue[head];
+        for (const auto& [next, difference] : constraints[vertex]) {
+          if (visited[next]) continue;
+          visited[next] = true;
+          potential[next] = potential[vertex] + difference;
+          queue.push_back(next);
+        }
+      }
+      const bool expected =
+          !visited[b] || potential[b] == requested_difference;
+      assert(tested_weighted_dsu.unite(a, b, requested_difference) ==
+             expected);
+      if (!visited[b]) {
+        constraints[a].push_back({b, requested_difference});
+        constraints[b].push_back({a, -requested_difference});
+      }
+      assert(tested_weighted_dsu.same(a, b));
+      if (expected) {
+        assert(tested_weighted_dsu.difference(a, b) ==
+               requested_difference);
+      }
+    }
+
+    std::vector<std::vector<int>> graph(n);
+    for (int a = 0; a < n; ++a) {
+      for (int b = a + 1; b < n; ++b) {
+        if (random.next_int(0, 3) == 0) {
+          graph[a].push_back(b);
+          graph[b].push_back(a);
+        }
+      }
+    }
+    bool brute_bipartite = false;
+    for (int mask = 0; mask < (1 << n); ++mask) {
+      bool valid = true;
+      for (int a = 0; a < n; ++a) {
+        for (int b : graph[a]) {
+          if (((mask >> a) & 1) == ((mask >> b) & 1)) valid = false;
+        }
+      }
+      brute_bipartite |= valid;
+    }
+    const auto tested_bipartite = bipartite_check(graph);
+    assert(tested_bipartite.bipartite == brute_bipartite);
+    if (brute_bipartite) {
+      for (int a = 0; a < n; ++a) {
+        for (int b : graph[a]) {
+          assert(tested_bipartite.color[a] != tested_bipartite.color[b]);
+        }
+      }
+    }
+
+    std::vector<int> next(n);
+    for (int& successor : next) successor = random.next_int(0, n);
+    const FunctionalGraph tested_functional(next);
+    for (int start = 0; start < n; ++start) {
+      std::vector<int> first_visit(n, -1);
+      std::vector<int> sequence;
+      int vertex = start;
+      while (first_visit[vertex] == -1) {
+        first_visit[vertex] = static_cast<int>(sequence.size());
+        sequence.push_back(vertex);
+        vertex = next[vertex];
+      }
+      const int cycle_start = first_visit[vertex];
+      const int cycle_length = static_cast<int>(sequence.size()) - cycle_start;
+      assert(tested_functional.steps_to_cycle[start] == cycle_start);
+      assert(tested_functional.cycle_entry[start] == sequence[cycle_start]);
+      assert(tested_functional.cycle_length(start) == cycle_length);
+
+      for (int query = 0; query < 20; ++query) {
+        const unsigned long long steps = random.next_u64();
+        int expected_vertex = start;
+        unsigned long long remaining = steps;
+        if (remaining < static_cast<unsigned long long>(cycle_start)) {
+          while (remaining-- > 0) expected_vertex = next[expected_vertex];
+        } else {
+          for (int i = 0; i < cycle_start; ++i) {
+            expected_vertex = next[expected_vertex];
+          }
+          remaining -= cycle_start;
+          remaining %= static_cast<unsigned long long>(cycle_length);
+          while (remaining-- > 0) expected_vertex = next[expected_vertex];
+        }
+        assert(tested_functional.jump(start, steps) == expected_vertex);
+      }
     }
   }
 

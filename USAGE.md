@@ -247,6 +247,28 @@ vector<long long> result = values.build();
 
 途中で区間和を質問する必要がある場合は、Fenwick TreeやRangeAddRangeSumを使います。
 
+## DifferenceArray2D
+
+矩形加算をすべて記録してから、最後に各マスの値を1回だけ作る2次元いもす法です。
+
+```cpp
+DifferenceArray2D<long long> values(height, width);
+values.add(top, left, bottom, right, amount);
+// [top, bottom) x [left, right) に加算
+
+vector<vector<long long>> grid = values.build();
+```
+
+大きな盤面を連続メモリで扱いたい場合は `build_flat()` を使います。
+
+```cpp
+vector<long long> flat = values.build_flat();
+long long cell = flat[row * width + column];
+```
+
+矩形更新は `O(1)`、構築は `O(HW)` です。構築後にさらに `add` した場合は、
+もう一度 `build` または `build_flat` を呼びます。
+
 ## RangeAddRangeSum
 
 区間全体への加算と、区間和の質問が混ざっている場合に使います。
@@ -275,6 +297,36 @@ long long all = minimum.all_minimum();
 
 空区間の `query` は構築時に渡した `INF` を返します。`INF + amount` が
 オーバーフローしない値を選びます。
+
+## RangeAddRangeMaximum
+
+区間全体に値を足しながら、区間最大値を `O(log N)` で取得します。
+
+```cpp
+const long long NEG_INF = -(1LL << 60);
+RangeAddRangeMaximum<long long> maximum(values, NEG_INF);
+
+maximum.add(left, right, amount);
+long long answer = maximum.query(query_left, query_right);
+long long all = maximum.all_maximum();
+```
+
+空区間の `query` は `NEG_INF` を返します。
+
+## RangeAssignRangeSum
+
+「区間の全要素を同じ値に変更」と「区間和」が混ざる場合に使います。
+
+```cpp
+RangeAssignRangeSum<long long> sum(values);
+
+sum.assign(left, right, value);  // [left, right) をvalueにする
+long long answer = sum.query(query_left, query_right);
+long long one = sum.get(index);
+long long all = sum.all_sum();
+```
+
+代入は加算ではありません。`assign(left, right, 0)` は区間を0クリアします。
 
 ## SparseTable
 
@@ -352,6 +404,26 @@ for (const vector<int>& group : dsu.groups()) {
 }
 ```
 
+## WeightedDsu
+
+`potential[b] - potential[a] = difference` という頂点間の差分制約を、
+追加しながら管理する重み付きUnion-Findです。
+
+```cpp
+WeightedDsu<long long> dsu(n);
+
+if (!dsu.unite(a, b, difference)) {
+  // これまでの制約と矛盾する
+}
+
+if (dsu.same(a, b)) {
+  long long difference_b_minus_a = dsu.difference(a, b);
+}
+```
+
+`unite` は新しく結合した時だけでなく、既存の制約と整合する場合もtrueです。
+矛盾する場合はfalseを返し、DSUの状態は変更しません。
+
 ## Graph BFS
 
 すべての辺を1回の移動として扱う、重みなしグラフの最短距離です。
@@ -367,6 +439,22 @@ vector<int> path = shortest.path_to(goal);
 ```
 
 到達不能な頂点の距離は `-1`、経路は空になります。
+
+## Bipartite Check
+
+無向グラフのすべての辺で両端の色が異なるよう、0/1の2色に塗れるか判定します。
+
+```cpp
+auto result = bipartite_check(graph);
+
+if (result.bipartite) {
+  for (int vertex = 0; vertex < n; ++vertex) {
+    int side = result.color[vertex];  // 0または1
+  }
+}
+```
+
+グラフが非連結でも、すべての成分を調べます。自己ループがあれば二部グラフではありません。
 
 ## Dijkstra
 
@@ -494,6 +582,27 @@ if (result.has_cycle) {
   }
 }
 ```
+
+## Functional Graph
+
+各頂点から出る辺がちょうど1本のグラフを解析します。各頂点は最終的にどれかの周期に入ります。
+
+```cpp
+vector<int> next(n);
+FunctionalGraph graph(next);
+
+int after = graph.jump(start, steps);  // stepsはunsigned long longまで
+int entry = graph.cycle_entry[start];
+int distance = graph.steps_to_cycle[start];
+int length = graph.cycle_length(start);
+int id = graph.cycle_id[start];
+
+for (int vertex : graph.cycles[id]) {
+  // startが最終的に入る周期の頂点
+}
+```
+
+64段のダブリング表を作るため、構築は `O(64N)`、1回の `jump` は `O(64)` です。
 
 ## Strongly Connected Components
 

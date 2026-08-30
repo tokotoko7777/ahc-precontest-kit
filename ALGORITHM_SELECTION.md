@@ -22,9 +22,12 @@
 | 知りたいこと | パーツ | 計算量 |
 |---|---|---:|
 | 無向辺を追加しながら同じ成分か判定 | `dsu.hpp` | ほぼ `O(1)` / 回 |
+| 頂点間の差分制約を追加・質問 | `weighted-dsu.hpp` | ほぼ `O(1)` / 回 |
+| 無向グラフを2色に塗れるか | `bipartite-check.hpp` | `O(N + M)` |
 | 無向グラフを最小コストで連結 | `kruskal.hpp` | `O(M log M)` |
 | 有向グラフで互いに行き来できる集合 | `strongly-connected-components.hpp` | `O(N + M)` |
 | 有向グラフを依存関係順に並べる | `topological-sort.hpp` | `O(N + M)` |
+| 各頂点の出辺が1本で、周期と大きな回数後の頂点を知る | `functional-graph.hpp` | 構築 `O(64N)`、質問 `O(64)` |
 
 ## 区間の値
 
@@ -35,11 +38,16 @@
 | 1点代入 | 和・min・maxなど | `segment-tree.hpp` | `O(log N)` |
 | 区間加算 | 区間和 | `range-add-range-sum.hpp` | `O(log N)` |
 | 区間加算 | 区間最小値 | `range-add-range-minimum.hpp` | `O(log N)` |
+| 区間加算 | 区間最大値 | `range-add-range-maximum.hpp` | `O(log N)` |
+| 区間代入 | 区間和 | `range-assign-range-sum.hpp` | `O(log N)` |
 | 更新を全部先に処理 | 各点の値 | `difference-array.hpp` | 更新 `O(1)`、構築 `O(N)` |
 | なし | min・max・gcd | `sparse-table.hpp` | 構築 `O(N log N)`、質問 `O(1)` |
 | なし、幅が固定 | 全区間のmin・max | `sliding-window-minimum.hpp` | 全体 `O(N)` |
 
-区間代入、区間minなど、別の種類のLazy Segment Treeは今後個別部品として追加します。
+表にない更新・質問の組み合わせは、別のLazy Segment Tree部品が必要です。
+
+2次元盤面に対し、矩形加算をすべて先に行ってから各マスを使う場合は
+`difference-array-2d.hpp` を使います。更新1回 `O(1)`、最終構築 `O(HW)` です。
 
 ## 木
 
