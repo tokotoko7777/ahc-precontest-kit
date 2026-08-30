@@ -33,6 +33,8 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 
 各ファイルの先頭にも、短い使い方例を書いてあります。もう少し長い例は
 [`USAGE.md`](USAGE.md) にあります。
+似たアルゴリズムの使い分けは [`ALGORITHM_SELECTION.md`](ALGORITHM_SELECTION.md) の
+早見表から選べます。
 
 ## 高速化の方針
 
@@ -102,7 +104,25 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 | ファイル | できること |
 |---|---|
 | [`dijkstra.hpp`](library/dijkstra.hpp) | 非負辺グラフの最短距離と経路復元 |
+| [`graph-bfs.hpp`](library/graph-bfs.hpp) | 重みなしグラフの最短距離と経路復元 |
+| [`zero-one-bfs.hpp`](library/zero-one-bfs.hpp) | コスト0/1の最短距離と経路復元 |
 | [`grid-bfs.hpp`](library/grid-bfs.hpp) | 4方向グリッドの最短距離と経路復元 |
+| [`topological-sort.hpp`](library/topological-sort.hpp) | DAGの順序と閉路検出 |
+| [`strongly-connected-components.hpp`](library/strongly-connected-components.hpp) | 有向グラフの強連結成分分解 |
+| [`floyd-warshall.hpp`](library/floyd-warshall.hpp) | 全頂点間最短距離と負閉路検出 |
+| [`kruskal.hpp`](library/kruskal.hpp) | 最小全域木・最小全域森 |
+
+### 数学
+
+| ファイル | できること |
+|---|---|
+| [`static-mod-int.hpp`](library/static-mod-int.hpp) | コンパイル時modの四則演算・累乗・逆元 |
+
+### 文字列・列
+
+| ファイル | できること |
+|---|---|
+| [`rolling-hash.hpp`](library/rolling-hash.hpp) | 部分列hash・連結・LCP |
 
 `int` 固定である必要がないパーツはテンプレートにしています。たとえば、次のように
 得点は `double`、解は `vector<int>` のように自由に選べます。

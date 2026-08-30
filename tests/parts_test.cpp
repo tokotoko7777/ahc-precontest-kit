@@ -19,8 +19,11 @@
 #include "library/fenwick-tree.hpp"
 #include "library/fast-io.hpp"
 #include "library/flat-grid.hpp"
+#include "library/floyd-warshall.hpp"
 #include "library/fixed-vector.hpp"
+#include "library/graph-bfs.hpp"
 #include "library/grid-bfs.hpp"
+#include "library/kruskal.hpp"
 #include "library/move-statistics.hpp"
 #include "library/multi-start.hpp"
 #include "library/random.hpp"
@@ -28,17 +31,22 @@
 #include "library/rollback-array.hpp"
 #include "library/rollback-dsu.hpp"
 #include "library/route-utils.hpp"
+#include "library/rolling-hash.hpp"
 #include "library/schedule.hpp"
 #include "library/segment-tree.hpp"
 #include "library/shared-history.hpp"
 #include "library/simple-beam-search.hpp"
 #include "library/simulated-annealing.hpp"
 #include "library/stamp-array.hpp"
+#include "library/static-mod-int.hpp"
+#include "library/strongly-connected-components.hpp"
 #include "library/time-based-simulated-annealing.hpp"
 #include "library/timer.hpp"
 #include "library/top-k.hpp"
+#include "library/topological-sort.hpp"
 #include "library/tree-beam-search.hpp"
 #include "library/zobrist-hash.hpp"
+#include "library/zero-one-bfs.hpp"
 
 struct BeamTestState {
   int position = 0;
@@ -191,6 +199,16 @@ int main() {
   }
   radix_heap.clear();
   assert(radix_heap.empty() && radix_heap.last() == 0);
+  std::vector<std::uint64_t> radix_keys;
+  for (int i = 0; i < 1000; ++i) {
+    const auto key = static_cast<std::uint64_t>(random.next_int(0, 1000000));
+    radix_keys.push_back(key);
+    radix_heap.push(key, std::to_string(i));
+  }
+  std::sort(radix_keys.begin(), radix_keys.end());
+  for (std::uint64_t expected_key : radix_keys) {
+    assert(radix_heap.pop().first == expected_key);
+  }
 
   std::FILE* io_file = std::tmpfile();
   assert(io_file != nullptr);
@@ -252,6 +270,144 @@ int main() {
   assert(grid_path.size() == 6);
   assert(grid_path.front().first == 0 && grid_path.front().second == 0);
   assert(grid_path.back().first == 2 && grid_path.back().second == 3);
+
+  const std::vector<std::vector<int>> unweighted_graph{
+      {1, 2}, {0, 3}, {0, 3}, {1, 2, 4}, {3}, {}};
+  const auto bfs_result = graph_bfs(unweighted_graph, 0);
+  assert(bfs_result.distance[4] == 3);
+  assert(bfs_result.path_to(4) == std::vector<int>({0, 1, 3, 4}));
+  assert(!bfs_result.reachable(5));
+
+  std::vector<std::vector<std::pair<int, int>>> zero_one_graph(5);
+  zero_one_graph[0] = {{1, 1}, {2, 0}};
+  zero_one_graph[2] = {{1, 0}, {3, 1}};
+  zero_one_graph[1] = {{3, 0}};
+  zero_one_graph[3] = {{4, 1}};
+  const auto zero_one_result = zero_one_bfs(zero_one_graph, 0);
+  assert(zero_one_result.distance == std::vector<int>({0, 0, 0, 0, 1}));
+  assert(zero_one_result.path_to(4) ==
+         std::vector<int>({0, 2, 1, 3, 4}));
+
+  const std::vector<std::vector<int>> dag{{1, 2}, {3}, {3}, {}};
+  const auto topological = topological_sort(dag);
+  assert(topological.is_dag());
+  std::vector<int> topological_position(4);
+  for (int i = 0; i < 4; ++i) {
+    topological_position[topological.order[i]] = i;
+  }
+  for (int from = 0; from < 4; ++from) {
+    for (int to : dag[from]) {
+      assert(topological_position[from] < topological_position[to]);
+    }
+  }
+  assert(topological_sort(std::vector<std::vector<int>>{{1}, {0}})
+             .has_cycle);
+
+  const std::vector<std::vector<int>> directed_graph{
+      {1}, {0, 2}, {3}, {2, 4}, {}};
+  const auto components = strongly_connected_components(directed_graph);
+  assert(components.component_count() == 3);
+  assert(components.same(0, 1));
+  assert(components.same(2, 3));
+  assert(!components.same(1, 2));
+  assert(components.component_id[0] < components.component_id[2]);
+  assert(components.component_id[2] < components.component_id[4]);
+
+  const long long floyd_infinity = (1LL << 60);
+  std::vector<std::vector<long long>> all_pairs(
+      3, std::vector<long long>(3, floyd_infinity));
+  for (int i = 0; i < 3; ++i) all_pairs[i][i] = 0;
+  all_pairs[0][1] = 3;
+  all_pairs[1][2] = -2;
+  all_pairs[0][2] = 10;
+  floyd_warshall(all_pairs, floyd_infinity);
+  assert(all_pairs[0][2] == 1);
+  assert(!has_negative_cycle(all_pairs));
+
+  std::vector<std::vector<int>> negative_cycle{{0, -1}, {-1, 0}};
+  floyd_warshall(negative_cycle, 1000000000);
+  assert(has_negative_cycle(negative_cycle));
+
+  const auto minimum_tree = kruskal<long long>(
+      4, {{0, 1, 4}, {0, 2, 1}, {1, 2, 2}, {1, 3, 5}, {2, 3, 3}});
+  assert(minimum_tree.connected());
+  assert(minimum_tree.total_cost == 6);
+  assert(minimum_tree.edges.size() == 3);
+
+  const auto minimum_forest =
+      kruskal<int>(4, {{0, 1, 1}, {2, 3, 2}});
+  assert(!minimum_forest.connected());
+  assert(minimum_forest.component_count == 2);
+
+  using Mint11 = StaticModInt<11>;
+  assert((Mint11(10) + Mint11(3)).value() == 2);
+  assert((Mint11(10) - Mint11(3)).value() == 7);
+  assert((Mint11(10) * Mint11(3)).value() == 8);
+  assert(Mint11(3).inverse().value() == 4);
+  assert((Mint11(10) / Mint11(3)).value() == 7);
+  assert(Mint11(2).pow(10).value() == 1);
+  assert(Mint11::raw(5).value() == 5);
+  using LargeMod = StaticModInt<2000000000>;
+  assert((LargeMod(1999999999) + LargeMod(1999999999)).value() ==
+         1999999998);
+
+  const RollingHash text_hash("abracadabra");
+  assert(text_hash.hash(0, 4) == text_hash.hash(7, 11));
+  assert(text_hash.concatenate(text_hash.hash(0, 4),
+                               text_hash.hash(4, 7), 3) ==
+         text_hash.hash(0, 7));
+  const RollingHash other_hash("abrxxxx");
+  assert(text_hash.longest_common_prefix(0, text_hash.size(), other_hash, 0,
+                                         other_hash.size()) == 3);
+
+  for (int iteration = 0; iteration < 100; ++iteration) {
+    const int n = random.next_int(1, 9);
+    std::vector<std::vector<std::pair<int, int>>> random_zero_one(n);
+    std::vector<std::vector<std::pair<int, int>>> random_weighted(n);
+    std::vector<std::vector<int>> random_directed(n);
+    std::vector<std::vector<char>> reachable(
+        n, std::vector<char>(n, false));
+    for (int vertex = 0; vertex < n; ++vertex) reachable[vertex][vertex] = true;
+
+    for (int from = 0; from < n; ++from) {
+      for (int to = 0; to < n; ++to) {
+        if (random.next_int(0, 4) != 0) continue;
+        const int cost = random.next_int(0, 2);
+        random_zero_one[from].push_back({to, cost});
+        random_weighted[from].push_back({to, cost});
+        random_directed[from].push_back(to);
+        reachable[from][to] = true;
+      }
+    }
+
+    const int start = random.next_int(0, n);
+    const auto deque_shortest = zero_one_bfs(random_zero_one, start);
+    const auto heap_shortest = dijkstra(random_weighted, start, 1000000000);
+    for (int vertex = 0; vertex < n; ++vertex) {
+      const int deque_distance = deque_shortest.distance[vertex];
+      const int heap_distance = heap_shortest.distance[vertex];
+      assert((deque_distance == -1 && heap_distance == 1000000000) ||
+             deque_distance == heap_distance);
+    }
+
+    for (int middle = 0; middle < n; ++middle) {
+      for (int from = 0; from < n; ++from) {
+        for (int to = 0; to < n; ++to) {
+          reachable[from][to] =
+              reachable[from][to] ||
+              (reachable[from][middle] && reachable[middle][to]);
+        }
+      }
+    }
+    const auto random_components =
+        strongly_connected_components(random_directed);
+    for (int a = 0; a < n; ++a) {
+      for (int b = 0; b < n; ++b) {
+        assert(random_components.same(a, b) ==
+               (reachable[a][b] && reachable[b][a]));
+      }
+    }
+  }
 
   RollbackDsu rollback_dsu(5);
   rollback_dsu.unite(0, 1);
