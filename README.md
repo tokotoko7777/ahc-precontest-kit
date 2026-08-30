@@ -115,6 +115,7 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 | [`binary-trie.hpp`](library/binary-trie.hpp) | 非負整数集合の最小・最大XOR要素 |
 | [`xor-basis.hpp`](library/xor-basis.hpp) | 部分集合XORの表現可能性・最小・最大値 |
 | [`axis-aligned-rectangle.hpp`](library/axis-aligned-rectangle.hpp) | 半開矩形の面積・点包含・重なり判定 |
+| [`interval-union.hpp`](library/interval-union.hpp) | 半開区間の併合・被覆長・2集合の対称差長 |
 
 ### グラフ・グリッド
 
@@ -182,6 +183,7 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 | [`point-2d.hpp`](library/point-2d.hpp) | 2次元点・内積・外積・距離・向き |
 | [`convex-hull.hpp`](library/convex-hull.hpp) | 整数座標の凸包を反時計回りで列挙 |
 | [`segment-intersection.hpp`](library/segment-intersection.hpp) | 整数座標の線分交差・線分上判定 |
+| [`hilbert-order.hpp`](library/hilbert-order.hpp) | 近い2次元点を近くへ並べやすいHilbert順 |
 
 `int` 固定である必要がないパーツはテンプレートにしています。たとえば、次のように
 得点は `double`、解は `vector<int>` のように自由に選べます。
@@ -249,6 +251,15 @@ AHC001〜AHC069を順次追加しています。全問題の状態と次の作�
 | [`practice/ahc025`](practice/ahc025/) | 順位推定、指数分布prior、保証付き均等化 |
 | [`practice/ahc026`](practice/ahc026/) | 単独退避、完走rollout、箱位置の差分更新 |
 | [`practice/ahc027`](practice/ahc027/) | 全点間BFS、汚れの緊急度、複数周期の再評価 |
+| [`practice/ahc028`](practice/ahc028/) | 文字列overlap、盤面位置DP、挿入位置の再評価 |
+| [`practice/ahc029`](practice/ahc029/) | 全カード×案件評価、投資・購入閾値、対話fallback |
+| [`practice/ahc030`](practice/ahc030/) | 油田配置仮説bitset、情報量query、確定セル掘削 |
+| [`practice/ahc031`](practice/ahc031/) | 共通帯DP、guillotine配置、壁区間の対称差 |
+| [`practice/ahc032`](practice/ahc032/) | 可換stamp列挙、beam、全候補座標降下 |
+| [`practice/ahc033`](practice/ahc033/) | 入口退避buffer、搬出順制御、安全な単一大型crane |
+| [`practice/ahc034`](practice/ahc034/) | 循環蛇行路、積載量分割、区間操作SA |
+| [`practice/ahc035`](practice/ahc035/) | 交配期待値、成分極値保存、盤面swap SA |
+| [`practice/ahc036`](practice/ahc036/) | 連結都市群、信号優先経路、再利用window辞書 |
 | [`practice/ahc055`](practice/ahc055/) | 依存順序、攻撃先のO(1)差分焼きなまし |
 | [`practice/ahc056`](practice/ahc056/) | BFS経路、時刻を色×状態へ平方根分割 |
 | [`practice/ahc058`](practice/ahc058/) | rolling horizon、二項係数による将来生産量 |

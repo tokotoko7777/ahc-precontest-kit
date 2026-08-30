@@ -1548,3 +1548,39 @@ bool on_segment = point_on_segment(a, b, point);
 
 `segments_intersect` は端点の接触や線分の重なりもtrueです。
 `segments_properly_intersect` は両線分の内部で交差する場合だけtrueです。
+
+## Interval Union
+
+壁や時間帯などの半開区間 `[left, right)` をまとめて扱います。接している区間も1本へ
+併合されます。
+
+```cpp
+vector<pair<int, int>> first{{1, 5}, {8, 10}};
+vector<pair<int, int>> second{{3, 9}};
+
+auto merged = merge_half_open_intervals(first);  // [1,5), [8,10)
+long long covered = interval_union_length(first);  // 6
+long long changed = interval_symmetric_difference_length(first, second);  // 6
+```
+
+`interval_symmetric_difference_length` は片方だけに含まれる長さです。日をまたいで壁が
+変わった長さ、2つの予約集合の差などを端点走査で正確に計算できます。座標型は `int`、
+`long long` などから自由に選べます。
+
+## Hilbert Order
+
+2次元の近い点を、1次元でも近くへ並べたい時に使います。座標が0以上 `2^bits` 未満に
+なるよう平行移動・拡大してから、返り値でsortします。
+
+```cpp
+struct Point { int x, y, id; };
+vector<Point> points;
+
+sort(points.begin(), points.end(), [](const Point& a, const Point& b) {
+  return hilbert_order_2d(a.x, a.y, 10) <
+         hilbert_order_2d(b.x, b.y, 10);
+});
+```
+
+`bits=10` なら各座標は `0..1023` です。厳密な最近傍順ではありませんが、空間的に
+まとまったcluster作成、query順、cache localityの改善候補を1行のkeyで作れます。

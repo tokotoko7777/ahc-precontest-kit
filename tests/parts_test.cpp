@@ -43,8 +43,10 @@
 #include "library/greedy-balanced-partition.hpp"
 #include "library/grid-bfs.hpp"
 #include "library/hungarian.hpp"
+#include "library/hilbert-order.hpp"
 #include "library/inversion-count.hpp"
 #include "library/integer-square-root.hpp"
+#include "library/interval-union.hpp"
 #include "library/kruskal.hpp"
 #include "library/longest-increasing-subsequence.hpp"
 #include "library/lowest-common-ancestor.hpp"
@@ -1747,4 +1749,33 @@ int main() {
   assert(all_distances[3][0] == 3);
   assert(all_distances[0][4] ==
          std::numeric_limits<unsigned short>::max());
+
+  const std::vector<std::pair<long long, long long>> intervals{
+      {9, 10},
+      {1, 4},
+      {3, 7},
+      {7, 7},
+  };
+  assert((merge_half_open_intervals(intervals) ==
+          std::vector<std::pair<long long, long long>>({{1, 7}, {9, 10}})));
+  assert(interval_union_length(intervals) == 7);
+  assert(interval_symmetric_difference_length(
+             std::vector<std::pair<int, int>>{{1, 5}, {8, 10}},
+             std::vector<std::pair<int, int>>{{3, 9}}) == 6);
+
+  std::vector<std::pair<std::uint64_t, std::pair<int, int>>> hilbert_points;
+  for (int y = 0; y < 4; ++y) {
+    for (int x = 0; x < 4; ++x) {
+      hilbert_points.push_back(
+          {hilbert_order_2d(x, y, 2), {x, y}});
+    }
+  }
+  std::sort(hilbert_points.begin(), hilbert_points.end());
+  for (int i = 0; i < 16; ++i) {
+    assert(hilbert_points[i].first == static_cast<std::uint64_t>(i));
+    if (i == 0) continue;
+    const auto [x1, y1] = hilbert_points[i - 1].second;
+    const auto [x2, y2] = hilbert_points[i].second;
+    assert(std::abs(x1 - x2) + std::abs(y1 - y2) == 1);
+  }
 }
