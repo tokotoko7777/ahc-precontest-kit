@@ -87,9 +87,9 @@
 | AHC058 | 生産機の購入・強化 | kit-ready | 二項係数の閉形式＋3手rolling horizon。seed 0〜9平均5,192,507点 |
 | AHC059 | LIFOスタックでペア処理 | kit-ready | 完全入れ子鎖＋2状態DP＋境界差分探索。seed 0〜9平均15,185.8点 |
 | AHC060 | グラフ上の二色列収集・納品 | kit-ready | 色固定化＋非逆走BFS＋未登録文字列配送。公式100seed全合法、平均936.25点 |
-| AHC061 | オンライン領土ゲーム | local-audit | greedy・param版を含めて再現性を監査 |
+| AHC061 | オンライン領土ゲーム | kit-ready | 512粒子推定＋共通40scenarioの3手rollout。公式100seed全完走、平均168,377点 |
 | AHC062 | 全セルを通る巡回路 | kit-ready | 4列Hamilton閉路＋差分2-opt。seed 0〜9平均469,036,820点 |
-| AHC063 | 色付き蛇の操作列 | local-audit | 多数のgreedy・beam・anneal派生を同条件で整理 |
+| AHC063 | 色付き蛇の操作列 | kit-ready | リングバッファ＋bitset層別beam。公式100seed全完全一致、平均337.39手 |
 | AHC064 | 線路車両間の荷物並べ替え | local-audit | `/home/utility/AHC064/main.cpp` と公式testerを監査 |
 | AHC065 | 環状コンベア設計 | local-audit | main〜main3の合法性・スコアを比較 |
 | AHC066 | macro付きロボット制御 | local-audit | batch結果と複数mainから再現可能な正本を選定 |

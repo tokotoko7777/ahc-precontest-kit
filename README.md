@@ -284,7 +284,9 @@ AHC001〜AHC069を順次追加しています。全問題の状態と次の作�
 | [`practice/ahc058`](practice/ahc058/) | rolling horizon、二項係数による将来生産量 |
 | [`practice/ahc059`](practice/ahc059/) | 完全入れ子列、2状態DP、境界差分探索 |
 | [`practice/ahc060`](practice/ahc060/) | 色固定化、非逆走BFS、未登録文字列の最短配送 |
+| [`practice/ahc061`](practice/ahc061/) | 粒子推定、共通シナリオ、3手rollout |
 | [`practice/ahc062`](practice/ahc062/) | Hamilton閉路、prefix差分2-opt、合法swap |
+| [`practice/ahc063`](practice/ahc063/) | リングバッファ蛇状態、bitset、層別beam |
 
 各フォルダの `main.cpp` はローカルヘッダを参照しない、提出可能な単一ファイルです。
 
