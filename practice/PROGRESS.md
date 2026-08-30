@@ -80,13 +80,13 @@
 | AHC051 | 確率分別ネットワーク | kit-ready | 平面二分木＋確率分類＋局所改善。公式100seed全合法、平均絶対Score 561,284,405 |
 | AHC052 | 共通ボタン列・方向割当 | kit-ready | 方向表multi-start＋BFS lookahead＋列短縮。公式100seed全掃除、平均2,439.70点 |
 | AHC053 | 事前カード設計・事後分割 | kit-ready | 共有2進カード＋禁止bit桁DP＋不足修理。公式100seed全合法、平均537,650,741点 |
-| AHC054 | 部分観測エージェントへの障害物配置 | local-audit | `/home/utility/AHC054/main.cpp` と公式testerを監査 |
+| AHC054 | 部分観測エージェントへの障害物配置 | kit-ready | 花周辺guard＋BFS通路＋視界封鎖。公式100seed全完走、平均4,017.85点 |
 | AHC055 | 武器・宝箱の順序と経路 | kit-ready | 依存順序＋攻撃先差分SA。公式100seed合法、seed 0〜4平均約1,495攻撃 |
 | AHC056 | Turing型ロボット制御 | kit-ready | BFS列を色×状態へ平方根分割。公式100seed合法、絶対score平均72.15 |
 | AHC057 | トーラス上の時刻付き原子結合 | kit-ready | 容量付き時空間cluster＋時刻別MST＋群間swap。公式100seed全合法、平均4,738,467点 |
 | AHC058 | 生産機の購入・強化 | kit-ready | 二項係数の閉形式＋3手rolling horizon。seed 0〜9平均5,192,507点 |
 | AHC059 | LIFOスタックでペア処理 | kit-ready | 完全入れ子鎖＋2状態DP＋境界差分探索。seed 0〜9平均15,185.8点 |
-| AHC060 | 収集・交換・納品経路 | local-audit | 2つのローカル版を同条件で比較して整理 |
+| AHC060 | グラフ上の二色列収集・納品 | kit-ready | 色固定化＋非逆走BFS＋未登録文字列配送。公式100seed全合法、平均936.25点 |
 | AHC061 | オンライン領土ゲーム | local-audit | greedy・param版を含めて再現性を監査 |
 | AHC062 | 全セルを通る巡回路 | kit-ready | 4列Hamilton閉路＋差分2-opt。seed 0〜9平均469,036,820点 |
 | AHC063 | 色付き蛇の操作列 | local-audit | 多数のgreedy・beam・anneal派生を同条件で整理 |
