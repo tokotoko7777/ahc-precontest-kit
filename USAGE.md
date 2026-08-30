@@ -234,3 +234,191 @@ for (int start : starts) {
   }
 }
 ```
+
+## BatchedTimer
+
+1反復が非常に軽い時、毎回時計を見るコストを減らします。指定回数の間は時間切れを
+確認しないので、1反復が重い処理には通常の `Timer` を使ってください。
+
+```cpp
+BatchedTimer timer(1900.0, 256);
+
+while (!timer.is_over()) {
+  // 軽い探索を1回進める
+  double progress = timer.cached_progress();
+}
+```
+
+## MultiStart
+
+ランダム初期解を複数作り、一番良いものを選びます。
+
+```cpp
+auto generate = [&]() {
+  State state;
+  // random を使って state を作る
+  return state;
+};
+
+auto evaluate = [](const State& state) {
+  return state.score;
+};
+
+State best = multi_start<State>(100, generate, evaluate);  // 100回、最大化
+State best_by_time =
+    time_based_multi_start<State>(500.0, generate, evaluate);  // 500ms
+```
+
+最小化では最後の引数へ `false` を渡します。
+
+## SimpleBeamSearch
+
+最初に使うための、状態を丸ごとコピーするビームサーチです。`State` の中へ操作履歴も
+入れておけば、返された状態からそのまま答えを取り出せます。
+
+```cpp
+struct State {
+  int position = 0;
+  long long score = 0;
+  vector<int> answer;
+};
+
+auto expand = [](const State& state) {
+  vector<State> next_states;
+  for (int direction : {-1, 1}) {
+    State next = state;
+    next.position += direction;
+    next.score = next.position;
+    next.answer.push_back(direction);
+    next_states.push_back(std::move(next));
+  }
+  return next_states;
+};
+
+auto evaluate = [](const State& state) { return state.score; };
+
+State answer = simple_beam_search(State{}, 100, 200, expand, evaluate);
+```
+
+## TreeBeamSearch
+
+状態が大きくコピーが重い時の発展版です。1手進める `apply` と、その1手だけを
+正確に戻す `revert` を用意します。
+
+```cpp
+struct State {
+  int position = 0;
+  long long score = 0;
+};
+
+struct Move {
+  int difference;
+};
+
+auto expand = [](const State&) {
+  return vector<Move>{{-1}, {1}};
+};
+
+auto apply = [](State& state, const Move& move) {
+  state.position += move.difference;
+  state.score += move.difference;
+};
+
+auto revert = [](State& state, const Move& move) {
+  state.position -= move.difference;
+  state.score -= move.difference;
+};
+
+auto evaluate = [](const State& state) { return state.score; };
+
+State initial;
+TreeBeamSearch<State, Move, long long> beam(initial, initial.score, 200);
+
+for (int turn = 0; turn < 100; ++turn) {
+  if (!beam.step(expand, apply, revert, evaluate)) break;
+}
+
+vector<Move> answer = beam.restore();
+```
+
+`apply` でscore、hash、補助配列も変更したなら、`revert` ではそれらを全部戻します。
+
+## SharedHistory
+
+候補ごとに長い操作列をコピーせず、最後の操作と親番号だけを保存します。
+
+```cpp
+SharedHistory<Move> history;
+int root = history.root();
+
+int first = history.add(root, first_move);
+int second = history.add(first, second_move);
+int another = history.add(first, another_move);
+
+vector<Move> answer = history.restore(second);
+```
+
+## BestByKey
+
+複数の操作列が同じ状態に到達する時、同じ状態キーの中で一番良い候補だけ残します。
+
+```cpp
+BestByKey<uint64_t, long long, State> unique_candidates;
+
+for (State state : candidates) {
+  unique_candidates.add(state.hash, state.score, std::move(state));
+}
+
+for (auto& entry : unique_candidates.entries) {
+  // entry.key, entry.score, entry.state を使う
+}
+```
+
+最小化なら `BestByKey<uint64_t, long long, State> unique(false);` です。
+
+## ZobristHash
+
+配列の1か所を変更した時、配列全体を見直さずhashを更新できます。
+
+```cpp
+vector<int> values(n);  // 各値は [0, value_kinds)
+ZobristHash zobrist(n, value_kinds, 123);
+uint64_t hash = zobrist.build(values);
+
+int old_value = values[position];
+int new_value = 3;
+zobrist.change(hash, position, old_value, new_value);
+values[position] = new_value;
+```
+
+64bit hashにも衝突の可能性はあります。デバッグ中はhashが同じ候補について、可能なら
+元の状態も比較してください。
+
+## FixedVector
+
+要素数の最大値が分かっている小さな配列で、動的メモリ確保を避けたい時に使います。
+
+```cpp
+FixedVector<int, 100> values;
+values.push_back(10);
+values.push_back(20);
+
+for (int value : values) {
+  cout << value << '\n';
+}
+```
+
+100個を超えて追加するとassertで停止します。
+
+## MoveStatistics
+
+近傍の種類ごとに用意すると、どの近傍が働いているか確認できます。
+
+```cpp
+vector<MoveStatistics> statistics(number_of_move_types);
+
+statistics[type].add(accepted, improvement > 0);
+
+cerr << "accept = " << statistics[type].acceptance_rate() << '\n';
+cerr << "improve = " << statistics[type].improvement_rate() << '\n';
+```
