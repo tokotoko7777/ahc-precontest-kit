@@ -132,10 +132,13 @@ int main() {
          std::vector<int>({2, 0, 2, 1}));
 
   Dsu dsu(5);
+  assert(dsu.component_count() == 5);
   assert(dsu.unite(0, 1));
   assert(dsu.unite(1, 2));
   assert(dsu.same(0, 2));
   assert(dsu.size(1) == 3);
+  assert(dsu.component_count() == 3);
+  assert(dsu.groups().size() == 3);
 
   RollbackDsu rollback_dsu(5);
   rollback_dsu.unite(0, 1);
