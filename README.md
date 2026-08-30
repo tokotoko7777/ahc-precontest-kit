@@ -52,6 +52,7 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 | [`timer.hpp`](library/timer.hpp) | 経過時間・残り時間・進捗率 |
 | [`batched-timer.hpp`](library/batched-timer.hpp) | 時計を見る回数を間引くタイマー |
 | [`random.hpp`](library/random.hpp) | 型を選べる乱数、ランダム選択、重み付き選択 |
+| [`alias-table.hpp`](library/alias-table.hpp) | 固定重み分布から前計算後O(1)で抽選 |
 | [`fast-io.hpp`](library/fast-io.hpp) | 大量の整数・文字列用のバッファ入出力 |
 | [`chmin-chmax.hpp`](library/chmin-chmax.hpp) | 値が良くなる時だけ更新 |
 | [`binary-search-answer.hpp`](library/binary-search-answer.hpp) | 単調な条件の整数・実数境界を二分探索 |
@@ -109,6 +110,7 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 | [`stamp-array.hpp`](library/stamp-array.hpp) | ほぼ O(1) で初期化し直せる配列 |
 | [`dense-int-set.hpp`](library/dense-int-set.hpp) | 固定範囲の整数集合。追加・削除・clearがO(1) |
 | [`binary-trie.hpp`](library/binary-trie.hpp) | 非負整数集合の最小・最大XOR要素 |
+| [`xor-basis.hpp`](library/xor-basis.hpp) | 部分集合XORの表現可能性・最小・最大値 |
 | [`axis-aligned-rectangle.hpp`](library/axis-aligned-rectangle.hpp) | 半開矩形の面積・点包含・重なり判定 |
 
 ### グラフ・グリッド
@@ -140,6 +142,9 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 | [`static-mod-int.hpp`](library/static-mod-int.hpp) | コンパイル時modの四則演算・累乗・逆元 |
 | [`prime-table.hpp`](library/prime-table.hpp) | 線形篩・素数判定・素因数分解・約数列挙 |
 | [`mod-combination.hpp`](library/mod-combination.hpp) | 素数mod上のnCk・nPk・重複組合せ |
+| [`extended-gcd.hpp`](library/extended-gcd.hpp) | 拡張Euclid互除法・mod逆元 |
+| [`floor-sum.hpp`](library/floor-sum.hpp) | floorを含む等差数列の和 |
+| [`matrix.hpp`](library/matrix.hpp) | 連続メモリ行列の加算・乗算・累乗 |
 
 ### 文字列・列
 
@@ -155,6 +160,7 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 | ファイル | できること |
 |---|---|
 | [`longest-increasing-subsequence.hpp`](library/longest-increasing-subsequence.hpp) | 最長増加部分列の長さと復元 |
+| [`inversion-count.hpp`](library/inversion-count.hpp) | 大小関係が逆になった組の個数 |
 
 ### 幾何
 

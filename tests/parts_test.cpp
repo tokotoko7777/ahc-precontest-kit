@@ -10,6 +10,7 @@
 
 #include "library/batched-timer.hpp"
 #include "library/axis-aligned-rectangle.hpp"
+#include "library/alias-table.hpp"
 #include "library/bellman-ford.hpp"
 #include "library/bipartite-matching.hpp"
 #include "library/bipartite-check.hpp"
@@ -25,21 +26,25 @@
 #include "library/dense-int-set.hpp"
 #include "library/difference-array-2d.hpp"
 #include "library/dsu.hpp"
+#include "library/extended-gcd.hpp"
 #include "library/dijkstra.hpp"
 #include "library/difference-array.hpp"
 #include "library/fenwick-tree.hpp"
 #include "library/fast-io.hpp"
 #include "library/flat-grid.hpp"
 #include "library/floyd-warshall.hpp"
+#include "library/floor-sum.hpp"
 #include "library/functional-graph.hpp"
 #include "library/fixed-vector.hpp"
 #include "library/graph-bfs.hpp"
 #include "library/grid-bfs.hpp"
+#include "library/inversion-count.hpp"
 #include "library/kruskal.hpp"
 #include "library/longest-increasing-subsequence.hpp"
 #include "library/lowest-common-ancestor.hpp"
 #include "library/max-flow.hpp"
 #include "library/manacher.hpp"
+#include "library/matrix.hpp"
 #include "library/min-cost-flow.hpp"
 #include "library/mod-combination.hpp"
 #include "library/move-statistics.hpp"
@@ -76,6 +81,7 @@
 #include "library/tree-diameter.hpp"
 #include "library/two-sat.hpp"
 #include "library/weighted-dsu.hpp"
+#include "library/xor-basis.hpp"
 #include "library/zobrist-hash.hpp"
 #include "library/zero-one-bfs.hpp"
 #include "library/z-algorithm.hpp"
@@ -1349,6 +1355,158 @@ int main() {
         assert(tested_functional.jump(start, steps) == expected_vertex);
       }
     }
+  }
+
+  const std::vector<double> alias_weights{0.0, 1.0, 3.0, 6.0};
+  const AliasTable alias_table(alias_weights);
+  std::vector<double> reconstructed_probability(alias_table.size(), 0.0);
+  for (int column = 0; column < alias_table.size(); ++column) {
+    reconstructed_probability[column] +=
+        alias_table.probability[column] / alias_table.size();
+    reconstructed_probability[alias_table.alias[column]] +=
+        (1.0 - alias_table.probability[column]) / alias_table.size();
+    assert(alias_weights[alias_table.choose(column, 0.0)] > 0.0);
+    assert(alias_weights[alias_table.choose(column, 0.999999)] > 0.0);
+  }
+  for (int i = 0; i < alias_table.size(); ++i) {
+    assert(std::abs(reconstructed_probability[i] - alias_weights[i] / 10.0) <
+           1e-12);
+  }
+
+  XorBasis<unsigned, 8> xor_basis;
+  assert(xor_basis.insert(3));
+  assert(xor_basis.insert(5));
+  assert(!xor_basis.insert(6));
+  assert(xor_basis.rank() == 2);
+  assert(xor_basis.contains(0) && xor_basis.contains(6));
+  assert(!xor_basis.contains(1));
+  assert(xor_basis.maximum_xor() == 6);
+  assert(xor_basis.maximum_xor(1) == 7);
+  assert(xor_basis.minimum_xor(7) == 1);
+
+  const Matrix<long long> fibonacci_matrix(
+      std::vector<std::vector<long long>>{{1, 1}, {1, 0}});
+  const Matrix<long long> fibonacci_tenth =
+      matrix_power(fibonacci_matrix, 10);
+  assert(fibonacci_tenth(0, 0) == 89 && fibonacci_tenth(0, 1) == 55);
+  assert(fibonacci_tenth(1, 0) == 55 && fibonacci_tenth(1, 1) == 34);
+  assert(matrix_power(fibonacci_matrix, 0) == Matrix<long long>::identity(2));
+
+  assert(inversion_count(std::vector<int>{3, 1, 2, 1}) == 4);
+  assert(inversion_count(std::vector<int>{1, 1, 1}) == 0);
+  assert(inversion_count(std::vector<int>{4, 3, 2, 1}) == 6);
+
+  const auto gcd_result = extended_gcd(30LL, 18LL);
+  assert(gcd_result.gcd == 6);
+  assert(30 * gcd_result.x + 18 * gcd_result.y == gcd_result.gcd);
+  assert(modular_inverse(3LL, 11LL) == std::optional<long long>(4));
+  assert(!modular_inverse(6LL, 9LL).has_value());
+
+  assert(floor_sum(4, 10, 6, 3) == 3);
+  assert(floor_sum(5, 7, -3, 4) == -4);
+
+  for (int iteration = 0; iteration < 200; ++iteration) {
+    const int value_count = random.next_int(0, 11);
+    std::vector<unsigned> xor_values(value_count);
+    XorBasis<unsigned, 8> tested_basis;
+    for (unsigned& value : xor_values) {
+      value = random.next_int(0U, 256U);
+      tested_basis.insert(value);
+    }
+    std::vector<char> possible(256, false);
+    for (int mask = 0; mask < (1 << value_count); ++mask) {
+      unsigned value = 0;
+      for (int i = 0; i < value_count; ++i) {
+        if ((mask >> i) & 1) value ^= xor_values[i];
+      }
+      possible[value] = true;
+    }
+    int expected_rank = 0;
+    int possible_count = 0;
+    for (char exists : possible) possible_count += exists;
+    while ((1 << expected_rank) < possible_count) ++expected_rank;
+    assert(tested_basis.rank() == expected_rank);
+    for (unsigned value = 0; value < 256; ++value) {
+      assert(tested_basis.contains(value) == static_cast<bool>(possible[value]));
+    }
+    for (int query = 0; query < 20; ++query) {
+      const unsigned seed = random.next_int(0U, 256U);
+      unsigned expected_minimum = 255;
+      unsigned expected_maximum = 0;
+      for (unsigned value = 0; value < 256; ++value) {
+        if (!possible[value]) continue;
+        expected_minimum = std::min(expected_minimum, seed ^ value);
+        expected_maximum = std::max(expected_maximum, seed ^ value);
+      }
+      assert(tested_basis.minimum_xor(seed) == expected_minimum);
+      assert(tested_basis.maximum_xor(seed) == expected_maximum);
+    }
+
+    const int n = random.next_int(0, 11);
+    std::vector<int> inversion_values(n);
+    for (int& value : inversion_values) value = random.next_int(-5, 6);
+    long long expected_inversions = 0;
+    for (int i = 0; i < n; ++i) {
+      for (int j = i + 1; j < n; ++j) {
+        expected_inversions += inversion_values[i] > inversion_values[j];
+      }
+    }
+    assert(inversion_count(inversion_values) == expected_inversions);
+
+    const int rows = random.next_int(1, 5);
+    const int middle = random.next_int(1, 5);
+    const int columns = random.next_int(1, 5);
+    Matrix<long long> left(rows, middle);
+    Matrix<long long> right(middle, columns);
+    for (long long& value : left.values) value = random.next_int(-3LL, 4LL);
+    for (long long& value : right.values) value = random.next_int(-3LL, 4LL);
+    const Matrix<long long> product = left * right;
+    for (int row = 0; row < rows; ++row) {
+      for (int column = 0; column < columns; ++column) {
+        long long expected = 0;
+        for (int k = 0; k < middle; ++k) {
+          expected += left(row, k) * right(k, column);
+        }
+        assert(product(row, column) == expected);
+      }
+    }
+
+    const int weight_count = random.next_int(1, 15);
+    std::vector<double> weights(weight_count);
+    double weight_sum = 0.0;
+    for (double& weight : weights) {
+      weight = random.next_int(0, 11);
+      weight_sum += weight;
+    }
+    if (weight_sum == 0.0) {
+      weights[0] = 1.0;
+      weight_sum = 1.0;
+    }
+    const AliasTable tested_alias(weights);
+    std::vector<double> actual(weight_count, 0.0);
+    for (int column = 0; column < weight_count; ++column) {
+      actual[column] += tested_alias.probability[column] / weight_count;
+      actual[tested_alias.alias[column]] +=
+          (1.0 - tested_alias.probability[column]) / weight_count;
+    }
+    for (int i = 0; i < weight_count; ++i) {
+      assert(std::abs(actual[i] - weights[i] / weight_sum) < 1e-10);
+    }
+  }
+
+  for (int iteration = 0; iteration < 1000; ++iteration) {
+    const long long n = random.next_int(0LL, 31LL);
+    const long long modulus = random.next_int(1LL, 21LL);
+    const long long a = random.next_int(-30LL, 31LL);
+    const long long b = random.next_int(-30LL, 31LL);
+    long long expected = 0;
+    for (long long i = 0; i < n; ++i) {
+      const long long numerator = a * i + b;
+      long long quotient = numerator / modulus;
+      if (numerator % modulus < 0) --quotient;
+      expected += quotient;
+    }
+    assert(floor_sum(n, modulus, a, b) == expected);
   }
 
   RollbackDsu rollback_dsu(5);
