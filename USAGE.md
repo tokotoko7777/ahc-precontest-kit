@@ -258,6 +258,22 @@ for (const vector<int>& group : dsu.groups()) {
 }
 ```
 
+## Graph BFS
+
+すべての辺を1回の移動として扱う、重みなしグラフの最短距離です。
+
+```cpp
+vector<vector<int>> graph(n);
+graph[a].push_back(b);
+graph[b].push_back(a);  // 無向辺なら逆向きも追加
+
+auto shortest = graph_bfs(graph, start);
+cout << shortest.distance[goal] << '\n';
+vector<int> path = shortest.path_to(goal);
+```
+
+到達不能な頂点の距離は `-1`、経路は空になります。
+
 ## Dijkstra
 
 辺のコストが0以上の重み付きグラフで、始点からの最短距離を求めます。
@@ -282,6 +298,22 @@ if (!shortest.reachable(3)) {
 
 `INF + 辺コスト` が型の上限を超えないよう、`INF` には少し余裕を持たせます。
 負の辺があるグラフには使えません。
+
+## 0-1 BFS
+
+辺のコストが0か1だけなら、Dijkstraより単純なdequeで最短距離を求められます。
+
+```cpp
+vector<vector<pair<int, int>>> graph(n);
+graph[from].push_back({to, 0});
+graph[from].push_back({another, 1});
+
+auto shortest = zero_one_bfs(graph, start);
+cout << shortest.distance[goal] << '\n';
+vector<int> path = shortest.path_to(goal);
+```
+
+コスト2以上や負のコストを入れてはいけません。
 
 ## RadixHeap
 
@@ -328,6 +360,126 @@ auto shortest = grid_bfs(height, width, start, [&](int row, int column) {
   return height_map[row][column] <= limit;
 });
 ```
+
+## Topological Sort
+
+仕事の依存関係などを、必ず前提が先に来る順番へ並べます。
+
+```cpp
+vector<vector<int>> graph(n);
+graph[before].push_back(after);
+
+auto result = topological_sort(graph);
+if (result.has_cycle) {
+  // 循環する依存関係がある
+} else {
+  for (int vertex : result.order) {
+    // この順番なら、すべての辺は前から後ろへ向く
+  }
+}
+```
+
+## Strongly Connected Components
+
+有向グラフを、互いに行き来できる頂点のグループへ分けます。再帰を使わないので、
+長い一本道でも再帰の深さを気にせず使えます。
+
+```cpp
+auto components = strongly_connected_components(graph);
+
+cout << components.component_count() << '\n';
+if (components.same(a, b)) {
+  // aからbへも、bからaへも到達できる
+}
+
+int id = components.component_id[vertex];
+for (int member : components.groups[id]) {
+  // vertex と同じ強連結成分
+}
+```
+
+`groups` は成分間の辺が前から後ろへ向く順番です。
+
+## Floyd–Warshall
+
+小さなグラフの全頂点間最短距離をまとめて求めます。`O(N^3)` なので、頂点数が
+大きい場合はBFSやDijkstraを必要な始点からだけ実行します。
+
+```cpp
+const long long INF = (1LL << 60);
+vector<vector<long long>> distance(n, vector<long long>(n, INF));
+for (int i = 0; i < n; ++i) distance[i][i] = 0;
+
+distance[from][to] = cost;
+floyd_warshall(distance, INF);
+
+cout << distance[start][goal] << '\n';
+if (has_negative_cycle(distance)) {
+  // 負閉路が存在する
+}
+```
+
+`INF + 有限距離` がオーバーフローしないよう、`INF` は型の最大値より余裕を
+持たせてください。
+
+## Kruskal
+
+無向グラフを最小コストで連結する辺を選びます。
+
+```cpp
+vector<KruskalEdge<long long>> edges;
+edges.push_back({a, b, cost});
+
+auto tree = kruskal(n, edges);
+if (tree.connected()) {
+  cout << tree.total_cost << '\n';
+  for (auto edge : tree.edges) {
+    // edge.from, edge.to, edge.cost
+  }
+}
+```
+
+元のグラフが連結でなければ、各成分の最小全域木を合わせた森を返します。
+
+## StaticModInt
+
+modをコンパイル時に固定し、剰余の四則演算を普通の数のように書けます。
+
+```cpp
+using Mint = StaticModInt<998244353>;
+
+Mint a = 10;
+Mint b = 3;
+Mint answer = (a + b) * b;
+answer /= 2;
+
+cout << answer.value() << '\n';
+cout << Mint(2).pow(100).value() << '\n';
+```
+
+割り算では、割る数とmodが互いに素である必要があります。値がすでに
+`[0, mod)` と保証できる熱いループでは `Mint::raw(value)` を使うと剰余計算を
+省けますが、範囲が不明なら通常のコンストラクタを使ってください。
+
+## Rolling Hash
+
+文字列や整数列の部分列が同じかを高速に比べます。
+
+```cpp
+RollingHash hash(text);
+
+if (hash.hash(first_left, first_right) ==
+    hash.hash(second_left, second_right)) {
+  // 2つの部分文字列は高確率で同じ
+}
+
+RollingHash another(other_text);
+int common = hash.longest_common_prefix(
+    0, hash.size(), another, 0, another.size());
+```
+
+64bit hashなので衝突可能性は0ではありません。誤判定が絶対に許されない最終確認では、
+元の文字列も比較してください。異なる `base` で作った2個を比較してはいけません。
 
 ## Fast I/O
 
