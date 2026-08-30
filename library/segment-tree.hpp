@@ -1,24 +1,24 @@
 #include <cassert>
-#include <functional>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
 // 1点を変更し、区間の和・最小値・最大値などを求める Segment Tree。
+// operation は実際のラムダ式の型で保持するため、std::function の間接呼び出しがない。
 // 使い方:
-// SegmentTree<int> minimum(values, 1000000000,
-//                          [](int a, int b) { return std::min(a, b); });
+// auto minimum = make_segment_tree(
+//     values, 1000000000, [](int a, int b) { return std::min(a, b); });
 // minimum.set(index, new_value);
 // int answer = minimum.query(left, right);  // [left, right)
-template <class T>
+template <class T, class Operation>
 struct SegmentTree {
   int n;
   int leaf_count;
   T identity;
-  std::function<T(const T&, const T&)> operation;
+  Operation operation;
   std::vector<T> data;
 
-  SegmentTree(int size, T identity_element,
-              std::function<T(const T&, const T&)> combine)
+  SegmentTree(int size, T identity_element, Operation combine)
       : n(size),
         leaf_count(1),
         identity(std::move(identity_element)),
@@ -29,7 +29,7 @@ struct SegmentTree {
   }
 
   SegmentTree(const std::vector<T>& values, T identity_element,
-              std::function<T(const T&, const T&)> combine)
+              Operation combine)
       : SegmentTree(static_cast<int>(values.size()),
                     std::move(identity_element), std::move(combine)) {
     for (int i = 0; i < n; ++i) data[leaf_count + i] = values[i];
@@ -74,3 +74,17 @@ struct SegmentTree {
 
   T all() const { return data[1]; }
 };
+
+// C++17 の型推論を使い、長いラムダ式の型名を書かずに高速版を作る。
+template <class T, class Operation>
+auto make_segment_tree(int size, T identity, Operation operation) {
+  return SegmentTree<T, std::decay_t<Operation>>(
+      size, std::move(identity), std::move(operation));
+}
+
+template <class T, class Operation>
+auto make_segment_tree(const std::vector<T>& values, T identity,
+                       Operation operation) {
+  return SegmentTree<T, std::decay_t<Operation>>(
+      values, std::move(identity), std::move(operation));
+}

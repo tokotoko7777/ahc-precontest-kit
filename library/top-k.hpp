@@ -3,7 +3,8 @@
 #include <utility>
 #include <vector>
 
-// 良い候補を上位 K 個だけ残す。候補数が少ない場面向けの簡単な実装。
+// 良い候補を上位 K 個だけ残す。1回の追加は O(K)。
+// 毎回全体を sort しないので、小さな K で何度も追加する用途に向く。
 // 使い方:
 // TopK<double, vector<int>> candidates(20);        // 大きいほど良い
 // TopK<double, vector<int>> candidates(20, false); // 小さいほど良い
@@ -21,11 +22,19 @@ struct TopK {
   }
 
   void add(Score score, State state) {
-    entries.emplace_back(std::move(score), std::move(state));
-    std::stable_sort(entries.begin(), entries.end(), [&](const auto& a,
-                                                         const auto& b) {
-      return maximize ? b.first < a.first : a.first < b.first;
-    });
+    const auto is_better = [&](const Score& a, const Score& b) {
+      return maximize ? b < a : a < b;
+    };
+
+    int position = 0;
+    while (position < static_cast<int>(entries.size()) &&
+           !is_better(score, entries[position].first)) {
+      ++position;
+    }
+    if (position >= limit) return;
+
+    entries.insert(entries.begin() + position,
+                   {std::move(score), std::move(state)});
     if (static_cast<int>(entries.size()) > limit) entries.pop_back();
   }
 

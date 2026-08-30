@@ -1,6 +1,8 @@
 #include <algorithm>
 #include <cassert>
+#include <cstdio>
 #include <cmath>
+#include <limits>
 #include <string>
 #include <vector>
 
@@ -15,11 +17,14 @@
 #include "library/dsu.hpp"
 #include "library/dijkstra.hpp"
 #include "library/fenwick-tree.hpp"
+#include "library/fast-io.hpp"
+#include "library/flat-grid.hpp"
 #include "library/fixed-vector.hpp"
 #include "library/grid-bfs.hpp"
 #include "library/move-statistics.hpp"
 #include "library/multi-start.hpp"
 #include "library/random.hpp"
+#include "library/radix-heap.hpp"
 #include "library/rollback-array.hpp"
 #include "library/rollback-dsu.hpp"
 #include "library/route-utils.hpp"
@@ -121,6 +126,9 @@ int main() {
   assert(top.size() == 2);
   assert(top.best_score() == 30);
   assert(top.entries[1].first == 20);
+  top.add(5, "discarded");
+  assert(top.size() == 2);
+  assert(top.entries[0].second == "thirty");
 
   CumulativeSum<long long> cumulative({3, 1, 4, 1, 5});
   assert(cumulative.query(1, 4) == 6);
@@ -139,7 +147,7 @@ int main() {
   fenwick.add(3, 5);
   assert(fenwick.query(2, 4) == 8);
 
-  SegmentTree<long long> segment_sum(
+  auto segment_sum = make_segment_tree(
       std::vector<long long>{2, 1, 3, 0, 4}, 0LL,
       [](const long long& a, const long long& b) { return a + b; });
   assert(segment_sum.query(1, 4) == 4);
@@ -148,12 +156,63 @@ int main() {
   assert(segment_sum.query(1, 4) == 9);
   assert(segment_sum.all() == 15);
 
-  SegmentTree<int> segment_minimum(
+  auto segment_minimum = make_segment_tree(
       std::vector<int>{7, 2, 8, 3}, 1000000000,
       [](const int& a, const int& b) { return std::min(a, b); });
   assert(segment_minimum.query(1, 3) == 2);
   segment_minimum.set(1, 9);
   assert(segment_minimum.query(1, 3) == 8);
+
+  FlatGrid<int> flat_grid(3, 4, -1);
+  flat_grid(1, 2) = 7;
+  assert(flat_grid.index(1, 2) == 6);
+  assert(flat_grid.position(6) == std::make_pair(1, 2));
+  assert(flat_grid(1, 2) == 7);
+  flat_grid.fill(3);
+  assert(std::all_of(flat_grid.begin(), flat_grid.end(),
+                     [](int value) { return value == 3; }));
+
+  FlatGrid<std::string> flat_strings(
+      std::vector<std::vector<std::string>>{{"a", "b"}, {"c", "d"}});
+  assert(flat_strings(1, 0) == "c");
+
+  RadixHeap<std::string> radix_heap;
+  radix_heap.push(5, "five");
+  radix_heap.push(1, "one");
+  radix_heap.push(9, "nine");
+  auto radix_entry = radix_heap.pop();
+  assert(radix_entry.first == 1 && radix_entry.second == "one");
+  radix_heap.push(2, "two");
+  std::uint64_t previous_key = 1;
+  while (!radix_heap.empty()) {
+    radix_entry = radix_heap.pop();
+    assert(previous_key <= radix_entry.first);
+    previous_key = radix_entry.first;
+  }
+  radix_heap.clear();
+  assert(radix_heap.empty() && radix_heap.last() == 0);
+
+  std::FILE* io_file = std::tmpfile();
+  assert(io_file != nullptr);
+  {
+    FastOutput output(io_file);
+    output.write_integer(std::numeric_limits<long long>::min(), ' ');
+    output.write_integer(0, ' ');
+    output.write_string("hello Z 42\n");
+    output.flush();
+  }
+  std::rewind(io_file);
+  {
+    FastInput input(io_file);
+    assert(input.next<long long>() == std::numeric_limits<long long>::min());
+    assert(input.next<int>() == 0);
+    assert(input.next<std::string>() == "hello");
+    assert(input.next<char>() == 'Z');
+    assert(input.next<unsigned>() == 42U);
+    int after_end = 0;
+    assert(!input.read(after_end));
+  }
+  std::fclose(io_file);
 
   std::vector<long long> coordinates{100, 20, 100, 50};
   CoordinateCompression<long long> compression(coordinates);
