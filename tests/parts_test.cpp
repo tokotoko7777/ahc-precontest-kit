@@ -13,7 +13,10 @@
 #include "library/cumulative-sum-2d.hpp"
 #include "library/cumulative-sum.hpp"
 #include "library/dsu.hpp"
+#include "library/dijkstra.hpp"
+#include "library/fenwick-tree.hpp"
 #include "library/fixed-vector.hpp"
+#include "library/grid-bfs.hpp"
 #include "library/move-statistics.hpp"
 #include "library/multi-start.hpp"
 #include "library/random.hpp"
@@ -21,6 +24,7 @@
 #include "library/rollback-dsu.hpp"
 #include "library/route-utils.hpp"
 #include "library/schedule.hpp"
+#include "library/segment-tree.hpp"
 #include "library/shared-history.hpp"
 #include "library/simple-beam-search.hpp"
 #include "library/simulated-annealing.hpp"
@@ -124,6 +128,33 @@ int main() {
   CumulativeSum2D<int> cumulative_2d({{1, 2, 3}, {4, 5, 6}});
   assert(cumulative_2d.query(0, 1, 2, 3) == 16);
 
+  FenwickTree<long long> fenwick({2, 1, 3, 0, 4});
+  assert(fenwick.prefix_sum(3) == 6);
+  assert(fenwick.query(1, 5) == 8);
+  assert(fenwick.lower_bound(1) == 0);
+  assert(fenwick.lower_bound(3) == 1);
+  assert(fenwick.lower_bound(4) == 2);
+  assert(fenwick.lower_bound(7) == 4);
+  assert(fenwick.lower_bound(11) == 5);
+  fenwick.add(3, 5);
+  assert(fenwick.query(2, 4) == 8);
+
+  SegmentTree<long long> segment_sum(
+      std::vector<long long>{2, 1, 3, 0, 4}, 0LL,
+      [](const long long& a, const long long& b) { return a + b; });
+  assert(segment_sum.query(1, 4) == 4);
+  segment_sum.set(3, 5);
+  assert(segment_sum.get(3) == 5);
+  assert(segment_sum.query(1, 4) == 9);
+  assert(segment_sum.all() == 15);
+
+  SegmentTree<int> segment_minimum(
+      std::vector<int>{7, 2, 8, 3}, 1000000000,
+      [](const int& a, const int& b) { return std::min(a, b); });
+  assert(segment_minimum.query(1, 3) == 2);
+  segment_minimum.set(1, 9);
+  assert(segment_minimum.query(1, 3) == 8);
+
   std::vector<long long> coordinates{100, 20, 100, 50};
   CoordinateCompression<long long> compression(coordinates);
   assert(compression.size() == 3);
@@ -140,6 +171,28 @@ int main() {
   assert(dsu.size(1) == 3);
   assert(dsu.component_count() == 3);
   assert(dsu.groups().size() == 3);
+
+  std::vector<std::vector<std::pair<int, long long>>> graph(6);
+  add_undirected_edge(graph, 0, 1, 4LL);
+  add_undirected_edge(graph, 0, 2, 1LL);
+  add_undirected_edge(graph, 2, 1, 2LL);
+  add_undirected_edge(graph, 1, 3, 1LL);
+  add_undirected_edge(graph, 2, 3, 5LL);
+  add_undirected_edge(graph, 3, 4, 3LL);
+  const auto shortest = dijkstra(graph, 0, (1LL << 60));
+  assert(shortest.distance[4] == 7);
+  assert(shortest.path_to(4) == std::vector<int>({0, 2, 1, 3, 4}));
+  assert(!shortest.reachable(5));
+  assert(shortest.path_to(5).empty());
+
+  const std::vector<std::string> grid{"..#.", "....", "##.."};
+  const auto grid_shortest = grid_bfs(grid, {0, 0});
+  assert(grid_shortest.distance[2][3] == 5);
+  assert(grid_shortest.distance[0][2] == -1);
+  const auto grid_path = grid_shortest.path_to({2, 3});
+  assert(grid_path.size() == 6);
+  assert(grid_path.front().first == 0 && grid_path.front().second == 0);
+  assert(grid_path.back().first == 2 && grid_path.back().second == 3);
 
   RollbackDsu rollback_dsu(5);
   rollback_dsu.unite(0, 1);

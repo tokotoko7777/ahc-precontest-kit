@@ -1,6 +1,8 @@
 # ahc-precontest-kit
 
-AHC のコンテスト中に、自分の `main.cpp` へ直接コピーして使う C++ パーツ集です。
+AHC を中心とした競技プログラミングで、自分の `main.cpp` へ直接コピーして使う
+C++ パーツ集です。ヒューリスティック探索だけでなく、グラフ・データ構造などの
+通常アルゴリズムも同じ形で揃えます。
 
 ## 使い方
 
@@ -76,12 +78,21 @@ AHC のコンテスト中に、自分の `main.cpp` へ直接コピーして使�
 |---|---|
 | [`cumulative-sum.hpp`](library/cumulative-sum.hpp) | 1次元累積和 |
 | [`cumulative-sum-2d.hpp`](library/cumulative-sum-2d.hpp) | 2次元累積和 |
+| [`fenwick-tree.hpp`](library/fenwick-tree.hpp) | 1点加算と区間和 |
+| [`segment-tree.hpp`](library/segment-tree.hpp) | 1点変更と区間の和・最小値・最大値など |
 | [`coordinate-compression.hpp`](library/coordinate-compression.hpp) | 座標圧縮 |
 | [`dsu.hpp`](library/dsu.hpp) | Union-Find。連結成分数とグループ一覧も取得可能 |
 | [`rollback-array.hpp`](library/rollback-array.hpp) | 変更を過去の状態へ戻せる配列 |
 | [`rollback-dsu.hpp`](library/rollback-dsu.hpp) | 過去の状態へ戻せる Union-Find |
 | [`stamp-array.hpp`](library/stamp-array.hpp) | ほぼ O(1) で初期化し直せる配列 |
 | [`axis-aligned-rectangle.hpp`](library/axis-aligned-rectangle.hpp) | 半開矩形の面積・点包含・重なり判定 |
+
+### グラフ・グリッド
+
+| ファイル | できること |
+|---|---|
+| [`dijkstra.hpp`](library/dijkstra.hpp) | 非負辺グラフの最短距離と経路復元 |
+| [`grid-bfs.hpp`](library/grid-bfs.hpp) | 4方向グリッドの最短距離と経路復元 |
 
 `int` 固定である必要がないパーツはテンプレートにしています。たとえば、次のように
 得点は `double`、解は `vector<int>` のように自由に選べます。
@@ -102,6 +113,9 @@ GitHub 上ではファイルを開き、右上のコピーアイコン、また�
 
 - [木上のビームサーチ：高速化編](https://trap.jp/post/2920/) —
   apply / revert、履歴共有、状態コピー削減という考え方を参考にしています。
+- [heuristic-library-rs](https://github.com/e1jirou/heuristic-library-rs) —
+  ヒューリスティックに限定しない分類と、1機能ずつ取り出せるAPIの粒度を
+  参考にしています。コードの移植ではなく、このリポジトリ向けにC++で新規実装します。
 - 手元のAHC001〜AHC068優勝コードレビュー知識から、複数問題で再利用例が
   確認できた時間管理・候補制限・重複除去・差分更新を選んでいます。
 
