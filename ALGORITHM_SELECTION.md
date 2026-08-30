@@ -32,8 +32,19 @@
 | なし | 区間和 | `cumulative-sum.hpp` | 構築 `O(N)`、質問 `O(1)` |
 | 1点加算 | 区間和 | `fenwick-tree.hpp` | `O(log N)` |
 | 1点代入 | 和・min・maxなど | `segment-tree.hpp` | `O(log N)` |
+| 区間加算 | 区間和 | `range-add-range-sum.hpp` | `O(log N)` |
+| 更新を全部先に処理 | 各点の値 | `difference-array.hpp` | 更新 `O(1)`、構築 `O(N)` |
+| なし | min・max・gcd | `sparse-table.hpp` | 構築 `O(N log N)`、質問 `O(1)` |
+| なし、幅が固定 | 全区間のmin・max | `sliding-window-minimum.hpp` | 全体 `O(N)` |
 
-区間更新が必要なLazy Segment Treeは、APIを単純に保った形を検討中です。
+区間代入、区間minなど、別の種類のLazy Segment Treeは今後個別部品として追加します。
+
+## 木
+
+| 知りたいこと | パーツ | 計算量 |
+|---|---|---:|
+| 2頂点の共通祖先・距離・パス上の頂点 | `lowest-common-ancestor.hpp` | 構築 `O(N log N)`、質問 `O(log N)` |
+| 辺を追加しながら連結性を管理 | `dsu.hpp` | ほぼ `O(1)` / 回 |
 
 ## 探索候補の保存
 

@@ -89,8 +89,12 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 |---|---|
 | [`cumulative-sum.hpp`](library/cumulative-sum.hpp) | 1次元累積和 |
 | [`cumulative-sum-2d.hpp`](library/cumulative-sum-2d.hpp) | 2次元累積和 |
+| [`difference-array.hpp`](library/difference-array.hpp) | 更新を全部先に処理する区間加算 |
 | [`fenwick-tree.hpp`](library/fenwick-tree.hpp) | 1点加算と区間和 |
 | [`segment-tree.hpp`](library/segment-tree.hpp) | 1点変更と区間の和・最小値・最大値など |
+| [`range-add-range-sum.hpp`](library/range-add-range-sum.hpp) | 区間加算と区間和 |
+| [`sparse-table.hpp`](library/sparse-table.hpp) | 静的配列の区間min・max・gcdをO(1)取得 |
+| [`sliding-window-minimum.hpp`](library/sliding-window-minimum.hpp) | 固定幅区間のmin・maxを全体O(N)計算 |
 | [`flat-grid.hpp`](library/flat-grid.hpp) | 連続メモリに置くキャッシュ効率重視の2次元配列 |
 | [`coordinate-compression.hpp`](library/coordinate-compression.hpp) | 座標圧縮 |
 | [`dsu.hpp`](library/dsu.hpp) | Union-Find。連結成分数とグループ一覧も取得可能 |
@@ -111,18 +115,27 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 | [`strongly-connected-components.hpp`](library/strongly-connected-components.hpp) | 有向グラフの強連結成分分解 |
 | [`floyd-warshall.hpp`](library/floyd-warshall.hpp) | 全頂点間最短距離と負閉路検出 |
 | [`kruskal.hpp`](library/kruskal.hpp) | 最小全域木・最小全域森 |
+| [`lowest-common-ancestor.hpp`](library/lowest-common-ancestor.hpp) | 木のLCA・距離・パス上の頂点 |
 
 ### 数学
 
 | ファイル | できること |
 |---|---|
 | [`static-mod-int.hpp`](library/static-mod-int.hpp) | コンパイル時modの四則演算・累乗・逆元 |
+| [`prime-table.hpp`](library/prime-table.hpp) | 線形篩・素数判定・素因数分解・約数列挙 |
 
 ### 文字列・列
 
 | ファイル | できること |
 |---|---|
 | [`rolling-hash.hpp`](library/rolling-hash.hpp) | 部分列hash・連結・LCP |
+| [`z-algorithm.hpp`](library/z-algorithm.hpp) | 各位置と先頭の最長共通接頭辞 |
+
+### 列・DP
+
+| ファイル | できること |
+|---|---|
+| [`longest-increasing-subsequence.hpp`](library/longest-increasing-subsequence.hpp) | 最長増加部分列の長さと復元 |
 
 `int` 固定である必要がないパーツはテンプレートにしています。たとえば、次のように
 得点は `double`、解は `vector<int>` のように自由に選べます。

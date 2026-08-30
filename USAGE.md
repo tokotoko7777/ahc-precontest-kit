@@ -209,6 +209,59 @@ auto sum = make_segment_tree(
 ラムダ式の型をそのまま保持するため、区間をまとめるたびに `std::function` の
 間接呼び出しを行いません。通常は `make_segment_tree` から作ってください。
 
+## DifferenceArray
+
+区間加算をすべて記録してから、最後に各位置の値を一度だけ作る場合に使います。
+
+```cpp
+DifferenceArray<long long> values(n);
+values.add(left, right, amount);  // [left, right) に加算
+values.add(another_left, another_right, another_amount);
+
+vector<long long> result = values.build();
+```
+
+途中で区間和を質問する必要がある場合は、Fenwick TreeやRangeAddRangeSumを使います。
+
+## RangeAddRangeSum
+
+区間全体への加算と、区間和の質問が混ざっている場合に使います。
+
+```cpp
+RangeAddRangeSum<long long> sum(initial_values);
+
+sum.add(left, right, 10);       // [left, right) の全要素に10を足す
+long long answer = sum.query(query_left, query_right);
+long long total = sum.all();
+```
+
+## SparseTable
+
+変更されない配列の区間最小値・最大値・gcdを何度も求める場合に使います。
+
+```cpp
+auto minimum = make_sparse_table(
+    values, [](int a, int b) { return min(a, b); });
+
+int answer = minimum.query(left, right);  // [left, right)、空区間不可
+```
+
+`min(x,x)=x` のように同じ値を重ねても変わらない演算専用です。区間和には
+使えません。
+
+## Sliding Window Minimum
+
+固定幅の全区間について、最小値・最大値をまとめて `O(N)` で求めます。
+
+```cpp
+vector<int> values = {4, 2, 2, 5, 1};
+vector<int> minimums = sliding_window_minimum(values, 3);  // {2, 2, 1}
+vector<int> maximums = sliding_window_maximum(values, 3);  // {4, 5, 5}
+
+vector<int> positions =
+    sliding_window_best_indices(values, 3, less<int>());  // 最小値の位置
+```
+
 ## FlatGrid
 
 `vector<vector<T>>` と同じ感覚で使える、1本の連続した `vector` です。
@@ -441,6 +494,22 @@ if (tree.connected()) {
 
 元のグラフが連結でなければ、各成分の最小全域木を合わせた森を返します。
 
+## Lowest Common Ancestor
+
+木を根付き木として前計算し、LCA・頂点間距離・パス上の頂点を求めます。
+
+```cpp
+LowestCommonAncestor tree_lca(tree, root);
+
+int common = tree_lca.lca(a, b);
+int edge_count = tree_lca.distance(a, b);
+int parent = tree_lca.kth_ancestor(vertex, steps);
+int on_path = tree_lca.jump(a, b, steps_from_a);
+```
+
+木は連結な無向隣接リストで渡します。再帰を使わないため、一本道でも
+再帰スタックを消費しません。
+
 ## StaticModInt
 
 modをコンパイル時に固定し、剰余の四則演算を普通の数のように書けます。
@@ -461,6 +530,23 @@ cout << Mint(2).pow(100).value() << '\n';
 `[0, mod)` と保証できる熱いループでは `Mint::raw(value)` を使うと剰余計算を
 省けますが、範囲が不明なら通常のコンストラクタを使ってください。
 
+## PrimeTable
+
+上限までの素数判定と最小素因数を線形時間で前計算します。
+
+```cpp
+PrimeTable primes(1000000);
+
+if (primes.is_prime(x)) {
+  // xは素数
+}
+
+vector<pair<int, int>> factors = primes.factorize(x);
+vector<int> divisors = primes.divisors(x);
+```
+
+質問する値は構築時の上限以下である必要があります。1の素因数分解は空です。
+
 ## Rolling Hash
 
 文字列や整数列の部分列が同じかを高速に比べます。
@@ -480,6 +566,31 @@ int common = hash.longest_common_prefix(
 
 64bit hashなので衝突可能性は0ではありません。誤判定が絶対に許されない最終確認では、
 元の文字列も比較してください。異なる `base` で作った2個を比較してはいけません。
+
+## Z Algorithm
+
+列の各位置について、「その位置からの列」と列全体の先頭が何要素一致するかを
+`O(N)` で求めます。
+
+```cpp
+vector<int> z = z_algorithm(text);
+// z[i] = text[0...] と text[i...] の最長共通接頭辞
+```
+
+`string` だけでなく、`vector<int>` など `==` で比較できる列にも使えます。
+
+## Longest Increasing Subsequence
+
+最長増加部分列の長さだけでなく、選んだ位置と値も復元します。
+
+```cpp
+auto strict = longest_increasing_subsequence(values);        // a < b
+auto non_strict = longest_increasing_subsequence(values, false);  // a <= b
+
+cout << strict.length() << '\n';
+for (int index : strict.indices) cout << index << ' ';
+for (auto value : strict.values) cout << value << ' ';
+```
 
 ## Fast I/O
 

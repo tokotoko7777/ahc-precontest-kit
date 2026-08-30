@@ -3,6 +3,7 @@
 #include <cstdio>
 #include <cmath>
 #include <limits>
+#include <numeric>
 #include <string>
 #include <vector>
 
@@ -16,6 +17,7 @@
 #include "library/cumulative-sum.hpp"
 #include "library/dsu.hpp"
 #include "library/dijkstra.hpp"
+#include "library/difference-array.hpp"
 #include "library/fenwick-tree.hpp"
 #include "library/fast-io.hpp"
 #include "library/flat-grid.hpp"
@@ -24,10 +26,14 @@
 #include "library/graph-bfs.hpp"
 #include "library/grid-bfs.hpp"
 #include "library/kruskal.hpp"
+#include "library/longest-increasing-subsequence.hpp"
+#include "library/lowest-common-ancestor.hpp"
 #include "library/move-statistics.hpp"
 #include "library/multi-start.hpp"
+#include "library/prime-table.hpp"
 #include "library/random.hpp"
 #include "library/radix-heap.hpp"
+#include "library/range-add-range-sum.hpp"
 #include "library/rollback-array.hpp"
 #include "library/rollback-dsu.hpp"
 #include "library/route-utils.hpp"
@@ -37,6 +43,8 @@
 #include "library/shared-history.hpp"
 #include "library/simple-beam-search.hpp"
 #include "library/simulated-annealing.hpp"
+#include "library/sliding-window-minimum.hpp"
+#include "library/sparse-table.hpp"
 #include "library/stamp-array.hpp"
 #include "library/static-mod-int.hpp"
 #include "library/strongly-connected-components.hpp"
@@ -47,6 +55,7 @@
 #include "library/tree-beam-search.hpp"
 #include "library/zobrist-hash.hpp"
 #include "library/zero-one-bfs.hpp"
+#include "library/z-algorithm.hpp"
 
 struct BeamTestState {
   int position = 0;
@@ -360,6 +369,67 @@ int main() {
   assert(text_hash.longest_common_prefix(0, text_hash.size(), other_hash, 0,
                                          other_hash.size()) == 3);
 
+  DifferenceArray<int> difference_array(std::vector<int>{1, 2, 3, 4});
+  difference_array.add(1, 3, 5);
+  assert(difference_array.build() == std::vector<int>({1, 7, 8, 4}));
+  difference_array.clear();
+  assert(difference_array.build() == std::vector<int>({0, 0, 0, 0}));
+
+  auto sparse_minimum = make_sparse_table(
+      std::vector<int>{5, 2, 7, 1, 3},
+      [](int a, int b) { return std::min(a, b); });
+  assert(sparse_minimum.query(0, 3) == 2);
+  assert(sparse_minimum.query(2, 5) == 1);
+  auto sparse_gcd = make_sparse_table(
+      std::vector<int>{12, 18, 24, 9},
+      [](int a, int b) { return std::gcd(a, b); });
+  assert(sparse_gcd.query(0, 3) == 6);
+  assert(sparse_gcd.query(1, 4) == 3);
+
+  const std::vector<int> window_values{4, 2, 2, 5, 1};
+  assert(sliding_window_minimum(window_values, 3) ==
+         std::vector<int>({2, 2, 1}));
+  assert(sliding_window_maximum(window_values, 3) ==
+         std::vector<int>({4, 5, 5}));
+
+  RangeAddRangeSum<long long> lazy_sum(
+      std::vector<long long>{1, 2, 3, 4, 5});
+  lazy_sum.add(1, 4, 10);
+  assert(lazy_sum.query(0, 5) == 45);
+  assert(lazy_sum.query(2, 4) == 27);
+  lazy_sum.add(0, 5, -1);
+  assert(lazy_sum.all() == 40);
+
+  const std::vector<std::vector<int>> test_tree{
+      {1, 2}, {0, 3, 4}, {0, 5}, {1}, {1}, {2, 6}, {5}};
+  const LowestCommonAncestor lca(test_tree);
+  assert(lca.lca(3, 4) == 1);
+  assert(lca.lca(3, 6) == 0);
+  assert(lca.distance(3, 6) == 5);
+  assert(lca.jump(3, 6, 0) == 3);
+  assert(lca.jump(3, 6, 2) == 0);
+  assert(lca.jump(3, 6, 5) == 6);
+
+  const std::vector<int> lis_values{3, 1, 2, 2, 4};
+  const auto strict_lis = longest_increasing_subsequence(lis_values);
+  const auto non_strict_lis =
+      longest_increasing_subsequence(lis_values, false);
+  assert(strict_lis.length() == 3);
+  assert(strict_lis.values == std::vector<int>({1, 2, 4}));
+  assert(non_strict_lis.length() == 4);
+  assert(non_strict_lis.values == std::vector<int>({1, 2, 2, 4}));
+
+  assert(z_algorithm(std::string("aabcaabxaaaz")) ==
+         std::vector<int>({12, 1, 0, 0, 3, 1, 0, 0, 2, 2, 1, 0}));
+
+  const PrimeTable prime_table(100);
+  assert(prime_table.is_prime(97));
+  assert(!prime_table.is_prime(1));
+  assert((prime_table.factorize(84) ==
+          std::vector<std::pair<int, int>>({{2, 2}, {3, 1}, {7, 1}})));
+  assert(prime_table.divisors(12) ==
+         std::vector<int>({1, 2, 3, 4, 6, 12}));
+
   for (int iteration = 0; iteration < 100; ++iteration) {
     const int n = random.next_int(1, 9);
     std::vector<std::vector<std::pair<int, int>>> random_zero_one(n);
@@ -406,6 +476,110 @@ int main() {
         assert(random_components.same(a, b) ==
                (reachable[a][b] && reachable[b][a]));
       }
+    }
+  }
+
+  for (int iteration = 0; iteration < 100; ++iteration) {
+    const int n = random.next_int(1, 25);
+    std::vector<long long> naive_values(n);
+    for (long long& value : naive_values) value = random.next_int(-20, 21);
+    RangeAddRangeSum<long long> tested_sum(naive_values);
+
+    for (int operation = 0; operation < 100; ++operation) {
+      int left = random.next_int(0, n + 1);
+      int right = random.next_int(0, n + 1);
+      if (left > right) std::swap(left, right);
+      if (random.next_int(0, 2) == 0) {
+        const long long added = random.next_int(-10, 11);
+        tested_sum.add(left, right, added);
+        for (int i = left; i < right; ++i) naive_values[i] += added;
+      } else {
+        long long expected = 0;
+        for (int i = left; i < right; ++i) expected += naive_values[i];
+        assert(tested_sum.query(left, right) == expected);
+      }
+    }
+
+    auto tested_sparse = make_sparse_table(
+        naive_values,
+        [](long long a, long long b) { return std::min(a, b); });
+    for (int left = 0; left < n; ++left) {
+      long long expected = naive_values[left];
+      for (int right = left + 1; right <= n; ++right) {
+        expected = std::min(expected, naive_values[right - 1]);
+        assert(tested_sparse.query(left, right) == expected);
+      }
+    }
+
+    const int width = random.next_int(1, n + 1);
+    const auto tested_window = sliding_window_minimum(naive_values, width);
+    for (int left = 0; left + width <= n; ++left) {
+      const auto expected = *std::min_element(
+          naive_values.begin() + left,
+          naive_values.begin() + left + width);
+      assert(tested_window[left] == expected);
+    }
+
+    std::vector<int> small_sequence(n);
+    for (int& value : small_sequence) value = random.next_int(0, 8);
+    for (bool strict : {false, true}) {
+      std::vector<int> dp(n, 1);
+      int expected_length = 0;
+      for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < i; ++j) {
+          if (strict ? small_sequence[j] < small_sequence[i]
+                     : small_sequence[j] <= small_sequence[i]) {
+            dp[i] = std::max(dp[i], dp[j] + 1);
+          }
+        }
+        expected_length = std::max(expected_length, dp[i]);
+      }
+      const auto tested_lis =
+          longest_increasing_subsequence(small_sequence, strict);
+      assert(tested_lis.length() == expected_length);
+      for (int i = 1; i < tested_lis.length(); ++i) {
+        assert(strict ? tested_lis.values[i - 1] < tested_lis.values[i]
+                      : tested_lis.values[i - 1] <= tested_lis.values[i]);
+        assert(tested_lis.indices[i - 1] < tested_lis.indices[i]);
+      }
+    }
+
+    const auto tested_z = z_algorithm(small_sequence);
+    for (int start = 0; start < n; ++start) {
+      int expected = 0;
+      while (start + expected < n &&
+             small_sequence[expected] == small_sequence[start + expected]) {
+        ++expected;
+      }
+      assert(tested_z[start] == expected);
+    }
+
+    std::vector<std::vector<int>> random_tree(n);
+    std::vector<int> random_parent(n, 0);
+    std::vector<int> random_depth(n, 0);
+    for (int vertex = 1; vertex < n; ++vertex) {
+      const int parent = random.next_int(0, vertex);
+      random_parent[vertex] = parent;
+      random_depth[vertex] = random_depth[parent] + 1;
+      random_tree[parent].push_back(vertex);
+      random_tree[vertex].push_back(parent);
+    }
+    const LowestCommonAncestor random_lca(random_tree);
+    for (int query = 0; query < 100; ++query) {
+      const int original_a = random.next_int(0, n);
+      const int original_b = random.next_int(0, n);
+      int a = original_a;
+      int b = original_b;
+      while (random_depth[a] > random_depth[b]) a = random_parent[a];
+      while (random_depth[b] > random_depth[a]) b = random_parent[b];
+      while (a != b) {
+        a = random_parent[a];
+        b = random_parent[b];
+      }
+      assert(random_lca.lca(original_a, original_b) == a);
+      assert(random_lca.distance(original_a, original_b) ==
+             random_depth[original_a] + random_depth[original_b] -
+                 2 * random_depth[a]);
     }
   }
 
