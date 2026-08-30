@@ -272,8 +272,14 @@ AHC001〜AHC069を順次追加しています。全問題の状態と次の作�
 | [`practice/ahc046`](practice/ahc046/) | 停止岩候補、bitset重複除去、幅制限beam |
 | [`practice/ahc047`](practice/ahc047/) | 12状態Markovモデル、確率近似SA、KMP厳密評価 |
 | [`practice/ahc048`](practice/ahc048/) | 離散混色recipe、色cluster、残色reservoir再利用 |
+| [`practice/ahc049`](practice/ahc049/) | 耐久保証付き複数箱搬送、経路交換・統合改善 |
+| [`practice/ahc050`](practice/ahc050/) | 厳密確率伝播、同率最小riskのmulti-start |
+| [`practice/ahc051`](practice/ahc051/) | 平面二分木、確率分類、装置・分別器の局所改善 |
+| [`practice/ahc052`](practice/ahc052/) | 多始点BFS、共通ボタンlookahead、操作列短縮 |
+| [`practice/ahc053`](practice/ahc053/) | 共有2進カード、禁止bit桁DP、不足修理 |
 | [`practice/ahc055`](practice/ahc055/) | 依存順序、攻撃先のO(1)差分焼きなまし |
 | [`practice/ahc056`](practice/ahc056/) | BFS経路、時刻を色×状態へ平方根分割 |
+| [`practice/ahc057`](practice/ahc057/) | 容量付き時空間cluster、時刻別MST、群間swap |
 | [`practice/ahc058`](practice/ahc058/) | rolling horizon、二項係数による将来生産量 |
 | [`practice/ahc059`](practice/ahc059/) | 完全入れ子列、2状態DP、境界差分探索 |
 | [`practice/ahc062`](practice/ahc062/) | Hamilton閉路、prefix差分2-opt、合法swap |
