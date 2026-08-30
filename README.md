@@ -85,6 +85,7 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 | [`zobrist-hash.hpp`](library/zobrist-hash.hpp) | 配列状態のhashを差分更新 |
 | [`fixed-vector.hpp`](library/fixed-vector.hpp) | allocationなしの固定上限vector |
 | [`radix-heap.hpp`](library/radix-heap.hpp) | 単調な非負整数キー用の高速priority queue |
+| [`farthest-point-sampling.hpp`](library/farthest-point-sampling.hpp) | 離れた代表点をO(NK)で選ぶ |
 
 ### データ構造
 
@@ -145,6 +146,7 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 | [`mod-combination.hpp`](library/mod-combination.hpp) | 素数mod上のnCk・nPk・重複組合せ |
 | [`extended-gcd.hpp`](library/extended-gcd.hpp) | 拡張Euclid互除法・mod逆元 |
 | [`floor-sum.hpp`](library/floor-sum.hpp) | floorを含む等差数列の和 |
+| [`integer-square-root.hpp`](library/integer-square-root.hpp) | 整数平方根の切り下げ・切り上げ |
 | [`matrix.hpp`](library/matrix.hpp) | 連続メモリ行列の加算・乗算・累乗 |
 
 ### 文字列・列
@@ -227,9 +229,15 @@ AHC001〜AHC069を順次追加しています。全問題の状態と次の作�
 | [`practice/ahc008`](practice/ahc008/) | 対話型の安全判定、分担壁建設、段階閉鎖 |
 | [`practice/ahc009`](practice/ahc009/) | 確率伝播DP、beam、可変長SA、前後DP |
 | [`practice/ahc010`](practice/ahc010/) | 閉路DFS、bitset衝突判定、安全fallback |
+| [`practice/ahc011`](practice/ahc011/) | Zobrist重複除去、親履歴付きbeam、短列探索 |
 | [`practice/ahc012`](practice/ahc012/) | 分位格子、histogram評価、境界relocate |
 | [`practice/ahc013`](practice/ahc013/) | 同種見通し移動、DSU、交差しない貪欲配線 |
+| [`practice/ahc014`](practice/ahc014/) | 単位辺占有、候補制限、randomized multi-start |
 | [`practice/ahc015`](practice/ahc015/) | 共通乱数rollout、固定長盤面、連結成分評価 |
+| [`practice/ahc017`](practice/ahc017/) | farthest-point sample、日別Dijkstra cache、swap SA |
+| [`practice/ahc018`](practice/ahc018/) | 硬さ推定、複数始点Dijkstra、rolling replan |
+| [`practice/ahc019`](practice/ahc019/) | 24回転voxel重合、投影bitmask、残余domino化 |
+| [`practice/ahc020`](practice/ahc020/) | 重み付きset cover、metric MST、非terminal葉刈り |
 | [`practice/ahc021`](practice/ahc021/) | 木型ビームサーチ、Zobrist hash、状態重複除去 |
 | [`practice/ahc055`](practice/ahc055/) | 依存順序、攻撃先のO(1)差分焼きなまし |
 | [`practice/ahc056`](practice/ahc056/) | BFS経路、時刻を色×状態へ平方根分割 |

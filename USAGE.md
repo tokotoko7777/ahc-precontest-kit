@@ -875,6 +875,18 @@ long long answer = floor_sum(n, modulus, a, b);
 `n >= 0`, `modulus > 0` が必要で、`a`, `b` は負でも扱えます。
 答えだけでなく `a*n+b` などの中間計算も `long long` に収まる範囲で使います。
 
+## Integer Square Root
+
+距離の二乗などから、浮動小数の丸め誤差なしで整数平方根を得ます。
+
+```cpp
+long long floor_root = floor_integer_square_root(value);
+long long ceil_root = ceil_integer_square_root(value);
+```
+
+内部では `sqrt(long double)` を初期値にしますが、最後に整数の割り算で補正します。
+`value` は0以上の整数型にしてください。
+
 ## Matrix
 
 動的サイズの行列で、加算・乗算・累乗ができます。要素は連続メモリに保存します。
@@ -1434,6 +1446,27 @@ int turn = orientation(origin, a, b);  // 左1、一直線0、右-1
 ```
 
 乗算の結果も座標型になるため、座標が大きい時は `long long` を使います。
+
+## Farthest Point Sampling
+
+全要素を毎回評価できない時に、互いに離れた代表を選びます。距離関数を渡すので、座標型や
+距離型は自由です。
+
+```cpp
+vector<Point2D<long long>> points;
+
+vector<int> representatives = farthest_point_sampling(
+    static_cast<int>(points.size()), 16,
+    [&](int a, int b) { return squared_distance(points[a], points[b]); });
+
+for (int index : representatives) {
+  // points[index] を代表として重い評価を行う
+}
+```
+
+最初の代表は既定で添字0です。中心などから始めたい場合は第4引数へその添字を渡します。
+これはk-center問題の厳密解ではなく、現在の代表集合から最も遠い要素を順に足すgreedyです。
+計算量は要素数を `N`、代表数を `K` として `O(NK)` です。
 
 ## Convex Hull
 
