@@ -32,6 +32,7 @@
 #include "library/difference-array.hpp"
 #include "library/fenwick-tree.hpp"
 #include "library/fast-io.hpp"
+#include "library/farthest-point-sampling.hpp"
 #include "library/flat-grid.hpp"
 #include "library/floyd-warshall.hpp"
 #include "library/floor-sum.hpp"
@@ -40,6 +41,7 @@
 #include "library/graph-bfs.hpp"
 #include "library/grid-bfs.hpp"
 #include "library/inversion-count.hpp"
+#include "library/integer-square-root.hpp"
 #include "library/kruskal.hpp"
 #include "library/longest-increasing-subsequence.hpp"
 #include "library/lowest-common-ancestor.hpp"
@@ -1681,4 +1683,23 @@ int main() {
   assert(scenario_average[0] == 0.0L);
   assert(scenario_average[1] == 2.0L);
   assert(scenario_average[2] == 4.0L);
+
+  const std::vector<int> sample_positions{0, 2, 9, 10};
+  const std::vector<int> spread_samples = farthest_point_sampling(
+      static_cast<int>(sample_positions.size()), 3,
+      [&](int a, int b) {
+        const int difference = sample_positions[a] - sample_positions[b];
+        return difference * difference;
+      });
+  assert(spread_samples == std::vector<int>({0, 3, 1}));
+
+  assert(floor_integer_square_root(0LL) == 0);
+  assert(floor_integer_square_root(15LL) == 3);
+  assert(floor_integer_square_root(16LL) == 4);
+  assert(ceil_integer_square_root(15LL) == 4);
+  assert(ceil_integer_square_root(16LL) == 4);
+  assert(floor_integer_square_root(std::numeric_limits<long long>::max()) ==
+         3037000499LL);
+  assert(ceil_integer_square_root(std::numeric_limits<long long>::max()) ==
+         3037000500LL);
 }

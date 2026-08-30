@@ -37,16 +37,16 @@
 | AHC008 | 人とペットの対話型領域分割 | kit-ready | 分担壁建設＋段階閉鎖。公式100seed全300ターン合法、平均4,463,342点 |
 | AHC009 | 失敗確率付き迷路経路 | kit-ready | 到達確率DP＋beam＋可変長SA＋前後DP。seed 0〜9平均74,011,284点 |
 | AHC010 | 回転タイルと閉路構築 | kit-ready | 2×2安全閉路＋領域DFS候補＋bitset二閉路選択。公式100seed合法、平均76,326点 |
-| AHC011 | スライドパズル・大木構築 | new | 目標木生成とビーム探索を検討 |
+| AHC011 | スライドパズル・大木構築 | kit-ready | 親履歴beam＋Zobrist重複除去＋短列探索。公式100seed全合法、平均409,296点 |
 | AHC012 | 直線による点群分割 | kit-ready | 分位格子＋境界relocate SA。seed 0〜9平均939,958点 |
 | AHC013 | コンピュータ移動・接続 | kit-ready | 同種見通し移動＋DSU配線構築。公式100seed全合法、平均1,802点 |
-| AHC014 | 点追加・長方形構築 | new | 合法候補cacheとdestroy/repairを検討 |
+| AHC014 | 点追加・長方形構築 | kit-ready | 方向別単位辺占有＋候補制限multi-start。公式100seed全合法、短時間版平均768,624点 |
 | AHC015 | 確率配置後の盤面傾け | kit-ready | 共通乱数rollout＋連結成分評価。seed 0〜19平均574,645点 |
 | AHC016 | 耐ノイズ識別グラフ設計 | new | 符号距離の大きいグラフ族と分類器を検討 |
-| AHC017 | 辺工事の日程割当 | new | 初期均等割当、最短路差分、日交換近傍を検討 |
-| AHC018 | 未知硬度の掘削・接続 | new | 安全な推定掘削とMST状接続から開始 |
-| AHC019 | 2立体の共通部品分解 | new | voxel対応付けと大部品優先の構築を検討 |
-| AHC020 | 基地局半径・送電網設計 | new | 被覆候補とMST、局所半径削減を検討 |
+| AHC017 | 辺工事の日程割当 | kit-ready | 地理的16始点＋変更2日だけのDijkstra＋swap SA。seed 0〜9平均frustration 12,847,415 |
+| AHC018 | 未知硬度の掘削・接続 | kit-ready | 硬さ推定＋複数始点Dijkstra＋8マスごとの再計画。公式100seed全完走、平均cost 244,138 |
+| AHC019 | 2立体の共通部品分解 | kit-ready | 24回転voxel重合＋投影bitmask＋残余domino化。seed 0〜9平均評価1,961,574,573 |
+| AHC020 | 基地局半径・送電網設計 | kit-ready | 重み付きset cover＋半径縮小＋metric MST。公式100seed全被覆、平均score 1,647,338 |
 | AHC021 | 三角盤面のswap整列 | kit-ready | `practice/ahc021`。apply/revert型ビームを検証済み |
 | AHC022 | 温度場設計・ノイズ推定 | new | 符号化温度配置と最尤対応を検討 |
 | AHC023 | 到達性付き農作物配置 | new | 通路を守る期間スケジューリングから開始 |
