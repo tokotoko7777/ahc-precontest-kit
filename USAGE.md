@@ -343,6 +343,24 @@ vector<Move> answer = beam.restore();
 
 `apply` でscore、hash、補助配列も変更したなら、`revert` ではそれらを全部戻します。
 
+同じ盤面へ別の手順で到達する問題では、`step_with_key` を使えます。
+`state.hash` が同じ候補は、評価値が一番良い1件だけ残ります。
+
+```cpp
+for (int turn = 0; turn < 100; ++turn) {
+  bool advanced = beam.step_with_key(
+      expand,
+      apply,
+      revert,
+      evaluate,
+      [](const State& state) { return state.hash; });
+  if (!advanced) break;
+}
+```
+
+`hash` は自分で更新します。盤面のswapなら `zobrist-hash.hpp` と組み合わせると
+差分更新しやすいです。64bit hashにはごく小さい衝突可能性があります。
+
 ## SharedHistory
 
 候補ごとに長い操作列をコピーせず、最後の操作と親番号だけを保存します。

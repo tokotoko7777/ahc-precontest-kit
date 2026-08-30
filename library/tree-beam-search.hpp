@@ -1,6 +1,8 @@
 #include <algorithm>
 #include <cassert>
 #include <optional>
+#include <type_traits>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -14,6 +16,9 @@
 // 使い方:
 // TreeBeamSearch<State, Move, long long> beam(initial, initial_score, 100);
 // beam.step(expand, apply, revert, evaluate);
+// // hash が同じ状態を1つにまとめたい場合:
+// beam.step_with_key(expand, apply, revert, evaluate,
+//                    [](const State& state) { return state.hash; });
 // vector<Move> answer = beam.restore();
 template <class State, class Action, class Score>
 struct TreeBeamSearch {
@@ -87,6 +92,69 @@ struct TreeBeamSearch {
                        std::move(candidate.action),
                        std::move(candidate.score)});
       beam.push_back(static_cast<int>(nodes.size()) - 1);
+    }
+    return true;
+  }
+
+  // 同じ key の状態は、評価値が一番良い候補だけを残す。
+  // make_key(state) は uint64_t、int、string などを返すようにする。
+  template <class Expand,
+            class Apply,
+            class Revert,
+            class Evaluate,
+            class MakeKey>
+  bool step_with_key(
+      Expand expand,
+      Apply apply,
+      Revert revert,
+      Evaluate evaluate,
+      MakeKey make_key) {
+    using Key = std::decay_t<decltype(make_key(state))>;
+    struct KeyedCandidate {
+      Candidate candidate;
+      Key key;
+    };
+
+    std::vector<KeyedCandidate> candidates;
+
+    for (int parent : beam) {
+      move_to(parent, apply, revert);
+      auto actions = expand(state);
+
+      for (Action& action : actions) {
+        apply(state, action);
+        const Score score = evaluate(state);
+        Key key = make_key(state);
+        revert(state, action);
+        candidates.push_back(
+            {{parent, std::move(action), score}, std::move(key)});
+      }
+    }
+
+    if (candidates.empty()) return false;
+
+    std::stable_sort(
+        candidates.begin(), candidates.end(), [&](const KeyedCandidate& a,
+                                                   const KeyedCandidate& b) {
+          return maximize ? b.candidate.score < a.candidate.score
+                          : a.candidate.score < b.candidate.score;
+        });
+
+    std::unordered_set<Key> used_keys;
+    beam.clear();
+    beam.reserve(beam_width);
+
+    for (KeyedCandidate& keyed : candidates) {
+      if (!used_keys.insert(keyed.key).second) continue;
+
+      Candidate& candidate = keyed.candidate;
+      const int depth = nodes[candidate.parent].depth + 1;
+      nodes.push_back({candidate.parent,
+                       depth,
+                       std::move(candidate.action),
+                       std::move(candidate.score)});
+      beam.push_back(static_cast<int>(nodes.size()) - 1);
+      if (static_cast<int>(beam.size()) == beam_width) break;
     }
     return true;
   }
