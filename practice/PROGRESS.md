@@ -75,15 +75,15 @@
 | AHC046 | 氷上経路・岩配置 | kit-ready | 停止岩候補のbitset beam。公式100seed全合法、平均操作数207.44 |
 | AHC047 | 確率有限状態機械 | kit-ready | 12状態Markov近似SA＋KMP厳密最終比較。公式100seed全合法、平均37,698点 |
 | AHC048 | 絵具混色・連続値最適化 | kit-ready | 離散recipe＋残色reservoir再利用。公式100seed全合法、平均絶対score 302,370 |
-| AHC049 | 耐久制約付き荷物搬送 | new | 安全な積載順と経路局所改善を検討 |
-| AHC050 | 確率駒移動・障害物配置 | new | 共通乱数rolloutで岩候補を比較 |
-| AHC051 | 確率分別ネットワーク | new | 装置割当と非交差配線を分離して構築 |
-| AHC052 | 共通ボタン列・方向割当 | new | 方向割当と短いmacro列を交互改善 |
-| AHC053 | 事前カード設計・事後分割 | new | 値の基底設計と高速多山partitionを検討 |
+| AHC049 | 耐久制約付き荷物搬送 | kit-ready | 耐久保証付き複数箱搬送＋経路局所改善。公式100seed全合法、平均11,959.82点 |
+| AHC050 | 確率駒移動・障害物配置 | kit-ready | 厳密確率伝播＋同率最小riskの32-start。公式100seed全合法、平均958,598点 |
+| AHC051 | 確率分別ネットワーク | kit-ready | 平面二分木＋確率分類＋局所改善。公式100seed全合法、平均絶対Score 561,284,405 |
+| AHC052 | 共通ボタン列・方向割当 | kit-ready | 方向表multi-start＋BFS lookahead＋列短縮。公式100seed全掃除、平均2,439.70点 |
+| AHC053 | 事前カード設計・事後分割 | kit-ready | 共有2進カード＋禁止bit桁DP＋不足修理。公式100seed全合法、平均537,650,741点 |
 | AHC054 | 部分観測エージェントへの障害物配置 | local-audit | `/home/utility/AHC054/main.cpp` と公式testerを監査 |
 | AHC055 | 武器・宝箱の順序と経路 | kit-ready | 依存順序＋攻撃先差分SA。公式100seed合法、seed 0〜4平均約1,495攻撃 |
 | AHC056 | Turing型ロボット制御 | kit-ready | BFS列を色×状態へ平方根分割。公式100seed合法、絶対score平均72.15 |
-| AHC057 | トーラス上の時刻付き原子結合 | new | 時刻別近傍とmatching/cluster構築を検討 |
+| AHC057 | トーラス上の時刻付き原子結合 | kit-ready | 容量付き時空間cluster＋時刻別MST＋群間swap。公式100seed全合法、平均4,738,467点 |
 | AHC058 | 生産機の購入・強化 | kit-ready | 二項係数の閉形式＋3手rolling horizon。seed 0〜9平均5,192,507点 |
 | AHC059 | LIFOスタックでペア処理 | kit-ready | 完全入れ子鎖＋2状態DP＋境界差分探索。seed 0〜9平均15,185.8点 |
 | AHC060 | 収集・交換・納品経路 | local-audit | 2つのローカル版を同条件で比較して整理 |
