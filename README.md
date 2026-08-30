@@ -91,15 +91,19 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 | [`cumulative-sum.hpp`](library/cumulative-sum.hpp) | 1次元累積和 |
 | [`cumulative-sum-2d.hpp`](library/cumulative-sum-2d.hpp) | 2次元累積和 |
 | [`difference-array.hpp`](library/difference-array.hpp) | 更新を全部先に処理する区間加算 |
+| [`difference-array-2d.hpp`](library/difference-array-2d.hpp) | 矩形加算後に盤面を作る2次元いもす法 |
 | [`fenwick-tree.hpp`](library/fenwick-tree.hpp) | 1点加算と区間和 |
 | [`segment-tree.hpp`](library/segment-tree.hpp) | 1点変更と区間の和・最小値・最大値など |
 | [`range-add-range-sum.hpp`](library/range-add-range-sum.hpp) | 区間加算と区間和 |
 | [`range-add-range-minimum.hpp`](library/range-add-range-minimum.hpp) | 区間加算と区間最小値 |
+| [`range-add-range-maximum.hpp`](library/range-add-range-maximum.hpp) | 区間加算と区間最大値 |
+| [`range-assign-range-sum.hpp`](library/range-assign-range-sum.hpp) | 区間代入と区間和 |
 | [`sparse-table.hpp`](library/sparse-table.hpp) | 静的配列の区間min・max・gcdをO(1)取得 |
 | [`sliding-window-minimum.hpp`](library/sliding-window-minimum.hpp) | 固定幅区間のmin・maxを全体O(N)計算 |
 | [`flat-grid.hpp`](library/flat-grid.hpp) | 連続メモリに置くキャッシュ効率重視の2次元配列 |
 | [`coordinate-compression.hpp`](library/coordinate-compression.hpp) | 座標圧縮 |
 | [`dsu.hpp`](library/dsu.hpp) | Union-Find。連結成分数とグループ一覧も取得可能 |
+| [`weighted-dsu.hpp`](library/weighted-dsu.hpp) | 頂点間の差分制約を管理する重み付きUnion-Find |
 | [`rollback-array.hpp`](library/rollback-array.hpp) | 変更を過去の状態へ戻せる配列 |
 | [`rollback-dsu.hpp`](library/rollback-dsu.hpp) | 過去の状態へ戻せる Union-Find |
 | [`stamp-array.hpp`](library/stamp-array.hpp) | ほぼ O(1) で初期化し直せる配列 |
@@ -117,7 +121,9 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 | [`zero-one-bfs.hpp`](library/zero-one-bfs.hpp) | コスト0/1の最短距離と経路復元 |
 | [`grid-bfs.hpp`](library/grid-bfs.hpp) | 4方向グリッドの最短距離と経路復元 |
 | [`topological-sort.hpp`](library/topological-sort.hpp) | DAGの順序と閉路検出 |
+| [`bipartite-check.hpp`](library/bipartite-check.hpp) | 無向グラフの2色塗り・二部グラフ判定 |
 | [`strongly-connected-components.hpp`](library/strongly-connected-components.hpp) | 有向グラフの強連結成分分解 |
+| [`functional-graph.hpp`](library/functional-graph.hpp) | 出辺1本のグラフの周期・入口・大きな回数の遷移 |
 | [`floyd-warshall.hpp`](library/floyd-warshall.hpp) | 全頂点間最短距離と負閉路検出 |
 | [`kruskal.hpp`](library/kruskal.hpp) | 最小全域木・最小全域森 |
 | [`lowest-common-ancestor.hpp`](library/lowest-common-ancestor.hpp) | 木のLCA・距離・パス上の頂点 |
