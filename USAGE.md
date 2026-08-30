@@ -37,6 +37,22 @@ vector<double> weights = {1.0, 2.0, 7.0};
 int selected = random.weighted_index(weights);
 ```
 
+## AliasTable
+
+同じ重み分布から何度も抽選する場合、前計算後の1回を `O(1)` にします。
+
+```cpp
+vector<double> weights = {1.0, 2.0, 7.0};
+AliasTable table(weights);
+
+int selected = table.choose(
+    random.next_int(0, table.size()), random.next_real());
+```
+
+`choose` には `[0, size())` の一様な整数と `[0, 1)` の一様実数を渡します。
+重みが変わったらAliasTableを作り直す必要があります。抽選回数が少ない場合は
+`random.weighted_index(weights)` の方が簡単です。
+
 ## タイマー内蔵の焼きなまし
 
 最大化では `変更後 - 変更前`、最小化では `変更前 - 変更後` を渡します。
@@ -826,6 +842,53 @@ int repeated = combination.multichoose(n, k);   // 重複を許してk個
 `MOD` は素数、扱う `n` は `MOD` 未満にします。後からより大きい `n` を渡すと、
 必要なところまで自動的に事前計算を延長します。
 
+## Extended GCD
+
+拡張Euclid互除法で `a*x + b*y = gcd(a,b)` となる `x`, `y` を求めます。
+
+```cpp
+auto result = extended_gcd(a, b);
+cout << result.gcd << ' ' << result.x << ' ' << result.y << '\n';
+```
+
+mod逆元も取得できます。逆元が存在しない場合は `nullopt` です。
+
+```cpp
+optional<long long> inverse = modular_inverse(value, modulus);
+if (inverse.has_value()) {
+  // value * *inverse ≡ 1 (mod modulus)
+}
+```
+
+## Floor Sum
+
+次の和を `O(log modulus)` で求めます。
+
+```text
+floor((a*0+b)/modulus) + ... + floor((a*(n-1)+b)/modulus)
+```
+
+```cpp
+long long answer = floor_sum(n, modulus, a, b);
+```
+
+`n >= 0`, `modulus > 0` が必要で、`a`, `b` は負でも扱えます。
+答えだけでなく `a*n+b` などの中間計算も `long long` に収まる範囲で使います。
+
+## Matrix
+
+動的サイズの行列で、加算・乗算・累乗ができます。要素は連続メモリに保存します。
+
+```cpp
+Matrix<long long> matrix({{1, 1}, {1, 0}});
+Matrix<long long> powered = matrix_power(matrix, exponent);
+
+cout << powered(0, 1) << '\n';
+```
+
+`Matrix<StaticModInt<998244353>>` のように、四則演算と `0`, `1` を扱える型にも
+使えます。行列乗算は `i-k-j` 順で、左側要素が0の計算は飛ばします。
+
 ## Rolling Hash
 
 文字列や整数列の部分列が同じかを高速に比べます。
@@ -900,6 +963,17 @@ cout << strict.length() << '\n';
 for (int index : strict.indices) cout << index << ' ';
 for (auto value : strict.values) cout << value << ' ';
 ```
+
+## Inversion Count
+
+`i < j` かつ `values[i] > values[j]` となる組の個数を `O(N log N)` で数えます。
+
+```cpp
+long long inversions = inversion_count(values);
+```
+
+同じ値同士は逆転に数えません。値は内部で座標圧縮されるため、負数や大きな値も
+そのまま渡せます。
 
 ## Fast I/O
 
@@ -1017,6 +1091,25 @@ unsigned minimum_xor = values.minimum_xor_value(query);
 
 値が24bit未満と分かっている時は `BinaryTrie<unsigned, 24>` のようにbit数を
 狭めると、時間とメモリを削減できます。空の時にXOR検索は呼べません。
+
+## XorBasis
+
+追加した整数から任意の部分集合を選んだ時のXORを、最大bit数個の基底で表します。
+
+```cpp
+XorBasis<unsigned long long> basis;
+
+basis.insert(value);
+bool possible = basis.contains(target);
+unsigned long long maximum = basis.maximum_xor();
+unsigned long long best_with_seed = basis.maximum_xor(seed);
+unsigned long long minimum_with_seed = basis.minimum_xor(seed);
+```
+
+`rank()` は独立な基底数で、作れる異なるXOR値は `2^rank()` 個です。
+値が20bit未満なら `XorBasis<unsigned, 20>` のようにbit数を狭められます。
+`BinaryTrie` が「集合に実際に入っている1要素」を探すのに対し、`XorBasis` は
+「複数要素の部分集合XOR」を扱います。
 
 ## BatchedTimer
 
