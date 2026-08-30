@@ -81,6 +81,7 @@ AHC のコンテスト中に、自分の `main.cpp` へ直接コピーして使�
 | [`rollback-array.hpp`](library/rollback-array.hpp) | 変更を過去の状態へ戻せる配列 |
 | [`rollback-dsu.hpp`](library/rollback-dsu.hpp) | 過去の状態へ戻せる Union-Find |
 | [`stamp-array.hpp`](library/stamp-array.hpp) | ほぼ O(1) で初期化し直せる配列 |
+| [`axis-aligned-rectangle.hpp`](library/axis-aligned-rectangle.hpp) | 半開矩形の面積・点包含・重なり判定 |
 
 `int` 固定である必要がないパーツはテンプレートにしています。たとえば、次のように
 得点は `double`、解は `vector<int>` のように自由に選べます。
@@ -111,6 +112,7 @@ GitHub 上ではファイルを開き、右上のコピーアイコン、また�
 
 | 問題 | 主に使うパーツ |
 |---|---|
+| [`practice/ahc001`](practice/ahc001/) | 半開矩形、重なり判定、単調局所拡張 |
 | [`practice/ahc006`](practice/ahc006/) | 焼きなまし、間引きタイマー、経路距離差分 |
 | [`practice/ahc007`](practice/ahc007/) | Union-Find、未来辺によるオンライン連結判断 |
 | [`practice/ahc021`](practice/ahc021/) | 木型ビームサーチ、Zobrist hash、状態重複除去 |

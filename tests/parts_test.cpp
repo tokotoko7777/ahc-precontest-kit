@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "library/batched-timer.hpp"
+#include "library/axis-aligned-rectangle.hpp"
 #include "library/best-keeper.hpp"
 #include "library/best-by-key.hpp"
 #include "library/chmin-chmax.hpp"
@@ -265,4 +266,15 @@ int main() {
   std::reverse(reversed.begin() + 1, reversed.begin() + 3);
   assert(route_length(detour, line_distance) + reverse_delta ==
          route_length(reversed, line_distance));
+
+  const AxisAlignedRectangle<int> rectangle{0, 0, 10, 20};
+  const AxisAlignedRectangle<int> touching{10, 5, 15, 15};
+  const AxisAlignedRectangle<int> overlapping{9, 5, 15, 15};
+  assert(rectangle.is_valid());
+  assert(rectangle.width() == 10 && rectangle.height() == 20);
+  assert(rectangle.area() == 200);
+  assert(rectangle.contains(0, 0));
+  assert(!rectangle.contains(10, 0));
+  assert(!rectangle.overlaps(touching));
+  assert(rectangle.overlaps(overlapping));
 }
