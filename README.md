@@ -39,11 +39,13 @@ AHC のコンテスト中に、自分の `main.cpp` へ直接コピーして使�
 | ファイル | できること |
 |---|---|
 | [`timer.hpp`](library/timer.hpp) | 経過時間・残り時間・進捗率 |
+| [`batched-timer.hpp`](library/batched-timer.hpp) | 時計を見る回数を間引くタイマー |
 | [`random.hpp`](library/random.hpp) | 型を選べる乱数、ランダム選択、重み付き選択 |
 | [`chmin-chmax.hpp`](library/chmin-chmax.hpp) | 値が良くなる時だけ更新 |
 | [`schedule.hpp`](library/schedule.hpp) | 時間経過に合わせて値を変化 |
 | [`best-keeper.hpp`](library/best-keeper.hpp) | best score と best state を保存 |
 | [`top-k.hpp`](library/top-k.hpp) | 良い候補を上位 K 個だけ保存 |
+| [`move-statistics.hpp`](library/move-statistics.hpp) | 近傍ごとの採用率・改善率を集計 |
 
 ### 探索
 
@@ -51,6 +53,21 @@ AHC のコンテスト中に、自分の `main.cpp` へ直接コピーして使�
 |---|---|
 | [`simulated-annealing.hpp`](library/simulated-annealing.hpp) | 外部から進捗率を渡す焼きなまし |
 | [`time-based-simulated-annealing.hpp`](library/time-based-simulated-annealing.hpp) | タイマー内蔵の焼きなまし |
+| [`multi-start.hpp`](library/multi-start.hpp) | 回数または時間指定の多点スタート |
+| [`simple-beam-search.hpp`](library/simple-beam-search.hpp) | 状態をコピーする初心者向けビームサーチ |
+| [`tree-beam-search.hpp`](library/tree-beam-search.hpp) | apply / revert で状態コピーを避けるビームサーチ |
+
+ビームサーチを初めて使う場合は `simple-beam-search.hpp` から始めてください。
+`tree-beam-search.hpp` は状態が大きく、コピーが重い場合の発展版です。
+
+### 探索状態・候補管理
+
+| ファイル | できること |
+|---|---|
+| [`shared-history.hpp`](library/shared-history.hpp) | 操作履歴の共通部分を親番号で共有・復元 |
+| [`best-by-key.hpp`](library/best-by-key.hpp) | 同じ状態キーの候補を一番良いものだけにする |
+| [`zobrist-hash.hpp`](library/zobrist-hash.hpp) | 配列状態のhashを差分更新 |
+| [`fixed-vector.hpp`](library/fixed-vector.hpp) | allocationなしの固定上限vector |
 
 ### データ構造
 
@@ -78,6 +95,16 @@ RollbackArray<string> names(initial_names);
 
 GitHub 上ではファイルを開き、右上のコピーアイコン、または Raw 表示から全体を
 コピーしてください。
+
+## 参考資料
+
+- [木上のビームサーチ：高速化編](https://trap.jp/post/2920/) —
+  apply / revert、履歴共有、状態コピー削減という考え方を参考にしています。
+- 手元のAHC001〜AHC068優勝コードレビュー知識から、複数問題で再利用例が
+  確認できた時間管理・候補制限・重複除去・差分更新を選んでいます。
+
+`tree-beam-search.hpp` は記事のRust実装の移植ではありません。記事の高度な
+帰りがけ順管理より理解しやすい、親をたどって共通祖先まで戻る独自のC++実装です。
 
 ## 最小テンプレート
 

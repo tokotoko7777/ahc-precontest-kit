@@ -4,21 +4,39 @@
 #include <string>
 #include <vector>
 
+#include "library/batched-timer.hpp"
 #include "library/best-keeper.hpp"
+#include "library/best-by-key.hpp"
 #include "library/chmin-chmax.hpp"
 #include "library/coordinate-compression.hpp"
 #include "library/cumulative-sum-2d.hpp"
 #include "library/cumulative-sum.hpp"
 #include "library/dsu.hpp"
+#include "library/fixed-vector.hpp"
+#include "library/move-statistics.hpp"
+#include "library/multi-start.hpp"
 #include "library/random.hpp"
 #include "library/rollback-array.hpp"
 #include "library/rollback-dsu.hpp"
 #include "library/schedule.hpp"
+#include "library/shared-history.hpp"
+#include "library/simple-beam-search.hpp"
 #include "library/simulated-annealing.hpp"
 #include "library/stamp-array.hpp"
 #include "library/time-based-simulated-annealing.hpp"
 #include "library/timer.hpp"
 #include "library/top-k.hpp"
+#include "library/tree-beam-search.hpp"
+#include "library/zobrist-hash.hpp"
+
+struct BeamTestState {
+  int position = 0;
+  std::vector<int> actions;
+};
+
+struct TreeBeamTestState {
+  int position = 0;
+};
 
 int main() {
   Random first(42);
@@ -140,4 +158,80 @@ int main() {
   assert(stamped.get(2) == 100);
   stamped.clear();
   assert(stamped.get(2) == -1);
+
+  const BeamTestState simple_answer = simple_beam_search(
+      BeamTestState{}, 3, 2,
+      [](const BeamTestState& state) {
+        std::vector<BeamTestState> next_states;
+        for (int move : {-1, 1}) {
+          BeamTestState next = state;
+          next.position += move;
+          next.actions.push_back(move);
+          next_states.push_back(std::move(next));
+        }
+        return next_states;
+      },
+      [](const BeamTestState& state) { return state.position; });
+  assert(simple_answer.position == 3);
+  assert(simple_answer.actions == std::vector<int>({1, 1, 1}));
+
+  SharedHistory<int> history;
+  int history_node = history.root();
+  history_node = history.add(history_node, 10);
+  history_node = history.add(history_node, 20);
+  assert(history.restore(history_node) == std::vector<int>({10, 20}));
+
+  BestByKey<int, int, std::string> unique;
+  assert(unique.add(1, 10, "old"));
+  assert(!unique.add(1, 5, "worse"));
+  assert(unique.add(1, 20, "better"));
+  assert(unique.size() == 1);
+  assert(unique.entries[0].score == 20);
+  assert(unique.entries[0].state == "better");
+
+  ZobristHash zobrist(3, 4, 123);
+  std::vector<int> hash_state{0, 1, 2};
+  std::uint64_t hash = zobrist.build(hash_state);
+  zobrist.change(hash, 1, 1, 3);
+  hash_state[1] = 3;
+  assert(hash == zobrist.build(hash_state));
+
+  FixedVector<std::string, 3> fixed;
+  fixed.push_back("a");
+  fixed.emplace_back("b");
+  assert(fixed.size() == 2);
+  assert(fixed[0] == "a" && fixed.back() == "b");
+  fixed.pop_back();
+  assert(fixed.size() == 1);
+
+  int generated = 0;
+  const int multi_start_best = multi_start<int>(
+      5, [&]() { return generated++; }, [](int value) { return value; });
+  assert(multi_start_best == 4);
+
+  BatchedTimer batched_timer(1000.0, 16);
+  assert(!batched_timer.is_over());
+  assert(0.0 <= batched_timer.cached_progress());
+  assert(batched_timer.cached_progress() <= 1.0);
+
+  MoveStatistics move_statistics;
+  move_statistics.add(true, true);
+  move_statistics.add(false, false);
+  assert(move_statistics.tried == 2);
+  assert(move_statistics.accepted == 1);
+  assert(move_statistics.improved == 1);
+  assert(std::abs(move_statistics.acceptance_rate() - 0.5) < 1e-12);
+
+  TreeBeamSearch<TreeBeamTestState, int, int> tree_beam(
+      TreeBeamTestState{}, 0, 2);
+  for (int turn = 0; turn < 3; ++turn) {
+    const bool advanced = tree_beam.step(
+        [](const TreeBeamTestState&) { return std::vector<int>{-1, 1}; },
+        [](TreeBeamTestState& state, int move) { state.position += move; },
+        [](TreeBeamTestState& state, int move) { state.position -= move; },
+        [](const TreeBeamTestState& state) { return state.position; });
+    assert(advanced);
+  }
+  assert(tree_beam.best_score() == 3);
+  assert(tree_beam.restore() == std::vector<int>({1, 1, 1}));
 }
