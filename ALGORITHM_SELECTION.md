@@ -46,6 +46,20 @@
 | 2頂点の共通祖先・距離・パス上の頂点 | `lowest-common-ancestor.hpp` | 構築 `O(N log N)`、質問 `O(log N)` |
 | 辺を追加しながら連結性を管理 | `dsu.hpp` | ほぼ `O(1)` / 回 |
 
+## 流量・対応付け・論理条件
+
+| 問題の形 | パーツ | 主な計算量 |
+|---|---|---:|
+| 有向辺の容量を守って最大量を運ぶ | `max-flow.hpp` | Dinic法 `O(N^2 M)` |
+| 決めた量を最小コストで運ぶ | `min-cost-flow.hpp` | `O(F M log N)` |
+| 左集合と右集合から1対1の組を最大数選ぶ | `bipartite-matching.hpp` | `O(M sqrt(N))` |
+| true/falseの「AまたはB」条件をすべて満たす | `two-sat.hpp` | `O(N + M)` |
+
+二部グラフの単純な最大マッチングは、最大流でも解けますが
+`bipartite-matching.hpp` の方がグラフを作りやすく高速です。
+`min-cost-flow.hpp` に追加できるのはコスト0以上の辺だけで、同じインスタンスの
+`flow` は1回だけ呼びます。
+
 ## 探索候補の保存
 
 | 状況 | パーツ |
