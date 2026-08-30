@@ -158,6 +158,54 @@ CumulativeSum2D<int> sum(grid);
 int rectangle_sum = sum.query(top, left, bottom, right);
 ```
 
+## Fenwick Tree
+
+値を途中で足し引きしながら区間和を何度も求める時に使います。累積和と違い、
+`add` の後も高速に区間和を求められます。
+
+```cpp
+vector<long long> values = {3, 1, 4, 1, 5};
+FenwickTree<long long> sum(values);
+
+sum.add(2, 10);                 // values[2] に 10 を足す
+cout << sum.query(1, 4) << '\n';  // values[1] + values[2] + values[3]
+cout << sum.prefix_sum(3) << '\n';  // values[0] + values[1] + values[2]
+```
+
+各値が0以上なら、先頭からの和が指定値に達する位置も探せます。
+
+```cpp
+int index = sum.lower_bound(8LL);
+// prefix_sum(index + 1) が初めて 8 以上になる index
+// 全体の和が 8 未満なら sum.size() が返る
+```
+
+## Segment Tree
+
+区間和だけでなく、区間の最小値・最大値などを求めたい時に使います。
+第2引数は空の区間を表す値、第3引数は2区間をまとめる処理です。
+
+```cpp
+vector<int> values = {3, 1, 4, 1, 5};
+SegmentTree<int> minimum(
+    values,
+    1000000000,
+    [](int a, int b) { return min(a, b); });
+
+cout << minimum.query(1, 4) << '\n';  // min({1, 4, 1}) = 1
+minimum.set(1, 8);                    // values[1] = 8
+cout << minimum.query(1, 3) << '\n';  // min({8, 4}) = 4
+cout << minimum.all() << '\n';        // 全要素の最小値
+```
+
+区間和なら、空の区間は `0`、まとめる処理は足し算にします。
+
+```cpp
+SegmentTree<long long> sum(
+    vector<long long>(n), 0LL,
+    [](long long a, long long b) { return a + b; });
+```
+
 ## 座標圧縮
 
 ```cpp
@@ -184,6 +232,59 @@ cout << dsu.component_count() << '\n';
 for (const vector<int>& group : dsu.groups()) {
   // 同じ連結成分の頂点が group に入る
 }
+```
+
+## Dijkstra
+
+辺のコストが0以上の重み付きグラフで、始点からの最短距離を求めます。
+無向辺には `add_undirected_edge`、有向辺には `add_directed_edge` を使います。
+
+```cpp
+vector<vector<pair<int, long long>>> graph(n);
+add_undirected_edge(graph, 0, 1, 5LL);
+add_undirected_edge(graph, 1, 2, 3LL);
+add_directed_edge(graph, 0, 2, 20LL);
+
+const long long INF = (1LL << 60);
+auto shortest = dijkstra(graph, 0, INF);
+
+cout << shortest.distance[2] << '\n';  // 8
+vector<int> path = shortest.path_to(2);  // {0, 1, 2}
+
+if (!shortest.reachable(3)) {
+  // 始点0から頂点3へは到達できない
+}
+```
+
+`INF + 辺コスト` が型の上限を超えないよう、`INF` には少し余裕を持たせます。
+負の辺があるグラフには使えません。
+
+## Grid BFS
+
+文字グリッドなら `'#'` を壁として、上下左右の最短距離を求められます。
+
+```cpp
+vector<string> grid = {
+    "...#",
+    ".#..",
+    "....",
+};
+
+auto shortest = grid_bfs(grid, {0, 0});
+cout << shortest.distance[2][3] << '\n';
+
+vector<pair<int, int>> path = shortest.path_to({2, 3});
+for (auto [row, column] : path) {
+  grid[row][column] = 'o';
+}
+```
+
+通れる条件が複雑なら、判定関数を直接渡します。
+
+```cpp
+auto shortest = grid_bfs(height, width, start, [&](int row, int column) {
+  return height_map[row][column] <= limit;
+});
 ```
 
 ## RollbackArray
