@@ -65,6 +65,7 @@
 | パターンが出現する全位置 | `prefix-function.hpp` | `O(N + M)` |
 | あらゆる中心の最長回文 | `manacher.hpp` | `O(N)` |
 | 部分列比較とLCPを何度も行う | `rolling-hash.hpp` | 構築 `O(N)`、比較 `O(1)` |
+| 2つの短い列を末尾・先頭で最大限重ねる | `sequence-overlap.hpp` | `O(min(N,M)^2)` |
 
 ## 整数集合
 

@@ -151,6 +151,7 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 | ファイル | できること |
 |---|---|
 | [`rolling-hash.hpp`](library/rolling-hash.hpp) | 部分列hash・連結・LCP |
+| [`sequence-overlap.hpp`](library/sequence-overlap.hpp) | 2列を末尾・先頭で最大限重ねて連結 |
 | [`z-algorithm.hpp`](library/z-algorithm.hpp) | 各位置と先頭の最長共通接頭辞 |
 | [`prefix-function.hpp`](library/prefix-function.hpp) | KMP用prefix function・パターン出現位置 |
 | [`manacher.hpp`](library/manacher.hpp) | 全中心の最長回文を全体O(N)で計算 |
@@ -211,9 +212,14 @@ AHC001〜AHC069を順次追加しています。全問題の状態と次の作�
 |---|---|
 | [`practice/ahc001`](practice/ahc001/) | 半開矩形、面積比による再帰領域分割 |
 | [`practice/ahc002`](practice/ahc002/) | 焼きなまし、多点スタート、destroy/repair |
+| [`practice/ahc003`](practice/ahc003/) | オンライン辺重み推定、不確実性付きDijkstra |
+| [`practice/ahc004`](practice/ahc004/) | 列の重ね合わせ、巡回窓の差分更新 |
 | [`practice/ahc006`](practice/ahc006/) | 焼きなまし、間引きタイマー、経路距離差分 |
 | [`practice/ahc007`](practice/ahc007/) | Union-Find、未来辺によるオンライン連結判断 |
 | [`practice/ahc021`](practice/ahc021/) | 木型ビームサーチ、Zobrist hash、状態重複除去 |
+| [`practice/ahc055`](practice/ahc055/) | 依存順序、攻撃先のO(1)差分焼きなまし |
+| [`practice/ahc056`](practice/ahc056/) | BFS経路、時刻を色×状態へ平方根分割 |
+| [`practice/ahc062`](practice/ahc062/) | Hamilton閉路、prefix差分2-opt、合法swap |
 
 各フォルダの `main.cpp` はローカルヘッダを参照しない、提出可能な単一ファイルです。
 

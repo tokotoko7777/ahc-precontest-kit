@@ -29,8 +29,8 @@
 |---|---|---|---|
 | AHC001 | 非重複長方形配置 | kit-ready | 再帰領域分割版。seed 0〜9平均955,418,224点。境界移動が次の改良候補 |
 | AHC002 | タイル重複禁止の長経路 | kit-ready | 多点スタート＋焼きなまし＋区間repair。seed 0〜9平均56,702点 |
-| AHC003 | オンライン最短路・辺重み学習 | new | 推定器と経路方策を分離した最小実装から開始 |
-| AHC004 | トーラス文字盤構築 | new | 文字列重複圧縮と配置近傍を検討 |
+| AHC003 | オンライン最短路・辺重み学習 | kit-ready | 3階層辺重み推定＋探索ボーナス付きDijkstra。seed 0〜9平均952,054,307点 |
+| AHC004 | トーラス文字盤構築 | kit-ready | 重ね合わせ多点スタート＋巡回窓差分探索。seed 0〜9平均66,364,170点 |
 | AHC005 | 可視性制約付き巡回路 | new | 必須監視点抽出、最短路、巡回順改善を検討 |
 | AHC006 | 集荷配送付き経路選択 | kit-ready | `practice/ahc006`。焼きなましと距離差分を検証済み |
 | AHC007 | 取消不能なオンラインMST | kit-ready | `practice/ahc007`。DSUと未来辺判定を検証済み |
@@ -81,14 +81,14 @@
 | AHC052 | 共通ボタン列・方向割当 | new | 方向割当と短いmacro列を交互改善 |
 | AHC053 | 事前カード設計・事後分割 | new | 値の基底設計と高速多山partitionを検討 |
 | AHC054 | 部分観測エージェントへの障害物配置 | local-audit | `/home/utility/AHC054/main.cpp` と公式testerを監査 |
-| AHC055 | 武器・宝箱の順序と経路 | working | `/home/utility/AHC055/main.cpp` をkit向けに監査中 |
-| AHC056 | Turing型ロボット制御 | local-audit | `/home/utility/AHC056/main.cpp` と派生資産を監査 |
+| AHC055 | 武器・宝箱の順序と経路 | kit-ready | 依存順序＋攻撃先差分SA。公式100seed合法、seed 0〜4平均約1,495攻撃 |
+| AHC056 | Turing型ロボット制御 | kit-ready | BFS列を色×状態へ平方根分割。公式100seed合法、絶対score平均72.15 |
 | AHC057 | トーラス上の時刻付き原子結合 | new | 時刻別近傍とmatching/cluster構築を検討 |
 | AHC058 | 生産機の購入・強化 | local-audit | `/home/utility/AHC058/main.cpp` と公式testerを監査 |
 | AHC059 | LIFOスタックでペア処理 | local-audit | `/home/utility/AHC059/main.cpp` と公式testerを監査 |
 | AHC060 | 収集・交換・納品経路 | local-audit | 2つのローカル版を同条件で比較して整理 |
 | AHC061 | オンライン領土ゲーム | local-audit | greedy・param版を含めて再現性を監査 |
-| AHC062 | 全セルを通る巡回路 | working | `/home/utility/AHC062` の複数案をkit向けに監査中 |
+| AHC062 | 全セルを通る巡回路 | kit-ready | 4列Hamilton閉路＋差分2-opt。seed 0〜9平均469,036,820点 |
 | AHC063 | 色付き蛇の操作列 | local-audit | 多数のgreedy・beam・anneal派生を同条件で整理 |
 | AHC064 | 線路車両間の荷物並べ替え | local-audit | `/home/utility/AHC064/main.cpp` と公式testerを監査 |
 | AHC065 | 環状コンベア設計 | local-audit | main〜main3の合法性・スコアを比較 |

@@ -889,6 +889,23 @@ cout << powered(0, 1) << '\n';
 `Matrix<StaticModInt<998244353>>` のように、四則演算と `0`, `1` を扱える型にも
 使えます。行列乗算は `i-k-j` 順で、左側要素が0の計算は飛ばします。
 
+## Sequence Overlap
+
+1つ目の列の末尾と2つ目の列の先頭を、最も長く一致する位置で重ねます。
+
+```cpp
+string first = "ABCDE";
+string second = "CDEFG";
+
+int overlap = suffix_prefix_overlap(first, second);  // 3
+string merged = merge_with_overlap(first, second);  // "ABCDEFG"
+```
+
+`vector<int>`など、`size()`、`operator[]`、末尾への`insert`を使える列にも
+同じ関数を使えます。短い列向けの分かりやすい実装で、計算量は
+`O(min(N,M)^2)`です。長い列を大量に比較する場合はZ algorithmやrolling hashを
+使ってください。
+
 ## Rolling Hash
 
 文字列や整数列の部分列が同じかを高速に比べます。
