@@ -31,11 +31,11 @@
 | AHC002 | タイル重複禁止の長経路 | kit-ready | 多点スタート＋焼きなまし＋区間repair。seed 0〜9平均56,702点 |
 | AHC003 | オンライン最短路・辺重み学習 | kit-ready | 3階層辺重み推定＋探索ボーナス付きDijkstra。seed 0〜9平均952,054,307点 |
 | AHC004 | トーラス文字盤構築 | kit-ready | 重ね合わせ多点スタート＋巡回窓差分探索。seed 0〜9平均66,364,170点 |
-| AHC005 | 可視性制約付き巡回路 | new | 必須監視点抽出、最短路、巡回順改善を検討 |
+| AHC005 | 可視性制約付き巡回路 | kit-ready | bitset監視点選択＋重み付き最短路＋巡回順改善。公式100seed全道路可視、平均197,471点 |
 | AHC006 | 集荷配送付き経路選択 | kit-ready | `practice/ahc006`。焼きなましと距離差分を検証済み |
 | AHC007 | 取消不能なオンラインMST | kit-ready | `practice/ahc007`。DSUと未来辺判定を検証済み |
-| AHC008 | 人とペットの対話型領域分割 | new | 安全な壁設置規則と段階的分断から開始 |
-| AHC009 | 失敗確率付き迷路経路 | new | 到達確率DPと経路列探索を検討 |
+| AHC008 | 人とペットの対話型領域分割 | kit-ready | 分担壁建設＋段階閉鎖。公式100seed全300ターン合法、平均4,463,342点 |
+| AHC009 | 失敗確率付き迷路経路 | kit-ready | 到達確率DP＋beam＋可変長SA＋前後DP。seed 0〜9平均74,011,284点 |
 | AHC010 | 回転タイルと閉路構築 | new | 連結成分差分と局所回転探索を検討 |
 | AHC011 | スライドパズル・大木構築 | new | 目標木生成とビーム探索を検討 |
 | AHC012 | 直線による点群分割 | new | 候補直線生成と領域個数の差分評価を検討 |
@@ -84,7 +84,7 @@
 | AHC055 | 武器・宝箱の順序と経路 | kit-ready | 依存順序＋攻撃先差分SA。公式100seed合法、seed 0〜4平均約1,495攻撃 |
 | AHC056 | Turing型ロボット制御 | kit-ready | BFS列を色×状態へ平方根分割。公式100seed合法、絶対score平均72.15 |
 | AHC057 | トーラス上の時刻付き原子結合 | new | 時刻別近傍とmatching/cluster構築を検討 |
-| AHC058 | 生産機の購入・強化 | local-audit | `/home/utility/AHC058/main.cpp` と公式testerを監査 |
+| AHC058 | 生産機の購入・強化 | kit-ready | 二項係数の閉形式＋3手rolling horizon。seed 0〜9平均5,192,507点 |
 | AHC059 | LIFOスタックでペア処理 | local-audit | `/home/utility/AHC059/main.cpp` と公式testerを監査 |
 | AHC060 | 収集・交換・納品経路 | local-audit | 2つのローカル版を同条件で比較して整理 |
 | AHC061 | オンライン領土ゲーム | local-audit | greedy・param版を含めて再現性を監査 |
