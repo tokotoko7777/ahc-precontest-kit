@@ -260,6 +260,18 @@ AHC001〜AHC069を順次追加しています。全問題の状態と次の作�
 | [`practice/ahc034`](practice/ahc034/) | 循環蛇行路、積載量分割、区間操作SA |
 | [`practice/ahc035`](practice/ahc035/) | 交配期待値、成分極値保存、盤面swap SA |
 | [`practice/ahc036`](practice/ahc036/) | 連結都市群、信号優先経路、再利用window辞書 |
+| [`practice/ahc037`](practice/ahc037/) | 単調Steiner点、階層merge、局所付け替え |
+| [`practice/ahc038`](practice/ahc038/) | 長さ違いの星型arm、同時回転、長さ1 fallback |
+| [`practice/ahc039`](practice/ahc039/) | x単調直交多角形、多解像度境界SA、転置探索 |
+| [`practice/ahc040`](practice/ahc040/) | Gaussian寸法推定、Kalman更新、bottom-left packing |
+| [`practice/ahc041`](practice/ahc041/) | 深さ制限DFS、価値順構築、部分木reparent |
+| [`practice/ahc042`](practice/ahc042/) | 福を守るshift、まとめ押し、盤面再生SA |
+| [`practice/ahc043`](practice/ahc043/) | 駅候補制限、複数始点BFS、資金推移の正確な再生 |
+| [`practice/ahc044`](practice/ahc044/) | rotor-router、流量割当、長期simulation座標降下 |
+| [`practice/ahc045`](practice/ahc045/) | 容量付きk-d分割、分割MST query、都市交換 |
+| [`practice/ahc046`](practice/ahc046/) | 停止岩候補、bitset重複除去、幅制限beam |
+| [`practice/ahc047`](practice/ahc047/) | 12状態Markovモデル、確率近似SA、KMP厳密評価 |
+| [`practice/ahc048`](practice/ahc048/) | 離散混色recipe、色cluster、残色reservoir再利用 |
 | [`practice/ahc055`](practice/ahc055/) | 依存順序、攻撃先のO(1)差分焼きなまし |
 | [`practice/ahc056`](practice/ahc056/) | BFS経路、時刻を色×状態へ平方根分割 |
 | [`practice/ahc058`](practice/ahc058/) | rolling horizon、二項係数による将来生産量 |
