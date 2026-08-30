@@ -142,6 +142,30 @@ double shortest = 1e100;
 chmin(shortest, new_distance);
 ```
 
+## 答えの二分探索
+
+「ある値以上なら可能」のように、判定結果が境界の前後で一度だけ
+変わる場合に使います。
+
+```cpp
+// possible(ng) == false、possible(ok) == true にする
+long long answer = binary_search_first_true<long long>(
+    ng, ok, [&](long long value) { return possible(value); });
+
+// true...true,false...false の最後のtrue
+long long last = binary_search_last_true<long long>(
+    ok_value, ng_value, [&](long long value) { return possible(value); });
+```
+
+実数は誤差値ではなく、回数を決めて絞ると実行時間が安定します。
+
+```cpp
+auto [false_side, true_side] = binary_search_real<double>(
+    low, high, 100, [&](double value) { return possible(value); });
+```
+
+条件が途中でtrueからfalseへ戻る場合には使えません。
+
 ## 累積和
 
 ```cpp
@@ -843,6 +867,48 @@ for (int start : starts) {
 }
 ```
 
+## DenseIntSet
+
+値の範囲が `0 <= value < universe_size` と分かっている整数集合です。
+`unordered_set` と違い、hash計算や実行中のメモリ確保がありません。
+
+```cpp
+DenseIntSet active(vertex_count);
+active.insert(vertex);
+active.erase(vertex);
+
+if (active.contains(vertex)) {
+  // 集合に入っている
+}
+
+for (int i = 0; i < active.size(); ++i) {
+  int vertex = active[i];
+}
+
+active.clear();  // O(1)
+```
+
+削除で要素の順番は変わります。乱数で `[0, active.size())` のindexを選べば、
+要素を `O(1)` でランダム選択できます。
+
+## BinaryTrie
+
+非負整数の多重集合から、指定値とのXORが最小・最大になる要素を探します。
+
+```cpp
+BinaryTrie<unsigned> values;
+values.insert(x);
+values.insert(x);  // 重複も保存できる
+values.erase(x);   // 1個だけ削除
+
+unsigned nearest = values.minimum_xor_element(query);
+unsigned farthest = values.maximum_xor_element(query);
+unsigned minimum_xor = values.minimum_xor_value(query);
+```
+
+値が24bit未満と分かっている時は `BinaryTrie<unsigned, 24>` のようにbit数を
+狭めると、時間とメモリを削減できます。空の時にXOR検索は呼べません。
+
 ## BatchedTimer
 
 1反復が非常に軽い時、毎回時計を見るコストを減らします。指定回数の間は時間切れを
@@ -1093,3 +1159,48 @@ bool overlap = first.overlaps(second);  // 辺が接するだけなので false
 
 `contains` も半開区間の判定です。整数格子のセルや、AHC001の `(x+0.5, y+0.5)` を
 含む矩形の判定にそのまま使えます。
+
+## Point2D
+
+整数2次元座標の足し引き、内積、外積、距離をまとめて使えます。
+
+```cpp
+Point2D<long long> a{x1, y1};
+Point2D<long long> b{x2, y2};
+
+auto difference = b - a;
+long long distance2 = squared_distance(a, b);
+long long manhattan = manhattan_distance(a, b);
+long long cross_value = cross(origin, a, b);
+int turn = orientation(origin, a, b);  // 左1、一直線0、右-1
+```
+
+乗算の結果も座標型になるため、座標が大きい時は `long long` を使います。
+
+## Convex Hull
+
+`x`, `y` メンバを持つ整数座標の点から凸包を求めます。`point-2d.hpp` の
+`Point2D<long long>` のほか、同じメンバを持つ自作structでも使えます。
+
+```cpp
+vector<Point2D<long long>> points;
+vector<Point2D<long long>> hull = convex_hull(points);
+// 辞書順最小の点から反時計回り。先頭点の重複はない
+```
+
+辺の途中にある一直線上の点も残したい場合は `convex_hull(points, true)` です。
+`convex-hull.hpp` 自体は `point-2d.hpp` をincludeしないため、自作の点型と組み合わせても
+単独で貼り付けられます。
+
+## Segment Intersection
+
+閉線分同士が交わるかを、整数の外積だけで正確に判定します。
+
+```cpp
+bool touch_or_cross = segments_intersect(a, b, c, d);
+bool cross_inside = segments_properly_intersect(a, b, c, d);
+bool on_segment = point_on_segment(a, b, point);
+```
+
+`segments_intersect` は端点の接触や線分の重なりもtrueです。
+`segments_properly_intersect` は両線分の内部で交差する場合だけtrueです。

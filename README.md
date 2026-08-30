@@ -54,6 +54,7 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 | [`random.hpp`](library/random.hpp) | 型を選べる乱数、ランダム選択、重み付き選択 |
 | [`fast-io.hpp`](library/fast-io.hpp) | 大量の整数・文字列用のバッファ入出力 |
 | [`chmin-chmax.hpp`](library/chmin-chmax.hpp) | 値が良くなる時だけ更新 |
+| [`binary-search-answer.hpp`](library/binary-search-answer.hpp) | 単調な条件の整数・実数境界を二分探索 |
 | [`schedule.hpp`](library/schedule.hpp) | 時間経過に合わせて値を変化 |
 | [`best-keeper.hpp`](library/best-keeper.hpp) | best score と best state を保存 |
 | [`top-k.hpp`](library/top-k.hpp) | 良い候補を上位 K 個だけ保存 |
@@ -102,6 +103,8 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 | [`rollback-array.hpp`](library/rollback-array.hpp) | 変更を過去の状態へ戻せる配列 |
 | [`rollback-dsu.hpp`](library/rollback-dsu.hpp) | 過去の状態へ戻せる Union-Find |
 | [`stamp-array.hpp`](library/stamp-array.hpp) | ほぼ O(1) で初期化し直せる配列 |
+| [`dense-int-set.hpp`](library/dense-int-set.hpp) | 固定範囲の整数集合。追加・削除・clearがO(1) |
+| [`binary-trie.hpp`](library/binary-trie.hpp) | 非負整数集合の最小・最大XOR要素 |
 | [`axis-aligned-rectangle.hpp`](library/axis-aligned-rectangle.hpp) | 半開矩形の面積・点包含・重なり判定 |
 
 ### グラフ・グリッド
@@ -146,6 +149,14 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 | ファイル | できること |
 |---|---|
 | [`longest-increasing-subsequence.hpp`](library/longest-increasing-subsequence.hpp) | 最長増加部分列の長さと復元 |
+
+### 幾何
+
+| ファイル | できること |
+|---|---|
+| [`point-2d.hpp`](library/point-2d.hpp) | 2次元点・内積・外積・距離・向き |
+| [`convex-hull.hpp`](library/convex-hull.hpp) | 整数座標の凸包を反時計回りで列挙 |
+| [`segment-intersection.hpp`](library/segment-intersection.hpp) | 整数座標の線分交差・線分上判定 |
 
 `int` 固定である必要がないパーツはテンプレートにしています。たとえば、次のように
 得点は `double`、解は `vector<int>` のように自由に選べます。
