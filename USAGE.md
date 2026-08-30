@@ -924,6 +924,27 @@ double not_arrived = dp.remaining_probability();
 失敗側の確率が正しく同じ状態へ足されます。確率型は標準の `double` のほか、必要なら
 `long double` や `float` に変更できます。
 
+## Common Scenario Average
+
+複数の行動をMonte Carloで比べる時、各行動へ同じ未来sampleを渡します。
+
+```cpp
+vector<Action> actions = make_actions();
+vector<Scenario> futures = make_future_samples();
+
+vector<long double> average = common_scenario_average(
+    actions, futures,
+    [](const Action& action, const Scenario& future) {
+      return simulate(action, future);
+    });
+
+int best = max_element(average.begin(), average.end()) - average.begin();
+```
+
+`simulate` は渡された `future` だけを使い、内部で候補ごとに別乱数を振らないようにします。
+この関数は平均だけを計算します。最悪値や分位点を重視したい場合は、同じ二重loopを元に
+問題用の集約方法へ変えてください。
+
 ## Rolling Hash
 
 文字列や整数列の部分列が同じかを高速に比べます。

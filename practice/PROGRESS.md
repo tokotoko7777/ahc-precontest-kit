@@ -36,12 +36,12 @@
 | AHC007 | 取消不能なオンラインMST | kit-ready | `practice/ahc007`。DSUと未来辺判定を検証済み |
 | AHC008 | 人とペットの対話型領域分割 | kit-ready | 分担壁建設＋段階閉鎖。公式100seed全300ターン合法、平均4,463,342点 |
 | AHC009 | 失敗確率付き迷路経路 | kit-ready | 到達確率DP＋beam＋可変長SA＋前後DP。seed 0〜9平均74,011,284点 |
-| AHC010 | 回転タイルと閉路構築 | new | 連結成分差分と局所回転探索を検討 |
+| AHC010 | 回転タイルと閉路構築 | kit-ready | 2×2安全閉路＋領域DFS候補＋bitset二閉路選択。公式100seed合法、平均76,326点 |
 | AHC011 | スライドパズル・大木構築 | new | 目標木生成とビーム探索を検討 |
-| AHC012 | 直線による点群分割 | new | 候補直線生成と領域個数の差分評価を検討 |
-| AHC013 | コンピュータ移動・接続 | new | 合法移動を保つクラスタ構築から開始 |
+| AHC012 | 直線による点群分割 | kit-ready | 分位格子＋境界relocate SA。seed 0〜9平均939,958点 |
+| AHC013 | コンピュータ移動・接続 | kit-ready | 同種見通し移動＋DSU配線構築。公式100seed全合法、平均1,802点 |
 | AHC014 | 点追加・長方形構築 | new | 合法候補cacheとdestroy/repairを検討 |
-| AHC015 | 確率配置後の盤面傾け | new | 期待値rolloutと連結成分評価を検討 |
+| AHC015 | 確率配置後の盤面傾け | kit-ready | 共通乱数rollout＋連結成分評価。seed 0〜19平均574,645点 |
 | AHC016 | 耐ノイズ識別グラフ設計 | new | 符号距離の大きいグラフ族と分類器を検討 |
 | AHC017 | 辺工事の日程割当 | new | 初期均等割当、最短路差分、日交換近傍を検討 |
 | AHC018 | 未知硬度の掘削・接続 | new | 安全な推定掘削とMST状接続から開始 |
@@ -85,7 +85,7 @@
 | AHC056 | Turing型ロボット制御 | kit-ready | BFS列を色×状態へ平方根分割。公式100seed合法、絶対score平均72.15 |
 | AHC057 | トーラス上の時刻付き原子結合 | new | 時刻別近傍とmatching/cluster構築を検討 |
 | AHC058 | 生産機の購入・強化 | kit-ready | 二項係数の閉形式＋3手rolling horizon。seed 0〜9平均5,192,507点 |
-| AHC059 | LIFOスタックでペア処理 | local-audit | `/home/utility/AHC059/main.cpp` と公式testerを監査 |
+| AHC059 | LIFOスタックでペア処理 | kit-ready | 完全入れ子鎖＋2状態DP＋境界差分探索。seed 0〜9平均15,185.8点 |
 | AHC060 | 収集・交換・納品経路 | local-audit | 2つのローカル版を同条件で比較して整理 |
 | AHC061 | オンライン領土ゲーム | local-audit | greedy・param版を含めて再現性を監査 |
 | AHC062 | 全セルを通る巡回路 | kit-ready | 4列Hamilton閉路＋差分2-opt。seed 0〜9平均469,036,820点 |

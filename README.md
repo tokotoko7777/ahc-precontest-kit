@@ -71,6 +71,7 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 | [`multi-start.hpp`](library/multi-start.hpp) | 回数または時間指定の多点スタート |
 | [`simple-beam-search.hpp`](library/simple-beam-search.hpp) | 状態をコピーする初心者向けビームサーチ |
 | [`tree-beam-search.hpp`](library/tree-beam-search.hpp) | apply / revert型ビームサーチ。同じ状態キーの重複除去にも対応 |
+| [`common-scenario-average.hpp`](library/common-scenario-average.hpp) | 全候補を同じ未来sampleで比較するrollout補助 |
 
 ビームサーチを初めて使う場合は `simple-beam-search.hpp` から始めてください。
 `tree-beam-search.hpp` は状態が大きく、コピーが重い場合の発展版です。
@@ -225,10 +226,15 @@ AHC001〜AHC069を順次追加しています。全問題の状態と次の作�
 | [`practice/ahc007`](practice/ahc007/) | Union-Find、未来辺によるオンライン連結判断 |
 | [`practice/ahc008`](practice/ahc008/) | 対話型の安全判定、分担壁建設、段階閉鎖 |
 | [`practice/ahc009`](practice/ahc009/) | 確率伝播DP、beam、可変長SA、前後DP |
+| [`practice/ahc010`](practice/ahc010/) | 閉路DFS、bitset衝突判定、安全fallback |
+| [`practice/ahc012`](practice/ahc012/) | 分位格子、histogram評価、境界relocate |
+| [`practice/ahc013`](practice/ahc013/) | 同種見通し移動、DSU、交差しない貪欲配線 |
+| [`practice/ahc015`](practice/ahc015/) | 共通乱数rollout、固定長盤面、連結成分評価 |
 | [`practice/ahc021`](practice/ahc021/) | 木型ビームサーチ、Zobrist hash、状態重複除去 |
 | [`practice/ahc055`](practice/ahc055/) | 依存順序、攻撃先のO(1)差分焼きなまし |
 | [`practice/ahc056`](practice/ahc056/) | BFS経路、時刻を色×状態へ平方根分割 |
 | [`practice/ahc058`](practice/ahc058/) | rolling horizon、二項係数による将来生産量 |
+| [`practice/ahc059`](practice/ahc059/) | 完全入れ子列、2状態DP、境界差分探索 |
 | [`practice/ahc062`](practice/ahc062/) | Hamilton閉路、prefix差分2-opt、合法swap |
 
 各フォルダの `main.cpp` はローカルヘッダを参照しない、提出可能な単一ファイルです。
