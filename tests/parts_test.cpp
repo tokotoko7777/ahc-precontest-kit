@@ -52,6 +52,7 @@
 #include "library/prime-table.hpp"
 #include "library/prefix-function.hpp"
 #include "library/point-2d.hpp"
+#include "library/probability-move-dp.hpp"
 #include "library/random.hpp"
 #include "library/radix-heap.hpp"
 #include "library/range-add-range-minimum.hpp"
@@ -1656,4 +1657,17 @@ int main() {
   assert((merge_with_overlap(std::vector<int>{1, 2, 3},
                              std::vector<int>{3, 4}) ==
           std::vector<int>{1, 2, 3, 4}));
+
+  ProbabilityMoveDP<double> probability_dp(3, 0);
+  const std::vector<int> move_right{1, 2, 2};
+  assert(std::abs(probability_dp.step(move_right, 0.5, 2)) < 1e-12);
+  assert(std::abs(probability_dp.step(move_right, 0.5, 2) - 0.25) < 1e-12);
+  assert(std::abs(probability_dp.remaining_probability() - 0.75) < 1e-12);
+  assert(std::abs(probability_dp.step(move_right, 0.5, 2) - 0.25) < 1e-12);
+  assert(std::abs(probability_dp.remaining_probability() - 0.50) < 1e-12);
+
+  ProbabilityMoveDP<float> wall_probability_dp(2, 0);
+  const std::vector<int> stay_in_place{0, 1};
+  assert(wall_probability_dp.step(stay_in_place, 0.7F) == 0.0F);
+  assert(std::abs(wall_probability_dp.probability[0] - 1.0F) < 1e-6F);
 }

@@ -906,6 +906,24 @@ string merged = merge_with_overlap(first, second);  // "ABCDEFG"
 `O(min(N,M)^2)`です。長い列を大量に比較する場合はZ algorithmやrolling hashを
 使ってください。
 
+## Probability Move DP
+
+移動が確率 `0.8` で成功し、失敗するとその場に残る3状態の例です。状態2をゴールとして
+吸収するので、一度着いた確率は次のターンへ残りません。
+
+```cpp
+ProbabilityMoveDP<double> dp(3, 0);  // 状態数3、開始状態0
+vector<int> move_right = {1, 2, 2};  // 成功時: 0->1, 1->2, 2->2
+
+double arrived_now = dp.step(move_right, 0.8, 2);
+double not_arrived = dp.remaining_probability();
+```
+
+コマンドごとに遷移先が違う場合は、`move_up`、`move_down` のような配列を先に作り、
+選んだ配列を `step` へ渡します。壁へ進む状態では遷移先を自分自身にすれば、成功側と
+失敗側の確率が正しく同じ状態へ足されます。確率型は標準の `double` のほか、必要なら
+`long double` や `float` に変更できます。
+
 ## Rolling Hash
 
 文字列や整数列の部分列が同じかを高速に比べます。

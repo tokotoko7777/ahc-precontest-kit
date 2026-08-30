@@ -163,6 +163,12 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 | [`longest-increasing-subsequence.hpp`](library/longest-increasing-subsequence.hpp) | 最長増加部分列の長さと復元 |
 | [`inversion-count.hpp`](library/inversion-count.hpp) | 大小関係が逆になった組の個数 |
 
+### 確率DP
+
+| ファイル | できること |
+|---|---|
+| [`probability-move-dp.hpp`](library/probability-move-dp.hpp) | 成功時に遷移、失敗時に停止する状態確率を1手更新 |
+
 ### 幾何
 
 | ファイル | できること |
@@ -214,11 +220,15 @@ AHC001〜AHC069を順次追加しています。全問題の状態と次の作�
 | [`practice/ahc002`](practice/ahc002/) | 焼きなまし、多点スタート、destroy/repair |
 | [`practice/ahc003`](practice/ahc003/) | オンライン辺重み推定、不確実性付きDijkstra |
 | [`practice/ahc004`](practice/ahc004/) | 列の重ね合わせ、巡回窓の差分更新 |
+| [`practice/ahc005`](practice/ahc005/) | bitset監視点選択、重み付き最短路、巡回順改善 |
 | [`practice/ahc006`](practice/ahc006/) | 焼きなまし、間引きタイマー、経路距離差分 |
 | [`practice/ahc007`](practice/ahc007/) | Union-Find、未来辺によるオンライン連結判断 |
+| [`practice/ahc008`](practice/ahc008/) | 対話型の安全判定、分担壁建設、段階閉鎖 |
+| [`practice/ahc009`](practice/ahc009/) | 確率伝播DP、beam、可変長SA、前後DP |
 | [`practice/ahc021`](practice/ahc021/) | 木型ビームサーチ、Zobrist hash、状態重複除去 |
 | [`practice/ahc055`](practice/ahc055/) | 依存順序、攻撃先のO(1)差分焼きなまし |
 | [`practice/ahc056`](practice/ahc056/) | BFS経路、時刻を色×状態へ平方根分割 |
+| [`practice/ahc058`](practice/ahc058/) | rolling horizon、二項係数による将来生産量 |
 | [`practice/ahc062`](practice/ahc062/) | Hamilton閉路、prefix差分2-opt、合法swap |
 
 各フォルダの `main.cpp` はローカルヘッダを参照しない、提出可能な単一ファイルです。
