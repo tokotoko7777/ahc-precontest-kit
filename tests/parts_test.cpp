@@ -11,6 +11,7 @@
 #include "library/batched-timer.hpp"
 #include "library/axis-aligned-rectangle.hpp"
 #include "library/alias-table.hpp"
+#include "library/all-pairs-bfs.hpp"
 #include "library/bellman-ford.hpp"
 #include "library/bipartite-matching.hpp"
 #include "library/bipartite-check.hpp"
@@ -39,7 +40,9 @@
 #include "library/functional-graph.hpp"
 #include "library/fixed-vector.hpp"
 #include "library/graph-bfs.hpp"
+#include "library/greedy-balanced-partition.hpp"
 #include "library/grid-bfs.hpp"
+#include "library/hungarian.hpp"
 #include "library/inversion-count.hpp"
 #include "library/integer-square-root.hpp"
 #include "library/kruskal.hpp"
@@ -1702,4 +1705,46 @@ int main() {
          3037000499LL);
   assert(ceil_integer_square_root(std::numeric_limits<long long>::max()) ==
          3037000500LL);
+
+  const std::vector<long long> partition_weight{9, 8, 7, 6, 5, 4};
+  const std::vector<std::vector<int>> balanced_groups =
+      greedy_balanced_partition(partition_weight, 3);
+  std::vector<long long> partition_sum(3, 0);
+  std::vector<int> partition_seen(6, 0);
+  for (int group = 0; group < 3; ++group) {
+    for (int item : balanced_groups[group]) {
+      partition_sum[group] += partition_weight[item];
+      ++partition_seen[item];
+    }
+  }
+  assert(partition_sum == std::vector<long long>({13, 13, 13}));
+  assert(partition_seen == std::vector<int>({1, 1, 1, 1, 1, 1}));
+
+  const std::vector<std::vector<long long>> assignment_cost{
+      {4, 1, 3},
+      {2, 0, 5},
+      {3, 2, 2},
+  };
+  assert(hungarian_minimum_assignment(assignment_cost) ==
+         std::vector<int>({1, 0, 2}));
+  const std::vector<std::vector<double>> negative_assignment_cost{
+      {-1.0, 2.0},
+      {0.0, -2.0},
+  };
+  assert(hungarian_minimum_assignment(negative_assignment_cost) ==
+         std::vector<int>({0, 1}));
+
+  const std::vector<std::vector<int>> short_path_graph{
+      {1},
+      {0, 2},
+      {1, 3},
+      {2},
+      {},
+  };
+  const auto all_distances =
+      all_pairs_bfs<unsigned short>(short_path_graph);
+  assert(all_distances[0][3] == 3);
+  assert(all_distances[3][0] == 3);
+  assert(all_distances[0][4] ==
+         std::numeric_limits<unsigned short>::max());
 }

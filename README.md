@@ -86,6 +86,7 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 | [`fixed-vector.hpp`](library/fixed-vector.hpp) | allocationなしの固定上限vector |
 | [`radix-heap.hpp`](library/radix-heap.hpp) | 単調な非負整数キー用の高速priority queue |
 | [`farthest-point-sampling.hpp`](library/farthest-point-sampling.hpp) | 離れた代表点をO(NK)で選ぶ |
+| [`greedy-balanced-partition.hpp`](library/greedy-balanced-partition.hpp) | 大きい要素から合計の軽い組へ分ける |
 
 ### データ構造
 
@@ -122,6 +123,7 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 | [`dijkstra.hpp`](library/dijkstra.hpp) | 非負辺グラフの最短距離と経路復元 |
 | [`bellman-ford.hpp`](library/bellman-ford.hpp) | 負辺を含む最短距離・負閉路の影響範囲 |
 | [`graph-bfs.hpp`](library/graph-bfs.hpp) | 重みなしグラフの最短距離と経路復元 |
+| [`all-pairs-bfs.hpp`](library/all-pairs-bfs.hpp) | 重みなし全頂点間距離。距離型でメモリを調整 |
 | [`zero-one-bfs.hpp`](library/zero-one-bfs.hpp) | コスト0/1の最短距離と経路復元 |
 | [`grid-bfs.hpp`](library/grid-bfs.hpp) | 4方向グリッドの最短距離と経路復元 |
 | [`topological-sort.hpp`](library/topological-sort.hpp) | DAGの順序と閉路検出 |
@@ -135,6 +137,7 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 | [`max-flow.hpp`](library/max-flow.hpp) | Dinic法の最大流・最小カット |
 | [`min-cost-flow.hpp`](library/min-cost-flow.hpp) | 非負辺コスト用の最小費用流 |
 | [`bipartite-matching.hpp`](library/bipartite-matching.hpp) | 左右の頂点を1対1対応させる最大マッチング |
+| [`hungarian.hpp`](library/hungarian.hpp) | 費用最小の1対1割り当て |
 | [`two-sat.hpp`](library/two-sat.hpp) | 「AまたはB」の論理条件を満たす割り当て |
 
 ### 数学
@@ -234,11 +237,18 @@ AHC001〜AHC069を順次追加しています。全問題の状態と次の作�
 | [`practice/ahc013`](practice/ahc013/) | 同種見通し移動、DSU、交差しない貪欲配線 |
 | [`practice/ahc014`](practice/ahc014/) | 単位辺占有、候補制限、randomized multi-start |
 | [`practice/ahc015`](practice/ahc015/) | 共通乱数rollout、固定長盤面、連結成分評価 |
+| [`practice/ahc016`](practice/ahc016/) | 冗長グラフ符号、置換不変特徴、自己生成noise校正 |
 | [`practice/ahc017`](practice/ahc017/) | farthest-point sample、日別Dijkstra cache、swap SA |
 | [`practice/ahc018`](practice/ahc018/) | 硬さ推定、複数始点Dijkstra、rolling replan |
 | [`practice/ahc019`](practice/ahc019/) | 24回転voxel重合、投影bitmask、残余domino化 |
 | [`practice/ahc020`](practice/ahc020/) | 重み付きset cover、metric MST、非terminal葉刈り |
 | [`practice/ahc021`](practice/ahc021/) | 木型ビームサーチ、Zobrist hash、状態重複除去 |
+| [`practice/ahc022`](practice/ahc022/) | 2値温度符号、active measurement、Hungarian復号 |
+| [`practice/ahc023`](practice/ahc023/) | 永続通路、区間min-cost flow、区間彩色 |
+| [`practice/ahc024`](practice/ahc024/) | 接触辺数差分、局所連結判定、短時間multi-start |
+| [`practice/ahc025`](practice/ahc025/) | 順位推定、指数分布prior、保証付き均等化 |
+| [`practice/ahc026`](practice/ahc026/) | 単独退避、完走rollout、箱位置の差分更新 |
+| [`practice/ahc027`](practice/ahc027/) | 全点間BFS、汚れの緊急度、複数周期の再評価 |
 | [`practice/ahc055`](practice/ahc055/) | 依存順序、攻撃先のO(1)差分焼きなまし |
 | [`practice/ahc056`](practice/ahc056/) | BFS経路、時刻を色×状態へ平方根分割 |
 | [`practice/ahc058`](practice/ahc058/) | rolling horizon、二項係数による将来生産量 |

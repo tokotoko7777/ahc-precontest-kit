@@ -134,6 +134,25 @@ for (const auto& [cheap_score, state] : candidates.entries) {
 
 最小化なら `TopK<double, State> candidates(20, false);` です。
 
+## 大きい順の均等分割
+
+各要素の重みが分かっていて、グループ合計を手早く近づけたい時に使います。大きい要素から
+順に、その時点で合計が最小のグループへ入れます。
+
+```cpp
+vector<long long> weight = {9, 8, 7, 6, 5, 4};
+vector<vector<int>> groups = greedy_balanced_partition(weight, 3);
+
+for (const auto& group : groups) {
+  long long sum = 0;
+  for (int item : group) sum += weight[item];
+  cout << sum << '\n';  // この例では13, 13, 13
+}
+```
+
+厳密な最適分割ではありませんが、`O(N log N + N log K)` で初期解を作れます。重みは0以上
+を想定し、`int`、`long long`、`double` などを選べます。
+
 ## Schedule
 
 進捗率に応じて、近傍の大きさや試行回数を変えられます。
@@ -456,6 +475,23 @@ vector<int> path = shortest.path_to(goal);
 
 到達不能な頂点の距離は `-1`、経路は空になります。
 
+## All-Pairs BFS
+
+重みなしグラフで、後から任意の2頂点間距離を何度も使う場合に全始点のBFSを先に行います。
+
+```cpp
+vector<vector<int>> graph(vertex_count);
+vector<vector<unsigned short>> distance =
+    all_pairs_bfs<unsigned short>(graph);
+
+cout << distance[from][to] << '\n';
+```
+
+`Distance` を省略すると `int` です。最大距離が65,534以下なら `unsigned short` を使うと
+距離表のメモリを半分程度にできます。到達不能値は `numeric_limits<Distance>::max()` です。
+計算量は `O(V(V+E))`、メモリは `O(V^2)` なので、頂点数が大きい時は必要な始点だけ
+`graph-bfs.hpp` で処理してください。
+
 ## Bipartite Check
 
 無向グラフのすべての辺で両端の色が異なるよう、0/1の2色に塗れるか判定します。
@@ -770,6 +806,23 @@ for (auto [person, job] : result.pairs()) {
 ```
 
 コストのない最大マッチングなら、最大流に変換するよりこちらが簡単です。
+
+## Hungarian Algorithm
+
+左右の数が同じ費用行列で、全てを1対1に対応させた時の合計費用を最小化します。
+
+```cpp
+vector<vector<long long>> cost = {
+    {4, 1, 3},
+    {2, 0, 5},
+    {3, 2, 2},
+};
+vector<int> assigned_column = hungarian_minimum_assignment(cost);
+// assigned_column == {1, 0, 2}、合計費用は5
+```
+
+戻り値の `assigned_column[row]` が、その行へ割り当てた列です。行列は正方形にし、費用型には
+`long long` や `double` などの符号付き型を使います。計算量は `O(N^3)` です。
 
 ## Two-SAT
 
