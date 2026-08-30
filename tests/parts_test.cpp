@@ -19,6 +19,7 @@
 #include "library/best-keeper.hpp"
 #include "library/best-by-key.hpp"
 #include "library/chmin-chmax.hpp"
+#include "library/common-scenario-average.hpp"
 #include "library/coordinate-compression.hpp"
 #include "library/convex-hull.hpp"
 #include "library/cumulative-sum-2d.hpp"
@@ -1670,4 +1671,14 @@ int main() {
   const std::vector<int> stay_in_place{0, 1};
   assert(wall_probability_dp.step(stay_in_place, 0.7F) == 0.0F);
   assert(std::abs(wall_probability_dp.probability[0] - 1.0F) < 1e-6F);
+
+  const std::vector<int> scenario_actions{0, 1, 2};
+  const std::vector<int> common_scenarios{1, 2, 3};
+  const std::vector<long double> scenario_average = common_scenario_average(
+      scenario_actions,
+      common_scenarios,
+      [](int action, int scenario) { return action * scenario; });
+  assert(scenario_average[0] == 0.0L);
+  assert(scenario_average[1] == 2.0L);
+  assert(scenario_average[2] == 4.0L);
 }
