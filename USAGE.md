@@ -235,6 +235,23 @@ long long answer = sum.query(query_left, query_right);
 long long total = sum.all();
 ```
 
+## RangeAddRangeMinimum
+
+区間全体に値を足しながら、区間最小値を取得する遅延セグメント木です。
+
+```cpp
+const long long INF = (1LL << 60);
+RangeAddRangeMinimum<long long> minimum(values, INF);
+
+minimum.add(left, right, amount);       // [left, right) に加算
+long long answer = minimum.query(ql, qr);  // [ql, qr) の最小値
+long long one_value = minimum.get(index);
+long long all = minimum.all_minimum();
+```
+
+空区間の `query` は構築時に渡した `INF` を返します。`INF + amount` が
+オーバーフローしない値を選びます。
+
 ## SparseTable
 
 変更されない配列の区間最小値・最大値・gcdを何度も求める場合に使います。
@@ -351,6 +368,28 @@ if (!shortest.reachable(3)) {
 
 `INF + 辺コスト` が型の上限を超えないよう、`INF` には少し余裕を持たせます。
 負の辺があるグラフには使えません。
+
+## Bellman–Ford
+
+負の辺を含む有向グラフの最短路と、始点から辿り着ける負閉路の
+影響を求めます。
+
+```cpp
+vector<BellmanFordEdge<long long>> edges;
+edges.push_back({from, to, cost});
+
+const long long INF = (1LL << 60);
+auto shortest = bellman_ford(n, edges, start, INF);
+
+if (shortest.shortest_path_exists(goal)) {
+  cout << shortest.distance[goal] << '\n';
+  vector<int> path = shortest.path_to(goal);
+} else if (shortest.affected_by_negative_cycle[goal]) {
+  // 負閉路を何度も回って距離を下げられる
+}
+```
+
+計算量は `O(NM)` です。辺コストがすべて0以上なら、Dijkstraを使う方が高速です。
 
 ## 0-1 BFS
 
@@ -510,6 +549,25 @@ int on_path = tree_lca.jump(a, b, steps_from_a);
 木は連結な無向隣接リストで渡します。再帰を使わないため、一本道でも
 再帰スタックを消費しません。
 
+## Tree Diameter
+
+木の中で最も距離が長い2頂点と、その間の経路を `O(N)` で求めます。
+辺の重みは0以上です。
+
+```cpp
+vector<vector<pair<int, long long>>> tree(n);
+tree[a].push_back({b, cost});
+tree[b].push_back({a, cost});
+
+auto diameter = tree_diameter(tree);
+cout << diameter.length << '\n';
+for (int vertex : diameter.path) {
+  // endpoint_a から endpoint_b までの頂点列
+}
+```
+
+重みなしの木では、各辺の `cost` を1にします。再帰は使いません。
+
 ## Max Flow
 
 辺ごとの容量を超えないように、始点から終点まで運べる最大量を
@@ -619,6 +677,22 @@ vector<int> divisors = primes.divisors(x);
 
 質問する値は構築時の上限以下である必要があります。1の素因数分解は空です。
 
+## ModCombination
+
+素数mod上の `nCk`、`nPk`、重複組合せを事前計算後 `O(1)` で取得します。
+このファイル単体で使えるため、`static-mod-int.hpp` は必要ありません。
+
+```cpp
+ModCombination<998244353> combination(max_n);
+
+int choose = combination.choose(n, k);          // nCk
+int arrange = combination.permutation(n, k);    // nPk
+int repeated = combination.multichoose(n, k);   // 重複を許してk個
+```
+
+`MOD` は素数、扱う `n` は `MOD` 未満にします。後からより大きい `n` を渡すと、
+必要なところまで自動的に事前計算を延長します。
+
 ## Rolling Hash
 
 文字列や整数列の部分列が同じかを高速に比べます。
@@ -650,6 +724,36 @@ vector<int> z = z_algorithm(text);
 ```
 
 `string` だけでなく、`vector<int>` など `==` で比較できる列にも使えます。
+
+## Prefix Function / KMP
+
+パターンの出現位置をすべて、文字列の長さに比例する時間で探します。
+
+```cpp
+vector<int> positions = find_pattern_occurrences(text, pattern);
+
+vector<int> prefix = prefix_function(pattern);
+// prefix[i] = pattern[0..i]の、接頭辞でも接尾辞でもある最長長さ
+```
+
+こちらはhash衝突がなく、完全に正確な一致検索です。`string` と `vector<int>` などに
+使えます。空のpatternは0から `text.size()` までの全位置に一致します。
+
+## Manacher
+
+列の各中心に対する奇数長・偶数長の最長回文を、全体 `O(N)` で求めます。
+
+```cpp
+auto palindromes = palindrome_radii(text);
+
+bool yes = palindromes.is_palindrome(left, right);  // [left, right)
+auto [longest_left, longest_right] = palindromes.longest_interval();
+
+int odd_length = 2 * palindromes.odd[center] - 1;
+int even_length = 2 * palindromes.even[center];
+```
+
+`string` だけでなく、`vector<int>` など `==` で比較できる列に使えます。
 
 ## Longest Increasing Subsequence
 

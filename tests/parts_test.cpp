@@ -10,6 +10,7 @@
 
 #include "library/batched-timer.hpp"
 #include "library/axis-aligned-rectangle.hpp"
+#include "library/bellman-ford.hpp"
 #include "library/bipartite-matching.hpp"
 #include "library/best-keeper.hpp"
 #include "library/best-by-key.hpp"
@@ -31,12 +32,16 @@
 #include "library/longest-increasing-subsequence.hpp"
 #include "library/lowest-common-ancestor.hpp"
 #include "library/max-flow.hpp"
+#include "library/manacher.hpp"
 #include "library/min-cost-flow.hpp"
+#include "library/mod-combination.hpp"
 #include "library/move-statistics.hpp"
 #include "library/multi-start.hpp"
 #include "library/prime-table.hpp"
+#include "library/prefix-function.hpp"
 #include "library/random.hpp"
 #include "library/radix-heap.hpp"
+#include "library/range-add-range-minimum.hpp"
 #include "library/range-add-range-sum.hpp"
 #include "library/rollback-array.hpp"
 #include "library/rollback-dsu.hpp"
@@ -57,6 +62,7 @@
 #include "library/top-k.hpp"
 #include "library/topological-sort.hpp"
 #include "library/tree-beam-search.hpp"
+#include "library/tree-diameter.hpp"
 #include "library/two-sat.hpp"
 #include "library/zobrist-hash.hpp"
 #include "library/zero-one-bfs.hpp"
@@ -758,6 +764,201 @@ int main() {
              random_depth[original_a] + random_depth[original_b] -
                  2 * random_depth[a]);
     }
+  }
+
+  RangeAddRangeMinimum<long long> range_minimum(
+      std::vector<long long>{5, 2, 7, 1, 4}, (1LL << 60));
+  assert(range_minimum.query(0, 5) == 1);
+  range_minimum.add(1, 4, 3);
+  assert(range_minimum.query(0, 5) == 4);
+  assert(range_minimum.query(1, 3) == 5);
+  assert(range_minimum.get(3) == 4);
+
+  const std::vector<BellmanFordEdge<long long>> negative_edges{
+      {0, 1, 2}, {1, 2, -5}, {0, 2, 10}, {2, 3, 4}};
+  const auto negative_shortest =
+      bellman_ford(4, negative_edges, 0, (1LL << 60));
+  assert(negative_shortest.distance[3] == 1);
+  assert(negative_shortest.path_to(3) == std::vector<int>({0, 1, 2, 3}));
+  assert(!negative_shortest.affected_by_negative_cycle[3]);
+
+  const std::vector<BellmanFordEdge<long long>> cycle_edges{
+      {0, 1, 0}, {1, 2, -2}, {2, 1, 1}, {2, 3, 0}, {4, 4, -1}};
+  const auto negative_cycle_result =
+      bellman_ford(5, cycle_edges, 0, (1LL << 60));
+  assert(!negative_cycle_result.affected_by_negative_cycle[0]);
+  assert(negative_cycle_result.affected_by_negative_cycle[1]);
+  assert(negative_cycle_result.affected_by_negative_cycle[2]);
+  assert(negative_cycle_result.affected_by_negative_cycle[3]);
+  assert(!negative_cycle_result.affected_by_negative_cycle[4]);
+
+  std::vector<std::vector<std::pair<int, long long>>> weighted_tree(5);
+  const auto add_tree_edge = [&](int a, int b, long long cost) {
+    weighted_tree[a].push_back({b, cost});
+    weighted_tree[b].push_back({a, cost});
+  };
+  add_tree_edge(0, 1, 2);
+  add_tree_edge(1, 2, 5);
+  add_tree_edge(1, 3, 1);
+  add_tree_edge(3, 4, 4);
+  const auto diameter = tree_diameter(weighted_tree);
+  assert(diameter.length == 10);
+  assert((diameter.path == std::vector<int>({2, 1, 3, 4}) ||
+          diameter.path == std::vector<int>({4, 3, 1, 2})));
+
+  ModCombination<998244353> combinations(30);
+  assert(combinations.choose(5, 2) == 10);
+  assert(combinations.permutation(5, 2) == 20);
+  assert(combinations.multichoose(3, 4) == 15);
+  assert(combinations.choose(3, 4) == 0);
+
+  assert(prefix_function(std::string("ababa")) ==
+         std::vector<int>({0, 0, 1, 2, 3}));
+  assert(find_pattern_occurrences(std::string("ababa"), std::string("aba")) ==
+         std::vector<int>({0, 2}));
+  assert(find_pattern_occurrences(std::string("abc"), std::string("")) ==
+         std::vector<int>({0, 1, 2, 3}));
+
+  const auto palindromes = palindrome_radii(std::string("abacabba"));
+  assert(palindromes.is_palindrome(0, 3));
+  assert(palindromes.is_palindrome(4, 8));
+  assert(!palindromes.is_palindrome(0, 4));
+  const auto longest_palindrome = palindromes.longest_interval();
+  assert(longest_palindrome.second - longest_palindrome.first == 5);
+
+  for (int iteration = 0; iteration < 100; ++iteration) {
+    const int n = random.next_int(1, 21);
+    std::vector<long long> plain_values(n);
+    for (long long& value : plain_values) value = random.next_int(-20LL, 21LL);
+    RangeAddRangeMinimum<long long> tested_minimum(plain_values, (1LL << 60));
+    for (int operation = 0; operation < 200; ++operation) {
+      int left = random.next_int(0, n + 1);
+      int right = random.next_int(0, n + 1);
+      if (left > right) std::swap(left, right);
+      if (random.next_int(0, 2) == 0) {
+        const long long amount = random.next_int(-10LL, 11LL);
+        tested_minimum.add(left, right, amount);
+        for (int i = left; i < right; ++i) plain_values[i] += amount;
+      } else {
+        long long expected = (1LL << 60);
+        for (int i = left; i < right; ++i) {
+          expected = std::min(expected, plain_values[i]);
+        }
+        assert(tested_minimum.query(left, right) == expected);
+      }
+    }
+
+    const int text_size = random.next_int(0, 31);
+    std::string text(text_size, 'a');
+    for (char& character : text) character = random.next_int(0, 3) + 'a';
+    const int pattern_size = random.next_int(0, 9);
+    std::string pattern(pattern_size, 'a');
+    for (char& character : pattern) character = random.next_int(0, 3) + 'a';
+    std::vector<int> expected_occurrences;
+    for (int start = 0; start + pattern_size <= text_size; ++start) {
+      if (text.compare(start, pattern_size, pattern) == 0) {
+        expected_occurrences.push_back(start);
+      }
+    }
+    assert(find_pattern_occurrences(text, pattern) == expected_occurrences);
+
+    const auto tested_palindromes = palindrome_radii(text);
+    int expected_longest = 0;
+    for (int left = 0; left <= text_size; ++left) {
+      for (int right = left; right <= text_size; ++right) {
+        bool expected = true;
+        for (int offset = 0; left + offset < right - offset - 1; ++offset) {
+          if (text[left + offset] != text[right - offset - 1]) expected = false;
+        }
+        assert(tested_palindromes.is_palindrome(left, right) == expected);
+        if (expected) expected_longest = std::max(expected_longest, right - left);
+      }
+    }
+    const auto tested_longest = tested_palindromes.longest_interval();
+    assert(tested_longest.second - tested_longest.first == expected_longest);
+  }
+
+  for (int iteration = 0; iteration < 100; ++iteration) {
+    const int n = random.next_int(2, 7);
+    const long long infinity = (1LL << 50);
+    std::vector<BellmanFordEdge<long long>> edges;
+    std::vector<std::vector<long long>> all_distance(
+        n, std::vector<long long>(n, infinity));
+    for (int vertex = 0; vertex < n; ++vertex) all_distance[vertex][vertex] = 0;
+    for (int from = 0; from < n; ++from) {
+      for (int to = 0; to < n; ++to) {
+        if (from == to || random.next_int(0, 3) != 0) continue;
+        const long long cost = random.next_int(-5LL, 8LL);
+        edges.push_back({from, to, cost});
+        all_distance[from][to] = std::min(all_distance[from][to], cost);
+      }
+    }
+    for (int middle = 0; middle < n; ++middle) {
+      for (int from = 0; from < n; ++from) {
+        for (int to = 0; to < n; ++to) {
+          if (all_distance[from][middle] == infinity ||
+              all_distance[middle][to] == infinity) {
+            continue;
+          }
+          all_distance[from][to] =
+              std::min(all_distance[from][to],
+                       all_distance[from][middle] + all_distance[middle][to]);
+        }
+      }
+    }
+    const auto tested = bellman_ford(n, edges, 0, infinity);
+    for (int target = 0; target < n; ++target) {
+      bool affected = false;
+      for (int cycle = 0; cycle < n; ++cycle) {
+        if (all_distance[0][cycle] != infinity &&
+            all_distance[cycle][cycle] < 0 &&
+            all_distance[cycle][target] != infinity) {
+          affected = true;
+        }
+      }
+      assert(static_cast<bool>(tested.affected_by_negative_cycle[target]) ==
+             affected);
+      if (!affected) assert(tested.distance[target] == all_distance[0][target]);
+    }
+  }
+
+  for (int n = 0; n <= 30; ++n) {
+    std::vector<int> row(n + 1, 1);
+    for (int k = 1; k < n; ++k) {
+      row[k] = combinations.choose(n - 1, k - 1) +
+               combinations.choose(n - 1, k);
+    }
+    for (int k = 0; k <= n; ++k) assert(combinations.choose(n, k) == row[k]);
+  }
+
+  for (int iteration = 0; iteration < 100; ++iteration) {
+    const int n = random.next_int(1, 15);
+    std::vector<std::vector<std::pair<int, long long>>> tree(n);
+    for (int vertex = 1; vertex < n; ++vertex) {
+      const int parent = random.next_int(0, vertex);
+      const long long cost = random.next_int(0LL, 20LL);
+      tree[vertex].push_back({parent, cost});
+      tree[parent].push_back({vertex, cost});
+    }
+    long long expected_diameter = 0;
+    for (int start = 0; start < n; ++start) {
+      std::vector<long long> distance(n, -1);
+      distance[start] = 0;
+      std::vector<int> stack{start};
+      while (!stack.empty()) {
+        const int vertex = stack.back();
+        stack.pop_back();
+        for (const auto& [next, cost] : tree[vertex]) {
+          if (distance[next] != -1) continue;
+          distance[next] = distance[vertex] + cost;
+          stack.push_back(next);
+        }
+      }
+      expected_diameter =
+          std::max(expected_diameter,
+                   *std::max_element(distance.begin(), distance.end()));
+    }
+    assert(tree_diameter(tree).length == expected_diameter);
   }
 
   RollbackDsu rollback_dsu(5);
