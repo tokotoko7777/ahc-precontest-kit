@@ -472,3 +472,21 @@ int reverse_delta = route_reverse_delta(route, 1, 2, manhattan);
 
 差分はすべて `変更後 - 変更前` です。`route_reverse_delta` はManhattan距離など、
 行きと帰りの距離が同じ場合にだけ使えます。
+
+## AxisAlignedRectangle
+
+軸に平行な長方形です。座標は半開区間 `[left, right) × [bottom, top)` で扱います。
+
+```cpp
+AxisAlignedRectangle<int> first{0, 0, 10, 20};
+AxisAlignedRectangle<int> second{10, 5, 30, 15};
+
+cout << first.width() << ' ' << first.height() << '\n';
+cout << first.area() << '\n';
+
+bool contains = first.contains(3, 7);
+bool overlap = first.overlaps(second);  // 辺が接するだけなので false
+```
+
+`contains` も半開区間の判定です。整数格子のセルや、AHC001の `(x+0.5, y+0.5)` を
+含む矩形の判定にそのまま使えます。
