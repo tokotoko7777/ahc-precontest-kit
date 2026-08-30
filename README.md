@@ -204,9 +204,13 @@ GitHub 上ではファイルを開き、右上のコピーアイコン、また�
 
 ## 過去AHCでの実戦例
 
+AHC001〜AHC069を順次追加しています。全問題の状態と次の作業は
+[`practice/PROGRESS.md`](practice/PROGRESS.md) で管理します。
+
 | 問題 | 主に使うパーツ |
 |---|---|
-| [`practice/ahc001`](practice/ahc001/) | 半開矩形、重なり判定、単調局所拡張 |
+| [`practice/ahc001`](practice/ahc001/) | 半開矩形、面積比による再帰領域分割 |
+| [`practice/ahc002`](practice/ahc002/) | 焼きなまし、多点スタート、destroy/repair |
 | [`practice/ahc006`](practice/ahc006/) | 焼きなまし、間引きタイマー、経路距離差分 |
 | [`practice/ahc007`](practice/ahc007/) | Union-Find、未来辺によるオンライン連結判断 |
 | [`practice/ahc021`](practice/ahc021/) | 木型ビームサーチ、Zobrist hash、状態重複除去 |
@@ -249,3 +253,7 @@ int main() {
 ```bash
 make verify
 ```
+
+`make verify` はパーツのテストに加え、`practice/ahc*/main.cpp` をすべて
+C++17で構文確認します。実戦例を増やしても、単一ファイル提出形式が壊れていないかを
+まとめて確認できます。

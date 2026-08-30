@@ -18,13 +18,6 @@ struct BatchedTimer {
     assert(check_interval > 0);
   }
 
-  void reset() {
-    calls_until_check = 0;
-    over = false;
-    last_elapsed_ms = 0.0;
-    start = chrono::steady_clock::now();
-  }
-
   double elapsed_ms() const {
     const auto now = chrono::steady_clock::now();
     return chrono::duration<double, milli>(now - start).count();
@@ -40,10 +33,6 @@ struct BatchedTimer {
     last_elapsed_ms = elapsed_ms();
     over = last_elapsed_ms >= time_limit_ms;
     return over;
-  }
-
-  double cached_progress() const {
-    return clamp(last_elapsed_ms / time_limit_ms, 0.0, 1.0);
   }
 };
 
@@ -68,44 +57,6 @@ struct Random {
     uniform_real_distribution<Real> distribution(left, right);
     return distribution(engine);
   }
-
-  double next_double() { return next_real<double>(); }
-
-  template <class T>
-  void shuffle(vector<T>& values) {
-    std::shuffle(values.begin(), values.end(), engine);
-  }
-
-  template <class T>
-  T& choice(vector<T>& values) {
-    assert(!values.empty());
-    return values[next_int<size_t>(0, values.size())];
-  }
-
-  template <class T>
-  const T& choice(const vector<T>& values) {
-    assert(!values.empty());
-    return values[next_int<size_t>(0, values.size())];
-  }
-
-  template <class Weight>
-  int weighted_index(const vector<Weight>& weights) {
-    assert(!weights.empty());
-    long double total = 0.0L;
-    for (const Weight& weight : weights) {
-      assert(weight >= Weight(0));
-      total += static_cast<long double>(weight);
-    }
-    assert(total > 0.0L);
-
-    const long double target = next_real<long double>(0.0L, total);
-    long double sum = 0.0L;
-    for (int i = 0; i < static_cast<int>(weights.size()); ++i) {
-      sum += static_cast<long double>(weights[i]);
-      if (target < sum) return i;
-    }
-    return static_cast<int>(weights.size()) - 1;
-  }
 };
 
 // library/axis-aligned-rectangle.hpp
@@ -117,17 +68,8 @@ struct AxisAlignedRectangle {
   Coordinate top;
 
   bool is_valid() const { return left < right && bottom < top; }
-
-  Coordinate width() const {
-    assert(is_valid());
-    return right - left;
-  }
-
-  Coordinate height() const {
-    assert(is_valid());
-    return top - bottom;
-  }
-
+  Coordinate width() const { return right - left; }
+  Coordinate height() const { return top - bottom; }
   long long area() const { return 1LL * width() * height(); }
 
   bool contains(Coordinate x, Coordinate y) const {
@@ -146,6 +88,80 @@ struct Request {
   long long desired_area;
 };
 
+struct SplitCandidate {
+  double error;
+  int axis;
+  int split_count;
+  int cut;
+};
+
+double satisfaction(long long desired, long long actual) {
+  const double ratio =
+      static_cast<double>(min(desired, actual)) / max(desired, actual);
+  return 1.0 - (1.0 - ratio) * (1.0 - ratio);
+}
+
+// A quick approximation used while comparing many recursive partitions.
+long long quick_best_area(int width, int height, long long desired) {
+  if (width > height) swap(width, height);
+  long long best = 1;
+
+  auto try_width = [&](int w) {
+    if (w < 1 || w > width) return;
+    const long long floor_height = min<long long>(height, desired / w);
+    if (floor_height >= 1) {
+      const long long area = 1LL * w * floor_height;
+      if (abs(area - desired) < abs(best - desired)) best = area;
+    }
+    const long long ceil_height = min<long long>(height, (desired + w - 1) / w);
+    if (ceil_height >= 1) {
+      const long long area = 1LL * w * ceil_height;
+      if (abs(area - desired) < abs(best - desired)) best = area;
+    }
+  };
+
+  try_width(1);
+  try_width(width);
+  try_width(static_cast<int>(sqrt(static_cast<double>(desired))));
+  try_width(static_cast<int>(desired / max(1, height)));
+  try_width(static_cast<int>((desired + height - 1) / max(1, height)));
+  for (int sample = 1; sample <= 24; ++sample) {
+    try_width(1 + static_cast<long long>(width - 1) * sample / 24);
+  }
+  return best;
+}
+
+long long exact_best_area(int width, int height, long long desired,
+                          int& best_width, int& best_height) {
+  bool swapped = false;
+  if (width > height) {
+    swap(width, height);
+    swapped = true;
+  }
+
+  long long best_area = 1;
+  int answer_width = 1;
+  int answer_height = 1;
+  for (int w = 1; w <= width; ++w) {
+    const long long floor_height = min<long long>(height, desired / w);
+    const long long ceil_height = min<long long>(height, (desired + w - 1) / w);
+    for (long long h : {floor_height, ceil_height}) {
+      if (h < 1) continue;
+      const long long area = 1LL * w * h;
+      if (abs(area - desired) < abs(best_area - desired)) {
+        best_area = area;
+        answer_width = w;
+        answer_height = static_cast<int>(h);
+      }
+    }
+  }
+
+  if (swapped) swap(answer_width, answer_height);
+  best_width = answer_width;
+  best_height = answer_height;
+  return best_area;
+}
+
 int main() {
   ios::sync_with_stdio(false);
   cin.tie(nullptr);
@@ -153,109 +169,166 @@ int main() {
   int n;
   cin >> n;
   vector<Request> requests(n);
-  vector<AxisAlignedRectangle<int>> rectangles(n);
-
-  for (int i = 0; i < n; ++i) {
-    cin >> requests[i].x >> requests[i].y >> requests[i].desired_area;
-    rectangles[i] = {
-        requests[i].x,
-        requests[i].y,
-        requests[i].x + 1,
-        requests[i].y + 1};
+  uint64_t input_hash = 1469598103934665603ULL;
+  for (auto& request : requests) {
+    cin >> request.x >> request.y >> request.desired_area;
+    input_hash ^= static_cast<uint64_t>(request.x + 10001 * request.y);
+    input_hash *= 1099511628211ULL;
+    input_hash ^= static_cast<uint64_t>(request.desired_area);
+    input_hash *= 1099511628211ULL;
   }
 
-  auto satisfaction = [&](int index,
-                          const AxisAlignedRectangle<int>& rectangle) {
-    const double actual = static_cast<double>(rectangle.area());
-    const double desired = static_cast<double>(requests[index].desired_area);
-    const double ratio = min(actual, desired) / max(actual, desired);
-    return 1.0 - (1.0 - ratio) * (1.0 - ratio);
-  };
-
-  auto can_place = [&](int index,
-                       const AxisAlignedRectangle<int>& candidate) {
-    if (!candidate.is_valid()) return false;
-    if (candidate.left < 0 || candidate.bottom < 0 ||
-        candidate.right > 10000 || candidate.top > 10000) {
-      return false;
-    }
-    if (!candidate.contains(requests[index].x, requests[index].y)) {
-      return false;
-    }
-    for (int other = 0; other < n; ++other) {
-      if (other != index && candidate.overlaps(rectangles[other])) {
-        return false;
-      }
-    }
-    return true;
-  };
-
-  Random random(20210306);
-  BatchedTimer timer(4700.0, 64);
+  Random random(input_hash);
+  BatchedTimer timer(4750.0, 1);
+  vector<AxisAlignedRectangle<int>> best_regions(n);
+  double best_proxy_score = -1.0;
+  int builds = 0;
 
   while (!timer.is_over()) {
-    const int index = random.next_int(0, n);
-    const auto current = rectangles[index];
-    const long long current_area = current.area();
-    const long long desired_area = requests[index].desired_area;
-    if (current_area >= desired_area) continue;
+    vector<AxisAlignedRectangle<int>> regions(n);
 
-    AxisAlignedRectangle<int> best_candidate = current;
-    double best_gain = 0.0;
-    const double current_satisfaction = satisfaction(index, current);
-    const int first_direction = random.next_int(0, 4);
+    function<void(vector<int>&, AxisAlignedRectangle<int>)> divide =
+        [&](vector<int>& indices, AxisAlignedRectangle<int> space) {
+          if (indices.size() == 1) {
+            regions[indices[0]] = space;
+            return;
+          }
 
-    for (int offset = 0; offset < 4; ++offset) {
-      const int direction = (first_direction + offset) % 4;
-      const int other_length =
-          direction % 2 == 0 ? current.height() : current.width();
-      const long long remaining = desired_area - current_area;
-      const int floor_step =
-          max(1LL, remaining / other_length);
-      const int ceil_step =
-          max(1LL, (remaining + other_length - 1) / other_length);
+          vector<int> by_x = indices;
+          vector<int> by_y = indices;
+          sort(by_x.begin(), by_x.end(), [&](int a, int b) {
+            return requests[a].x < requests[b].x;
+          });
+          sort(by_y.begin(), by_y.end(), [&](int a, int b) {
+            return requests[a].y < requests[b].y;
+          });
 
-      array<int, 6> steps{
-          1,
-          min(4, ceil_step),
-          min(16, ceil_step),
-          min(64, ceil_step),
-          floor_step,
-          ceil_step};
-      sort(steps.begin(), steps.end());
+          long long total_desired = 0;
+          for (int index : indices) total_desired += requests[index].desired_area;
 
-      for (int step_index = 0; step_index < 6; ++step_index) {
-        if (step_index > 0 && steps[step_index] == steps[step_index - 1]) {
-          continue;
-        }
+          vector<SplitCandidate> candidates;
+          candidates.reserve(indices.size() * 2);
+          for (int axis = 0; axis < 2; ++axis) {
+            const vector<int>& order = axis == 0 ? by_x : by_y;
+            const int low = axis == 0 ? space.left : space.bottom;
+            const int high = axis == 0 ? space.right : space.top;
+            const int other_length = axis == 0 ? space.height() : space.width();
+            long long left_desired = 0;
 
-        AxisAlignedRectangle<int> candidate = current;
-        const int step = steps[step_index];
-        if (direction == 0) candidate.left -= step;
-        if (direction == 1) candidate.bottom -= step;
-        if (direction == 2) candidate.right += step;
-        if (direction == 3) candidate.top += step;
-        if (!can_place(index, candidate)) continue;
+            for (int count = 1; count < static_cast<int>(order.size()); ++count) {
+              left_desired += requests[order[count - 1]].desired_area;
+              const int previous_coordinate =
+                  axis == 0 ? requests[order[count - 1]].x
+                            : requests[order[count - 1]].y;
+              const int next_coordinate =
+                  axis == 0 ? requests[order[count]].x
+                            : requests[order[count]].y;
+              if (previous_coordinate == next_coordinate) continue;
 
-        const double gain =
-            satisfaction(index, candidate) - current_satisfaction;
-        if (gain > best_gain) {
-          best_gain = gain;
-          best_candidate = candidate;
-        }
-      }
+              const int minimum_cut = previous_coordinate + 1;
+              const int maximum_cut = next_coordinate;
+              const long double fraction =
+                  static_cast<long double>(left_desired) / total_desired;
+              int cut = static_cast<int>(llround(low + (high - low) * fraction));
+              cut = clamp(cut, minimum_cut, maximum_cut);
+
+              if (builds > 0 && minimum_cut < maximum_cut &&
+                  random.next_int(0, 4) == 0) {
+                const int pull = random.next_int(0, 2) == 0
+                                     ? minimum_cut
+                                     : maximum_cut;
+                cut = (3 * cut + pull) / 4;
+                cut = clamp(cut, minimum_cut, maximum_cut);
+              }
+
+              const long long parent_area = space.area();
+              const long long left_area = 1LL * (cut - low) * other_length;
+              const long double target_area = parent_area * fraction;
+              const double allocation_error =
+                  abs(static_cast<long double>(left_area) - target_area) /
+                  max<long double>(1.0L, parent_area);
+              const double depth_error =
+                  0.002 * abs(2 * count - static_cast<int>(order.size())) /
+                  order.size();
+              candidates.push_back(
+                  {allocation_error + depth_error, axis, count, cut});
+            }
+          }
+
+          assert(!candidates.empty());
+          const int keep = min<int>(10, candidates.size());
+          nth_element(candidates.begin(), candidates.begin() + keep - 1,
+                      candidates.end(), [](const auto& a, const auto& b) {
+                        return a.error < b.error;
+                      });
+          sort(candidates.begin(), candidates.begin() + keep,
+               [](const auto& a, const auto& b) { return a.error < b.error; });
+
+          int chosen_rank = 0;
+          if (builds > 0) {
+            const int roll = random.next_int(0, 100);
+            if (roll >= 58) chosen_rank = min(1, keep - 1);
+            if (roll >= 80) chosen_rank = min(2, keep - 1);
+            if (roll >= 91) chosen_rank = min(4, keep - 1);
+            if (roll >= 97) chosen_rank = random.next_int(0, keep);
+          }
+          const SplitCandidate chosen = candidates[chosen_rank];
+          const vector<int>& order = chosen.axis == 0 ? by_x : by_y;
+          vector<int> first(order.begin(), order.begin() + chosen.split_count);
+          vector<int> second(order.begin() + chosen.split_count, order.end());
+
+          auto first_space = space;
+          auto second_space = space;
+          if (chosen.axis == 0) {
+            first_space.right = chosen.cut;
+            second_space.left = chosen.cut;
+          } else {
+            first_space.top = chosen.cut;
+            second_space.bottom = chosen.cut;
+          }
+          divide(first, first_space);
+          divide(second, second_space);
+        };
+
+    vector<int> all(n);
+    iota(all.begin(), all.end(), 0);
+    divide(all, {0, 0, 10000, 10000});
+    ++builds;
+
+    double proxy_score = 0.0;
+    for (int i = 0; i < n; ++i) {
+      const long long area = quick_best_area(
+          max(1, regions[i].width()), max(1, regions[i].height()),
+          requests[i].desired_area);
+      proxy_score += satisfaction(requests[i].desired_area, area);
     }
+    if (proxy_score > best_proxy_score) {
+      best_proxy_score = proxy_score;
+      best_regions = regions;
+    }
+  }
 
-    if (best_gain > 0.0) rectangles[index] = best_candidate;
+  vector<AxisAlignedRectangle<int>> answer(n);
+  for (int i = 0; i < n; ++i) {
+    int width = 1;
+    int height = 1;
+    exact_best_area(best_regions[i].width(), best_regions[i].height(),
+                    requests[i].desired_area, width, height);
+
+    const int left = clamp(requests[i].x - width / 2,
+                           best_regions[i].left,
+                           best_regions[i].right - width);
+    const int bottom = clamp(requests[i].y - height / 2,
+                             best_regions[i].bottom,
+                             best_regions[i].top - height);
+    answer[i] = {left, bottom, left + width, bottom + height};
   }
 
   for (int i = 0; i < n; ++i) {
-    assert(rectangles[i].is_valid());
-    assert(rectangles[i].contains(requests[i].x, requests[i].y));
-    for (int j = 0; j < i; ++j) {
-      assert(!rectangles[i].overlaps(rectangles[j]));
-    }
-    cout << rectangles[i].left << ' ' << rectangles[i].bottom << ' '
-         << rectangles[i].right << ' ' << rectangles[i].top << '\n';
+    assert(answer[i].is_valid());
+    assert(answer[i].contains(requests[i].x, requests[i].y));
+    for (int j = 0; j < i; ++j) assert(!answer[i].overlaps(answer[j]));
+    cout << answer[i].left << ' ' << answer[i].bottom << ' '
+         << answer[i].right << ' ' << answer[i].top << '\n';
   }
 }
