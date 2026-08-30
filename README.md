@@ -55,7 +55,7 @@ AHC のコンテスト中に、自分の `main.cpp` へ直接コピーして使�
 | [`time-based-simulated-annealing.hpp`](library/time-based-simulated-annealing.hpp) | タイマー内蔵の焼きなまし |
 | [`multi-start.hpp`](library/multi-start.hpp) | 回数または時間指定の多点スタート |
 | [`simple-beam-search.hpp`](library/simple-beam-search.hpp) | 状態をコピーする初心者向けビームサーチ |
-| [`tree-beam-search.hpp`](library/tree-beam-search.hpp) | apply / revert で状態コピーを避けるビームサーチ |
+| [`tree-beam-search.hpp`](library/tree-beam-search.hpp) | apply / revert型ビームサーチ。同じ状態キーの重複除去にも対応 |
 
 ビームサーチを初めて使う場合は `simple-beam-search.hpp` から始めてください。
 `tree-beam-search.hpp` は状態が大きく、コピーが重い場合の発展版です。

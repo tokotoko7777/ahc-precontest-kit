@@ -234,4 +234,17 @@ int main() {
   }
   assert(tree_beam.best_score() == 3);
   assert(tree_beam.restore() == std::vector<int>({1, 1, 1}));
+
+  TreeBeamSearch<TreeBeamTestState, int, int> keyed_tree_beam(
+      TreeBeamTestState{}, 0, 10);
+  for (int turn = 0; turn < 2; ++turn) {
+    const bool advanced = keyed_tree_beam.step_with_key(
+        [](const TreeBeamTestState&) { return std::vector<int>{-1, 1}; },
+        [](TreeBeamTestState& state, int move) { state.position += move; },
+        [](TreeBeamTestState& state, int move) { state.position -= move; },
+        [](const TreeBeamTestState& state) { return state.position; },
+        [](const TreeBeamTestState& state) { return state.position; });
+    assert(advanced);
+  }
+  assert(keyed_tree_beam.beam.size() == 3);
 }
