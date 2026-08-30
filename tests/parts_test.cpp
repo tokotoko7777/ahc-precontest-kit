@@ -18,6 +18,7 @@
 #include "library/random.hpp"
 #include "library/rollback-array.hpp"
 #include "library/rollback-dsu.hpp"
+#include "library/route-utils.hpp"
 #include "library/schedule.hpp"
 #include "library/shared-history.hpp"
 #include "library/simple-beam-search.hpp"
@@ -247,4 +248,18 @@ int main() {
     assert(advanced);
   }
   assert(keyed_tree_beam.beam.size() == 3);
+
+  const std::vector<int> route{0, 3, 7, 10};
+  auto line_distance = [](int a, int b) { return std::abs(a - b); };
+  assert(route_length(route, line_distance) == 10);
+  assert(route_insertion_delta(route, 2, 5, line_distance) == 0);
+  assert(route_removal_delta(route, 2, line_distance) == 0);
+
+  const std::vector<int> detour{0, 7, 3, 10};
+  const int reverse_delta =
+      route_reverse_delta(detour, 1, 2, line_distance);
+  std::vector<int> reversed = detour;
+  std::reverse(reversed.begin() + 1, reversed.begin() + 3);
+  assert(route_length(detour, line_distance) + reverse_delta ==
+         route_length(reversed, line_distance));
 }

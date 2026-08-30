@@ -46,6 +46,7 @@ AHC のコンテスト中に、自分の `main.cpp` へ直接コピーして使�
 | [`best-keeper.hpp`](library/best-keeper.hpp) | best score と best state を保存 |
 | [`top-k.hpp`](library/top-k.hpp) | 良い候補を上位 K 個だけ保存 |
 | [`move-statistics.hpp`](library/move-statistics.hpp) | 近傍ごとの採用率・改善率を集計 |
+| [`route-utils.hpp`](library/route-utils.hpp) | 経路長と挿入・削除・区間反転の距離差分 |
 
 ### 探索
 
@@ -105,6 +106,15 @@ GitHub 上ではファイルを開き、右上のコピーアイコン、また�
 
 `tree-beam-search.hpp` は記事のRust実装の移植ではありません。記事の高度な
 帰りがけ順管理より理解しやすい、親をたどって共通祖先まで戻る独自のC++実装です。
+
+## 過去AHCでの実戦例
+
+| 問題 | 主に使うパーツ |
+|---|---|
+| [`practice/ahc006`](practice/ahc006/) | 焼きなまし、間引きタイマー、経路距離差分 |
+| [`practice/ahc021`](practice/ahc021/) | 木型ビームサーチ、Zobrist hash、状態重複除去 |
+
+各フォルダの `main.cpp` はローカルヘッダを参照しない、提出可能な単一ファイルです。
 
 ## 最小テンプレート
 

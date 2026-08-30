@@ -440,3 +440,30 @@ statistics[type].add(accepted, improvement > 0);
 cerr << "accept = " << statistics[type].acceptance_rate() << '\n';
 cerr << "improve = " << statistics[type].improvement_rate() << '\n';
 ```
+
+## RouteUtils
+
+巡回路や配送順の距離を計算します。距離関数を渡すので、点や距離の型は自由です。
+
+```cpp
+vector<pair<int, int>> route{{0, 0}, {10, 5}, {20, 5}, {0, 0}};
+
+auto manhattan = [](auto a, auto b) {
+  return abs(a.first - b.first) + abs(a.second - b.second);
+};
+
+int cost = route_length(route, manhattan);
+
+// route[2] の直前へ (12, 8) を挿入した場合の距離変化
+int insert_delta =
+    route_insertion_delta(route, 2, pair{12, 8}, manhattan);
+
+// route[1] を削除した場合の距離変化
+int remove_delta = route_removal_delta(route, 1, manhattan);
+
+// route[1]〜route[2] をreverseした場合の距離変化
+int reverse_delta = route_reverse_delta(route, 1, 2, manhattan);
+```
+
+差分はすべて `変更後 - 変更前` です。`route_reverse_delta` はManhattan距離など、
+行きと帰りの距離が同じ場合にだけ使えます。
