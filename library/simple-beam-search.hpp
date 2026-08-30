@@ -27,32 +27,42 @@ State simple_beam_search(
   struct Candidate {
     Score score;
     State state;
+    int order;
   };
 
   std::vector<State> beam;
   beam.push_back(std::move(initial_state));
+  std::vector<Candidate> candidates;
 
   for (int turn = 0; turn < turns; ++turn) {
-    std::vector<Candidate> candidates;
+    candidates.clear();
+    int order = 0;
 
     for (const State& state : beam) {
       auto next_states = expand(state);
       for (State& next_state : next_states) {
         const Score score = evaluate(next_state);
-        candidates.push_back({score, std::move(next_state)});
+        candidates.push_back({score, std::move(next_state), order++});
       }
     }
 
     if (candidates.empty()) break;
 
-    std::stable_sort(
-        candidates.begin(), candidates.end(), [&](const Candidate& a,
-                                                   const Candidate& b) {
-          return maximize ? b.score < a.score : a.score < b.score;
-        });
-    if (static_cast<int>(candidates.size()) > beam_width) {
-      candidates.resize(beam_width);
-    }
+    const auto is_better = [&](const Candidate& a, const Candidate& b) {
+      if (maximize) {
+        if (b.score < a.score) return true;
+        if (a.score < b.score) return false;
+      } else {
+        if (a.score < b.score) return true;
+        if (b.score < a.score) return false;
+      }
+      return a.order < b.order;
+    };
+    const int kept =
+        std::min(beam_width, static_cast<int>(candidates.size()));
+    std::partial_sort(candidates.begin(), candidates.begin() + kept,
+                      candidates.end(), is_better);
+    candidates.resize(kept);
 
     beam.clear();
     beam.reserve(candidates.size());

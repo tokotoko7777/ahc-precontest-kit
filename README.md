@@ -34,6 +34,13 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 各ファイルの先頭にも、短い使い方例を書いてあります。もう少し長い例は
 [`USAGE.md`](USAGE.md) にあります。
 
+## 高速化の方針
+
+探索回数へ直結するため、パーツ追加時は計算量だけでなく、全ソート、動的確保、
+間接関数呼び出し、時計取得、メモリ配置も確認します。制約が厳しい高速版は、
+使える条件をファイル先頭へ明記します。詳しい判断基準は
+[`PERFORMANCE.md`](PERFORMANCE.md) にまとめています。
+
 ## パーツ一覧
 
 ### 時間・乱数・小道具
@@ -43,6 +50,7 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 | [`timer.hpp`](library/timer.hpp) | 経過時間・残り時間・進捗率 |
 | [`batched-timer.hpp`](library/batched-timer.hpp) | 時計を見る回数を間引くタイマー |
 | [`random.hpp`](library/random.hpp) | 型を選べる乱数、ランダム選択、重み付き選択 |
+| [`fast-io.hpp`](library/fast-io.hpp) | 大量の整数・文字列用のバッファ入出力 |
 | [`chmin-chmax.hpp`](library/chmin-chmax.hpp) | 値が良くなる時だけ更新 |
 | [`schedule.hpp`](library/schedule.hpp) | 時間経過に合わせて値を変化 |
 | [`best-keeper.hpp`](library/best-keeper.hpp) | best score と best state を保存 |
@@ -71,6 +79,7 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 | [`best-by-key.hpp`](library/best-by-key.hpp) | 同じ状態キーの候補を一番良いものだけにする |
 | [`zobrist-hash.hpp`](library/zobrist-hash.hpp) | 配列状態のhashを差分更新 |
 | [`fixed-vector.hpp`](library/fixed-vector.hpp) | allocationなしの固定上限vector |
+| [`radix-heap.hpp`](library/radix-heap.hpp) | 単調な非負整数キー用の高速priority queue |
 
 ### データ構造
 
@@ -80,6 +89,7 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 | [`cumulative-sum-2d.hpp`](library/cumulative-sum-2d.hpp) | 2次元累積和 |
 | [`fenwick-tree.hpp`](library/fenwick-tree.hpp) | 1点加算と区間和 |
 | [`segment-tree.hpp`](library/segment-tree.hpp) | 1点変更と区間の和・最小値・最大値など |
+| [`flat-grid.hpp`](library/flat-grid.hpp) | 連続メモリに置くキャッシュ効率重視の2次元配列 |
 | [`coordinate-compression.hpp`](library/coordinate-compression.hpp) | 座標圧縮 |
 | [`dsu.hpp`](library/dsu.hpp) | Union-Find。連結成分数とグループ一覧も取得可能 |
 | [`rollback-array.hpp`](library/rollback-array.hpp) | 変更を過去の状態へ戻せる配列 |
@@ -116,6 +126,10 @@ GitHub 上ではファイルを開き、右上のコピーアイコン、また�
 - [heuristic-library-rs](https://github.com/e1jirou/heuristic-library-rs) —
   ヒューリスティックに限定しない分類と、1機能ずつ取り出せるAPIの粒度を
   参考にしています。コードの移植ではなく、このリポジトリ向けにC++で新規実装します。
+- [AC Library Documentation](https://atcoder.github.io/ac-library/production/document_ja/) —
+  計算量、境界条件、型をコンパイル時に確定する汎用データ構造の設計を確認しています。
+- [Introduction to Heuristics Contest A の実装記録](https://ruthen.hatenablog.com/entry/2024/01/25/000000) —
+  差分計算、時計取得の間引き、理論計算量と定数倍の両方を見る実例を参考にしています。
 - 手元のAHC001〜AHC068優勝コードレビュー知識から、複数問題で再利用例が
   確認できた時間管理・候補制限・重複除去・差分更新を選んでいます。
 

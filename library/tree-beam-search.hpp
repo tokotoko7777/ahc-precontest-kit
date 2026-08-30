@@ -1,8 +1,9 @@
 #include <algorithm>
 #include <cassert>
+#include <cstddef>
 #include <optional>
 #include <type_traits>
-#include <unordered_set>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -33,6 +34,7 @@ struct TreeBeamSearch {
     int parent;
     Action action;
     Score score;
+    int order;
   };
 
   State state;
@@ -41,6 +43,7 @@ struct TreeBeamSearch {
   int current_node = 0;
   std::vector<Node> nodes;
   std::vector<int> beam;
+  std::vector<Candidate> candidate_buffer;
 
   TreeBeamSearch(
       State initial_state,
@@ -53,12 +56,15 @@ struct TreeBeamSearch {
     assert(beam_width > 0);
     nodes.push_back({-1, 0, std::nullopt, std::move(initial_score)});
     beam.push_back(0);
+    candidate_buffer.reserve(static_cast<std::size_t>(beam_width) * 4);
   }
 
   // 候補が1つもなければ false。それ以外は1ターン進めて true。
   template <class Expand, class Apply, class Revert, class Evaluate>
   bool step(Expand expand, Apply apply, Revert revert, Evaluate evaluate) {
-    std::vector<Candidate> candidates;
+    candidate_buffer.clear();
+    std::vector<Candidate>& candidates = candidate_buffer;
+    int order = 0;
 
     for (int parent : beam) {
       move_to(parent, apply, revert);
@@ -68,20 +74,13 @@ struct TreeBeamSearch {
         apply(state, action);
         const Score score = evaluate(state);
         revert(state, action);
-        candidates.push_back({parent, std::move(action), score});
+        candidates.push_back({parent, std::move(action), score, order++});
       }
     }
 
     if (candidates.empty()) return false;
 
-    std::stable_sort(
-        candidates.begin(), candidates.end(), [&](const Candidate& a,
-                                                   const Candidate& b) {
-          return maximize ? b.score < a.score : a.score < b.score;
-        });
-    if (static_cast<int>(candidates.size()) > beam_width) {
-      candidates.resize(beam_width);
-    }
+    keep_best_candidates(candidates);
 
     beam.clear();
     beam.reserve(candidates.size());
@@ -110,12 +109,10 @@ struct TreeBeamSearch {
       Evaluate evaluate,
       MakeKey make_key) {
     using Key = std::decay_t<decltype(make_key(state))>;
-    struct KeyedCandidate {
-      Candidate candidate;
-      Key key;
-    };
-
-    std::vector<KeyedCandidate> candidates;
+    candidate_buffer.clear();
+    std::vector<Candidate>& candidates = candidate_buffer;
+    std::unordered_map<Key, int> index_by_key;
+    int order = 0;
 
     for (int parent : beam) {
       move_to(parent, apply, revert);
@@ -126,35 +123,32 @@ struct TreeBeamSearch {
         const Score score = evaluate(state);
         Key key = make_key(state);
         revert(state, action);
-        candidates.push_back(
-            {{parent, std::move(action), score}, std::move(key)});
+        Candidate candidate{parent, std::move(action), score, order++};
+        const auto found = index_by_key.find(key);
+        if (found == index_by_key.end()) {
+          const int index = static_cast<int>(candidates.size());
+          index_by_key.emplace(std::move(key), index);
+          candidates.push_back(std::move(candidate));
+        } else if (score_is_better(candidate.score,
+                                   candidates[found->second].score)) {
+          candidates[found->second] = std::move(candidate);
+        }
       }
     }
 
     if (candidates.empty()) return false;
 
-    std::stable_sort(
-        candidates.begin(), candidates.end(), [&](const KeyedCandidate& a,
-                                                   const KeyedCandidate& b) {
-          return maximize ? b.candidate.score < a.candidate.score
-                          : a.candidate.score < b.candidate.score;
-        });
-
-    std::unordered_set<Key> used_keys;
+    keep_best_candidates(candidates);
     beam.clear();
-    beam.reserve(beam_width);
+    beam.reserve(candidates.size());
 
-    for (KeyedCandidate& keyed : candidates) {
-      if (!used_keys.insert(keyed.key).second) continue;
-
-      Candidate& candidate = keyed.candidate;
+    for (Candidate& candidate : candidates) {
       const int depth = nodes[candidate.parent].depth + 1;
       nodes.push_back({candidate.parent,
                        depth,
                        std::move(candidate.action),
                        std::move(candidate.score)});
       beam.push_back(static_cast<int>(nodes.size()) - 1);
-      if (static_cast<int>(beam.size()) == beam_width) break;
     }
     return true;
   }
@@ -203,5 +197,23 @@ struct TreeBeamSearch {
     std::reverse(path_down.begin(), path_down.end());
     for (int node : path_down) apply(state, *nodes[node].action);
     current_node = target;
+  }
+
+ private:
+  bool score_is_better(const Score& a, const Score& b) const {
+    return maximize ? b < a : a < b;
+  }
+
+  void keep_best_candidates(std::vector<Candidate>& candidates) const {
+    const auto is_better = [&](const Candidate& a, const Candidate& b) {
+      if (score_is_better(a.score, b.score)) return true;
+      if (score_is_better(b.score, a.score)) return false;
+      return a.order < b.order;
+    };
+    const int kept =
+        std::min(beam_width, static_cast<int>(candidates.size()));
+    std::partial_sort(candidates.begin(), candidates.begin() + kept,
+                      candidates.end(), is_better);
+    candidates.resize(kept);
   }
 };

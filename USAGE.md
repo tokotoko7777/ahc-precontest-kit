@@ -187,7 +187,7 @@ int index = sum.lower_bound(8LL);
 
 ```cpp
 vector<int> values = {3, 1, 4, 1, 5};
-SegmentTree<int> minimum(
+auto minimum = make_segment_tree(
     values,
     1000000000,
     [](int a, int b) { return min(a, b); });
@@ -201,10 +201,34 @@ cout << minimum.all() << '\n';        // 全要素の最小値
 区間和なら、空の区間は `0`、まとめる処理は足し算にします。
 
 ```cpp
-SegmentTree<long long> sum(
+auto sum = make_segment_tree(
     vector<long long>(n), 0LL,
     [](long long a, long long b) { return a + b; });
 ```
+
+ラムダ式の型をそのまま保持するため、区間をまとめるたびに `std::function` の
+間接呼び出しを行いません。通常は `make_segment_tree` から作ってください。
+
+## FlatGrid
+
+`vector<vector<T>>` と同じ感覚で使える、1本の連続した `vector` です。
+大きな盤面を行方向へ何度も全走査する時に向きます。
+
+```cpp
+FlatGrid<int> distance(height, width, -1);
+distance(start_row, start_column) = 0;
+
+for (int row = 0; row < height; ++row) {
+  for (int column = 0; column < width; ++column) {
+    int value = distance(row, column);
+  }
+}
+
+distance.fill(-1);  // 全マスを再初期化
+```
+
+マスを整数1個で持ちたい場合は `index(row, column)`、元へ戻す場合は
+`position(index)` を使えます。
 
 ## 座標圧縮
 
@@ -259,6 +283,24 @@ if (!shortest.reachable(3)) {
 `INF + 辺コスト` が型の上限を超えないよう、`INF` には少し余裕を持たせます。
 負の辺があるグラフには使えません。
 
+## RadixHeap
+
+最後に取り出したキー以上のキーだけを追加できる、高速な優先度付きキューです。
+Dijkstraの非負整数距離など、条件が合う場面で `priority_queue` の代わりに使えます。
+
+```cpp
+RadixHeap<int> queue;
+queue.push(0, start);
+
+while (!queue.empty()) {
+  auto [distance, vertex] = queue.pop();
+  // 新しくpushするキーは distance 以上にする
+}
+```
+
+キーは `uint64_t` です。負数、小数、取り出したキーより小さいキーを後から
+追加する用途には使えません。その場合は通常の `priority_queue` を使います。
+
 ## Grid BFS
 
 文字グリッドなら `'#'` を壁として、上下左右の最短距離を求められます。
@@ -286,6 +328,27 @@ auto shortest = grid_bfs(height, width, start, [&](int row, int column) {
   return height_map[row][column] <= limit;
 });
 ```
+
+## Fast I/O
+
+入力が非常に大きく、通常の `cin` がボトルネックになった場合だけ使います。
+
+```cpp
+FastInput input;
+FastOutput output;
+
+int n = input.next<int>();
+long long x = input.next<long long>();
+string name = input.next<string>();
+
+output.write_integer(n, ' ');
+output.write_integer(x, '\n');
+output.write_string(name);
+output.write_character('\n');
+```
+
+整数、空白区切り文字列、空白以外の1文字に対応します。小数や1行全体の入力には
+通常の入出力を使ってください。`FastOutput` は終了時に残りをまとめて出力します。
 
 ## RollbackArray
 
