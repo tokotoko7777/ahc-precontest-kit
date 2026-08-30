@@ -63,6 +63,7 @@
 #include "library/route-utils.hpp"
 #include "library/rolling-hash.hpp"
 #include "library/schedule.hpp"
+#include "library/sequence-overlap.hpp"
 #include "library/segment-tree.hpp"
 #include "library/segment-intersection.hpp"
 #include "library/shared-history.hpp"
@@ -1645,4 +1646,14 @@ int main() {
   assert(!rectangle.contains(10, 0));
   assert(!rectangle.overlaps(touching));
   assert(rectangle.overlaps(overlapping));
+
+  assert(suffix_prefix_overlap(std::string("ABCDE"), std::string("CDEFG")) ==
+         3);
+  assert(suffix_prefix_overlap(std::string("AAAA"), std::string("AA")) == 2);
+  assert(suffix_prefix_overlap(std::string("ABC"), std::string("XYZ")) == 0);
+  assert(merge_with_overlap(std::string("ABCDE"), std::string("CDEFG")) ==
+         "ABCDEFG");
+  assert((merge_with_overlap(std::vector<int>{1, 2, 3},
+                             std::vector<int>{3, 4}) ==
+          std::vector<int>{1, 2, 3, 4}));
 }
