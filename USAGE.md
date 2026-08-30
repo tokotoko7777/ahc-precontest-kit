@@ -510,6 +510,78 @@ int on_path = tree_lca.jump(a, b, steps_from_a);
 木は連結な無向隣接リストで渡します。再帰を使わないため、一本道でも
 再帰スタックを消費しません。
 
+## Max Flow
+
+辺ごとの容量を超えないように、始点から終点まで運べる最大量を
+Dinic法で求めます。容量が大きい時は `long long` を使います。
+
+```cpp
+MaxFlow<long long> flow(n);
+flow.add_edge(0, 1, 10);
+flow.add_edge(0, 2, 5);
+flow.add_edge(1, 3, 7);
+flow.add_edge(2, 3, 8);
+
+long long maximum = flow.flow(0, 3);
+```
+
+最大流を流した後、`min_cut(source)` が `true` の頂点と `false` の頂点の
+間に最小カットがあります。`get_edge(index)` で元の容量と実際の流量も読めます。
+
+## Min-Cost Flow
+
+流す量だけでなく、合計コストも最小にしたい場合に使います。
+このパーツで `add_edge` に渡せる辺コストは0以上です。
+
+```cpp
+MinCostFlow<int, long long> flow(n);
+flow.add_edge(0, 1, 2, 5);  // 容量2、1単位あたりコスト5
+flow.add_edge(1, 3, 2, 4);
+flow.add_edge(0, 2, 1, 1);
+flow.add_edge(2, 3, 1, 2);
+
+auto [sent, minimum_cost] = flow.flow(0, 3, 3);
+// 3単位すべて流せなければ sent < 3
+```
+
+`Cost` には逆向き残余辺の負コストを保存するため、`long long` など符号付き型を
+使います。`flow` は1つのインスタンスに対し1回だけ呼びます。
+
+## Bipartite Matching
+
+人と仕事のような左右の集合から、可能な組を1対1で最大数選びます。
+
+```cpp
+BipartiteMatching matching(person_count, job_count);
+matching.add_edge(person, job);  // この組は可能
+
+auto result = matching.solve();
+cout << result.size() << '\n';
+for (auto [person, job] : result.pairs()) {
+  // 選ばれた組
+}
+```
+
+コストのない最大マッチングなら、最大流に変換するよりこちらが簡単です。
+
+## Two-SAT
+
+各変数がtrue/falseのどちらかで、すべての条件を「AまたはB」で書ける時に
+使います。変数番号は0からです。
+
+```cpp
+TwoSat sat(variable_count);
+sat.add_clause(0, true, 1, false);  // x0 == true OR x1 == false
+sat.add_implication(2, true, 0, true);  // x2 == true なら x0 == true
+sat.set_value(3, false);                // x3をfalseに固定
+
+if (sat.solve()) {
+  const vector<bool>& answer = sat.answer();
+} else {
+  // すべてを満たす割り当てはない
+}
+```
+
 ## StaticModInt
 
 modをコンパイル時に固定し、剰余の四則演算を普通の数のように書けます。

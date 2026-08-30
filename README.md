@@ -116,6 +116,10 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 | [`floyd-warshall.hpp`](library/floyd-warshall.hpp) | 全頂点間最短距離と負閉路検出 |
 | [`kruskal.hpp`](library/kruskal.hpp) | 最小全域木・最小全域森 |
 | [`lowest-common-ancestor.hpp`](library/lowest-common-ancestor.hpp) | 木のLCA・距離・パス上の頂点 |
+| [`max-flow.hpp`](library/max-flow.hpp) | Dinic法の最大流・最小カット |
+| [`min-cost-flow.hpp`](library/min-cost-flow.hpp) | 非負辺コスト用の最小費用流 |
+| [`bipartite-matching.hpp`](library/bipartite-matching.hpp) | 左右の頂点を1対1対応させる最大マッチング |
+| [`two-sat.hpp`](library/two-sat.hpp) | 「AまたはB」の論理条件を満たす割り当て |
 
 ### 数学
 

@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <cstdio>
 #include <cmath>
@@ -9,6 +10,7 @@
 
 #include "library/batched-timer.hpp"
 #include "library/axis-aligned-rectangle.hpp"
+#include "library/bipartite-matching.hpp"
 #include "library/best-keeper.hpp"
 #include "library/best-by-key.hpp"
 #include "library/chmin-chmax.hpp"
@@ -28,6 +30,8 @@
 #include "library/kruskal.hpp"
 #include "library/longest-increasing-subsequence.hpp"
 #include "library/lowest-common-ancestor.hpp"
+#include "library/max-flow.hpp"
+#include "library/min-cost-flow.hpp"
 #include "library/move-statistics.hpp"
 #include "library/multi-start.hpp"
 #include "library/prime-table.hpp"
@@ -53,6 +57,7 @@
 #include "library/top-k.hpp"
 #include "library/topological-sort.hpp"
 #include "library/tree-beam-search.hpp"
+#include "library/two-sat.hpp"
 #include "library/zobrist-hash.hpp"
 #include "library/zero-one-bfs.hpp"
 #include "library/z-algorithm.hpp"
@@ -430,6 +435,53 @@ int main() {
   assert(prime_table.divisors(12) ==
          std::vector<int>({1, 2, 3, 4, 6, 12}));
 
+  MaxFlow<int> maximum_flow(4);
+  const int first_flow_edge = maximum_flow.add_edge(0, 1, 2);
+  maximum_flow.add_edge(0, 2, 1);
+  maximum_flow.add_edge(1, 2, 1);
+  maximum_flow.add_edge(1, 3, 1);
+  maximum_flow.add_edge(2, 3, 2);
+  assert(maximum_flow.flow(0, 3) == 3);
+  assert(maximum_flow.get_edge(first_flow_edge).flow == 2);
+  const auto minimum_cut = maximum_flow.min_cut(0);
+  assert(minimum_cut[0] && !minimum_cut[3]);
+
+  BipartiteMatching matching(3, 3);
+  matching.add_edge(0, 0);
+  matching.add_edge(0, 1);
+  matching.add_edge(1, 0);
+  matching.add_edge(2, 2);
+  const auto matching_result = matching.solve();
+  assert(matching_result.size() == 3);
+  assert(matching_result.pairs().size() == 3);
+
+  TwoSat two_sat(3);
+  two_sat.add_clause(0, true, 1, true);
+  two_sat.add_clause(0, false, 2, true);
+  two_sat.set_value(1, false);
+  assert(two_sat.solve());
+  const auto& boolean_answer = two_sat.answer();
+  assert(boolean_answer[0] && !boolean_answer[1] && boolean_answer[2]);
+
+  TwoSat impossible_sat(1);
+  impossible_sat.set_value(0, true);
+  impossible_sat.set_value(0, false);
+  assert(!impossible_sat.solve());
+
+  MinCostFlow<int, long long> assignment_flow(6);
+  const int assignment_source = 4;
+  const int assignment_sink = 5;
+  assignment_flow.add_edge(assignment_source, 0, 1, 0);
+  assignment_flow.add_edge(assignment_source, 1, 1, 0);
+  assignment_flow.add_edge(0, 2, 1, 1);
+  assignment_flow.add_edge(0, 3, 1, 2);
+  assignment_flow.add_edge(1, 2, 1, 1);
+  assignment_flow.add_edge(1, 3, 1, 100);
+  assignment_flow.add_edge(2, assignment_sink, 1, 0);
+  assignment_flow.add_edge(3, assignment_sink, 1, 0);
+  assert(assignment_flow.flow(assignment_source, assignment_sink, 2) ==
+         std::make_pair(2, 3LL));
+
   for (int iteration = 0; iteration < 100; ++iteration) {
     const int n = random.next_int(1, 9);
     std::vector<std::vector<std::pair<int, int>>> random_zero_one(n);
@@ -477,6 +529,131 @@ int main() {
                (reachable[a][b] && reachable[b][a]));
       }
     }
+  }
+
+  for (int iteration = 0; iteration < 100; ++iteration) {
+    const int n = random.next_int(2, 8);
+    const int source = 0;
+    const int sink = n - 1;
+    MaxFlow<int> tested_flow(n);
+    struct FlowInputEdge {
+      int from;
+      int to;
+      int capacity;
+    };
+    std::vector<FlowInputEdge> flow_edges;
+    for (int from = 0; from < n; ++from) {
+      for (int to = 0; to < n; ++to) {
+        if (from == to || random.next_int(0, 4) != 0) continue;
+        const int capacity = random.next_int(0, 6);
+        tested_flow.add_edge(from, to, capacity);
+        flow_edges.push_back({from, to, capacity});
+      }
+    }
+    const int actual_flow = tested_flow.flow(source, sink);
+    int expected_cut = 1000000000;
+    for (int mask = 0; mask < (1 << n); ++mask) {
+      if (((mask >> source) & 1) == 0 || ((mask >> sink) & 1) != 0) {
+        continue;
+      }
+      int cut = 0;
+      for (const auto& edge : flow_edges) {
+        if (((mask >> edge.from) & 1) != 0 &&
+            ((mask >> edge.to) & 1) == 0) {
+          cut += edge.capacity;
+        }
+      }
+      expected_cut = std::min(expected_cut, cut);
+    }
+    assert(actual_flow == expected_cut);
+
+    const int left_size = random.next_int(1, 7);
+    const int right_size = random.next_int(1, 7);
+    BipartiteMatching tested_matching(left_size, right_size);
+    std::vector<std::vector<int>> matching_edges(left_size);
+    for (int left = 0; left < left_size; ++left) {
+      for (int right = 0; right < right_size; ++right) {
+        if (random.next_int(0, 2) == 0) {
+          tested_matching.add_edge(left, right);
+          matching_edges[left].push_back(right);
+        }
+      }
+    }
+    std::vector<int> matching_dp(1 << right_size, -1000000000);
+    matching_dp[0] = 0;
+    for (int left = 0; left < left_size; ++left) {
+      std::vector<int> next_dp = matching_dp;
+      for (int mask = 0; mask < (1 << right_size); ++mask) {
+        if (matching_dp[mask] < 0) continue;
+        for (int right : matching_edges[left]) {
+          if ((mask >> right) & 1) continue;
+          next_dp[mask | (1 << right)] =
+              std::max(next_dp[mask | (1 << right)], matching_dp[mask] + 1);
+        }
+      }
+      matching_dp.swap(next_dp);
+    }
+    const int expected_matching =
+        *std::max_element(matching_dp.begin(), matching_dp.end());
+    assert(tested_matching.solve().size() == expected_matching);
+
+    const int variable_count = random.next_int(1, 7);
+    const int clause_count = random.next_int(0, 15);
+    std::vector<std::array<int, 4>> clauses;
+    TwoSat tested_sat(variable_count);
+    for (int clause = 0; clause < clause_count; ++clause) {
+      const int a = random.next_int(0, variable_count);
+      const int b = random.next_int(0, variable_count);
+      const bool value_a = random.next_int(0, 2);
+      const bool value_b = random.next_int(0, 2);
+      clauses.push_back({a, value_a, b, value_b});
+      tested_sat.add_clause(a, value_a, b, value_b);
+    }
+    bool brute_satisfiable = false;
+    for (int mask = 0; mask < (1 << variable_count); ++mask) {
+      bool valid = true;
+      for (const auto& clause : clauses) {
+        valid &= (((mask >> clause[0]) & 1) == clause[1]) ||
+                 (((mask >> clause[2]) & 1) == clause[3]);
+      }
+      brute_satisfiable |= valid;
+    }
+    assert(tested_sat.solve() == brute_satisfiable);
+    if (brute_satisfiable) {
+      const auto& answer = tested_sat.answer();
+      for (const auto& clause : clauses) {
+        assert(answer[clause[0]] == static_cast<bool>(clause[1]) ||
+               answer[clause[2]] == static_cast<bool>(clause[3]));
+      }
+    }
+
+    constexpr int assignment_size = 4;
+    std::array<std::array<int, assignment_size>, assignment_size> costs{};
+    MinCostFlow<int, long long> tested_cost_flow(assignment_size * 2 + 2);
+    const int cost_source = assignment_size * 2;
+    const int cost_sink = cost_source + 1;
+    for (int left = 0; left < assignment_size; ++left) {
+      tested_cost_flow.add_edge(cost_source, left, 1, 0);
+      tested_cost_flow.add_edge(assignment_size + left, cost_sink, 1, 0);
+      for (int right = 0; right < assignment_size; ++right) {
+        costs[left][right] = random.next_int(0, 30);
+        tested_cost_flow.add_edge(left, assignment_size + right, 1,
+                                  costs[left][right]);
+      }
+    }
+    std::array<int, assignment_size> permutation{0, 1, 2, 3};
+    int expected_cost = 1000000000;
+    do {
+      int cost = 0;
+      for (int left = 0; left < assignment_size; ++left) {
+        cost += costs[left][permutation[left]];
+      }
+      expected_cost = std::min(expected_cost, cost);
+    } while (std::next_permutation(permutation.begin(), permutation.end()));
+    const auto [sent_flow, actual_cost] =
+        tested_cost_flow.flow(cost_source, cost_sink, assignment_size);
+    assert(sent_flow == assignment_size);
+    assert(actual_cost == expected_cost);
   }
 
   for (int iteration = 0; iteration < 100; ++iteration) {
