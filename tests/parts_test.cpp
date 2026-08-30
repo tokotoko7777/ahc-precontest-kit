@@ -12,12 +12,16 @@
 #include "library/axis-aligned-rectangle.hpp"
 #include "library/bellman-ford.hpp"
 #include "library/bipartite-matching.hpp"
+#include "library/binary-search-answer.hpp"
+#include "library/binary-trie.hpp"
 #include "library/best-keeper.hpp"
 #include "library/best-by-key.hpp"
 #include "library/chmin-chmax.hpp"
 #include "library/coordinate-compression.hpp"
+#include "library/convex-hull.hpp"
 #include "library/cumulative-sum-2d.hpp"
 #include "library/cumulative-sum.hpp"
+#include "library/dense-int-set.hpp"
 #include "library/dsu.hpp"
 #include "library/dijkstra.hpp"
 #include "library/difference-array.hpp"
@@ -39,6 +43,7 @@
 #include "library/multi-start.hpp"
 #include "library/prime-table.hpp"
 #include "library/prefix-function.hpp"
+#include "library/point-2d.hpp"
 #include "library/random.hpp"
 #include "library/radix-heap.hpp"
 #include "library/range-add-range-minimum.hpp"
@@ -49,6 +54,7 @@
 #include "library/rolling-hash.hpp"
 #include "library/schedule.hpp"
 #include "library/segment-tree.hpp"
+#include "library/segment-intersection.hpp"
 #include "library/shared-history.hpp"
 #include "library/simple-beam-search.hpp"
 #include "library/simulated-annealing.hpp"
@@ -959,6 +965,172 @@ int main() {
                    *std::max_element(distance.begin(), distance.end()));
     }
     assert(tree_diameter(tree).length == expected_diameter);
+  }
+
+  const Point2D<long long> point_a{1, 2};
+  const Point2D<long long> point_b{4, 6};
+  assert(point_a + point_b == Point2D<long long>({5, 8}));
+  assert(point_b - point_a == Point2D<long long>({3, 4}));
+  assert(dot(point_a, point_b) == 16);
+  assert(cross(point_a, point_b) == -2);
+  assert(squared_distance(point_a, point_b) == 25);
+  assert(manhattan_distance(point_a, point_b) == 7);
+  assert(orientation(Point2D<long long>{0, 0},
+                     Point2D<long long>{2, 0},
+                     Point2D<long long>{1, 1}) == 1);
+
+  std::vector<Point2D<long long>> hull_input{{0, 0}, {2, 0}, {2, 2},
+                                              {0, 2}, {1, 1}, {0, 0}};
+  const auto square_hull = convex_hull(hull_input);
+  assert(square_hull == std::vector<Point2D<long long>>(
+                            {{0, 0}, {2, 0}, {2, 2}, {0, 2}}));
+  const auto collinear_hull = convex_hull(
+      std::vector<Point2D<long long>>{{2, 0}, {0, 0}, {1, 0}}, true);
+  assert(collinear_hull == std::vector<Point2D<long long>>(
+                               {{0, 0}, {1, 0}, {2, 0}}));
+
+  const Point2D<long long> segment_a{0, 0};
+  const Point2D<long long> segment_b{4, 4};
+  assert(segments_intersect(segment_a, segment_b, {0, 4}, {4, 0}));
+  assert(segments_properly_intersect(segment_a, segment_b, {0, 4}, {4, 0}));
+  assert(segments_intersect(segment_a, segment_b, {4, 4}, {8, 4}));
+  assert(!segments_properly_intersect(segment_a, segment_b, {4, 4}, {8, 4}));
+  assert(segments_intersect(segment_a, segment_b, {2, 2}, {6, 6}));
+  assert(!segments_intersect(segment_a, segment_b, {5, 5}, {6, 6}));
+  assert(point_on_segment(segment_a, segment_b, Point2D<long long>{3, 3}));
+
+  assert(binary_search_first_true<int>(
+             0, 101, [](int value) { return value * value >= 100; }) == 10);
+  assert(binary_search_last_true<int>(
+             0, 101, [](int value) { return value * value <= 100; }) == 10);
+  const auto square_root_range = binary_search_real<double>(
+      0.0, 2.0, 100, [](double value) { return value * value >= 2.0; });
+  assert(square_root_range.first * square_root_range.first <= 2.0);
+  assert(square_root_range.second * square_root_range.second >= 2.0);
+  assert(square_root_range.second - square_root_range.first < 1e-12);
+
+  DenseIntSet dense_set(10);
+  assert(dense_set.insert(3));
+  assert(dense_set.insert(7));
+  assert(!dense_set.insert(3));
+  assert(dense_set.contains(3) && dense_set.contains(7));
+  assert(dense_set.erase(3));
+  assert(!dense_set.contains(3) && dense_set.size() == 1);
+  dense_set.clear();
+  assert(dense_set.empty() && !dense_set.contains(7));
+
+  BinaryTrie<unsigned, 8> binary_trie;
+  binary_trie.reserve(10);
+  binary_trie.insert(5);
+  binary_trie.insert(10);
+  binary_trie.insert(10);
+  binary_trie.insert(240);
+  assert(binary_trie.size() == 4 && binary_trie.count(10) == 2);
+  assert(binary_trie.minimum_xor_element(7) == 5);
+  assert(binary_trie.maximum_xor_element(7) == 240);
+  assert(binary_trie.erase(10) && binary_trie.count(10) == 1);
+
+  for (int threshold = 1; threshold <= 100; ++threshold) {
+    assert(binary_search_first_true<int>(
+               0, 101, [threshold](int value) { return value >= threshold; }) ==
+           threshold);
+    assert(binary_search_last_true<int>(
+               0, 101, [threshold](int value) { return value <= threshold; }) ==
+           threshold);
+  }
+
+  for (int iteration = 0; iteration < 100; ++iteration) {
+    const int point_count = random.next_int(1, 31);
+    std::vector<Point2D<long long>> points(point_count);
+    for (auto& point : points) {
+      point.x = random.next_int(-5LL, 6LL);
+      point.y = random.next_int(-5LL, 6LL);
+    }
+    const auto hull = convex_hull(points);
+    assert(!hull.empty());
+    for (int i = 0; i < static_cast<int>(hull.size()); ++i) {
+      for (int j = i + 1; j < static_cast<int>(hull.size()); ++j) {
+        assert(hull[i] != hull[j]);
+      }
+    }
+    if (hull.size() == 2) {
+      for (const auto& point : points) {
+        assert(cross(hull[0], hull[1], point) == 0);
+        assert(std::min(hull[0].x, hull[1].x) <= point.x);
+        assert(point.x <= std::max(hull[0].x, hull[1].x));
+        assert(std::min(hull[0].y, hull[1].y) <= point.y);
+        assert(point.y <= std::max(hull[0].y, hull[1].y));
+      }
+    } else if (hull.size() >= 3) {
+      for (int i = 0; i < static_cast<int>(hull.size()); ++i) {
+        const auto& a = hull[i];
+        const auto& b = hull[(i + 1) % hull.size()];
+        const auto& c = hull[(i + 2) % hull.size()];
+        assert(cross(a, b, c) > 0);
+        for (const auto& point : points) assert(cross(a, b, point) >= 0);
+      }
+    }
+
+    constexpr int universe = 100;
+    DenseIntSet tested_set(universe);
+    std::vector<char> present(universe, false);
+    for (int operation = 0; operation < 1000; ++operation) {
+      const int value = random.next_int(0, universe);
+      const int type = random.next_int(0, 20);
+      if (type < 9) {
+        assert(tested_set.insert(value) == !present[value]);
+        present[value] = true;
+      } else if (type < 18) {
+        assert(tested_set.erase(value) == static_cast<bool>(present[value]));
+        present[value] = false;
+      } else {
+        tested_set.clear();
+        std::fill(present.begin(), present.end(), false);
+      }
+      int expected_size = 0;
+      for (char exists : present) expected_size += exists;
+      assert(tested_set.size() == expected_size);
+      for (int i = 0; i < universe; ++i) {
+        assert(tested_set.contains(i) == static_cast<bool>(present[i]));
+      }
+      std::vector<char> listed(universe, false);
+      for (int i = 0; i < tested_set.size(); ++i) {
+        assert(present[tested_set[i]] && !listed[tested_set[i]]);
+        listed[tested_set[i]] = true;
+      }
+    }
+
+    BinaryTrie<unsigned, 8> tested_trie;
+    std::vector<int> frequency(256, 0);
+    int element_count = 0;
+    for (int operation = 0; operation < 1000; ++operation) {
+      const unsigned value = random.next_int(0U, 256U);
+      const int type = random.next_int(0, 3);
+      if (type == 0 || element_count == 0) {
+        tested_trie.insert(value);
+        ++frequency[value];
+        ++element_count;
+      } else if (type == 1) {
+        const bool existed = frequency[value] > 0;
+        assert(tested_trie.erase(value) == existed);
+        if (existed) {
+          --frequency[value];
+          --element_count;
+        }
+      } else {
+        unsigned expected_minimum = 256;
+        unsigned expected_maximum = 0;
+        for (unsigned candidate = 0; candidate < 256; ++candidate) {
+          if (frequency[candidate] == 0) continue;
+          expected_minimum = std::min(expected_minimum, value ^ candidate);
+          expected_maximum = std::max(expected_maximum, value ^ candidate);
+        }
+        assert(tested_trie.minimum_xor_value(value) == expected_minimum);
+        assert(tested_trie.maximum_xor_value(value) == expected_maximum);
+      }
+      assert(tested_trie.size() == element_count);
+      assert(tested_trie.count(value) == frequency[value]);
+    }
   }
 
   RollbackDsu rollback_dsu(5);
