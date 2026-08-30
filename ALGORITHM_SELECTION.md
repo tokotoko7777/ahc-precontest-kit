@@ -10,11 +10,12 @@
 | 全辺のコストが同じ | 1個 | `graph-bfs.hpp` | `O(N + M)` |
 | コストが0か1 | 1個 | `zero-one-bfs.hpp` | `O(N + M)` |
 | コストが0以上 | 1個 | `dijkstra.hpp` | `O((N + M) log N)` |
+| 負辺を含む | 1個 | `bellman-ford.hpp` | `O(NM)` |
 | 負辺を含んでもよい、小さなグラフ | 全頂点間 | `floyd-warshall.hpp` | `O(N^3)` |
 | 4方向の文字盤面 | 1マス | `grid-bfs.hpp` | `O(HW)` |
 
-負の辺を含む大きなグラフ用の単一始点最短路は、現在まだ収録していません。
-その条件でDijkstraを使ってはいけません。
+負辺がある時にDijkstraを使ってはいけません。Bellman–Fordは負閉路から
+到達できる頂点も判定しますが、辺数と頂点数が多い場合は間に合わないことがあります。
 
 ## 連結性と順序
 
@@ -33,6 +34,7 @@
 | 1点加算 | 区間和 | `fenwick-tree.hpp` | `O(log N)` |
 | 1点代入 | 和・min・maxなど | `segment-tree.hpp` | `O(log N)` |
 | 区間加算 | 区間和 | `range-add-range-sum.hpp` | `O(log N)` |
+| 区間加算 | 区間最小値 | `range-add-range-minimum.hpp` | `O(log N)` |
 | 更新を全部先に処理 | 各点の値 | `difference-array.hpp` | 更新 `O(1)`、構築 `O(N)` |
 | なし | min・max・gcd | `sparse-table.hpp` | 構築 `O(N log N)`、質問 `O(1)` |
 | なし、幅が固定 | 全区間のmin・max | `sliding-window-minimum.hpp` | 全体 `O(N)` |
@@ -44,7 +46,17 @@
 | 知りたいこと | パーツ | 計算量 |
 |---|---|---:|
 | 2頂点の共通祖先・距離・パス上の頂点 | `lowest-common-ancestor.hpp` | 構築 `O(N log N)`、質問 `O(log N)` |
+| 最も離れた2頂点とその経路 | `tree-diameter.hpp` | `O(N)` |
 | 辺を追加しながら連結性を管理 | `dsu.hpp` | ほぼ `O(1)` / 回 |
+
+## 文字列・列の照合
+
+| 知りたいこと | パーツ | 計算量 |
+|---|---|---:|
+| 各位置と列の先頭が一致する長さ | `z-algorithm.hpp` | `O(N)` |
+| パターンが出現する全位置 | `prefix-function.hpp` | `O(N + M)` |
+| あらゆる中心の最長回文 | `manacher.hpp` | `O(N)` |
+| 部分列比較とLCPを何度も行う | `rolling-hash.hpp` | 構築 `O(N)`、比較 `O(1)` |
 
 ## 流量・対応付け・論理条件
 

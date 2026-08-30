@@ -93,6 +93,7 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 | [`fenwick-tree.hpp`](library/fenwick-tree.hpp) | 1点加算と区間和 |
 | [`segment-tree.hpp`](library/segment-tree.hpp) | 1点変更と区間の和・最小値・最大値など |
 | [`range-add-range-sum.hpp`](library/range-add-range-sum.hpp) | 区間加算と区間和 |
+| [`range-add-range-minimum.hpp`](library/range-add-range-minimum.hpp) | 区間加算と区間最小値 |
 | [`sparse-table.hpp`](library/sparse-table.hpp) | 静的配列の区間min・max・gcdをO(1)取得 |
 | [`sliding-window-minimum.hpp`](library/sliding-window-minimum.hpp) | 固定幅区間のmin・maxを全体O(N)計算 |
 | [`flat-grid.hpp`](library/flat-grid.hpp) | 連続メモリに置くキャッシュ効率重視の2次元配列 |
@@ -108,6 +109,7 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 | ファイル | できること |
 |---|---|
 | [`dijkstra.hpp`](library/dijkstra.hpp) | 非負辺グラフの最短距離と経路復元 |
+| [`bellman-ford.hpp`](library/bellman-ford.hpp) | 負辺を含む最短距離・負閉路の影響範囲 |
 | [`graph-bfs.hpp`](library/graph-bfs.hpp) | 重みなしグラフの最短距離と経路復元 |
 | [`zero-one-bfs.hpp`](library/zero-one-bfs.hpp) | コスト0/1の最短距離と経路復元 |
 | [`grid-bfs.hpp`](library/grid-bfs.hpp) | 4方向グリッドの最短距離と経路復元 |
@@ -116,6 +118,7 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 | [`floyd-warshall.hpp`](library/floyd-warshall.hpp) | 全頂点間最短距離と負閉路検出 |
 | [`kruskal.hpp`](library/kruskal.hpp) | 最小全域木・最小全域森 |
 | [`lowest-common-ancestor.hpp`](library/lowest-common-ancestor.hpp) | 木のLCA・距離・パス上の頂点 |
+| [`tree-diameter.hpp`](library/tree-diameter.hpp) | 非負重みの木の直径と経路復元 |
 | [`max-flow.hpp`](library/max-flow.hpp) | Dinic法の最大流・最小カット |
 | [`min-cost-flow.hpp`](library/min-cost-flow.hpp) | 非負辺コスト用の最小費用流 |
 | [`bipartite-matching.hpp`](library/bipartite-matching.hpp) | 左右の頂点を1対1対応させる最大マッチング |
@@ -127,6 +130,7 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 |---|---|
 | [`static-mod-int.hpp`](library/static-mod-int.hpp) | コンパイル時modの四則演算・累乗・逆元 |
 | [`prime-table.hpp`](library/prime-table.hpp) | 線形篩・素数判定・素因数分解・約数列挙 |
+| [`mod-combination.hpp`](library/mod-combination.hpp) | 素数mod上のnCk・nPk・重複組合せ |
 
 ### 文字列・列
 
@@ -134,6 +138,8 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 |---|---|
 | [`rolling-hash.hpp`](library/rolling-hash.hpp) | 部分列hash・連結・LCP |
 | [`z-algorithm.hpp`](library/z-algorithm.hpp) | 各位置と先頭の最長共通接頭辞 |
+| [`prefix-function.hpp`](library/prefix-function.hpp) | KMP用prefix function・パターン出現位置 |
+| [`manacher.hpp`](library/manacher.hpp) | 全中心の最長回文を全体O(N)で計算 |
 
 ### 列・DP
 
