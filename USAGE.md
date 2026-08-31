@@ -59,23 +59,33 @@ int selected = table.choose(
 どちらも「正なら良い変更」になるようにするのがポイントです。
 
 ```cpp
-TimeBasedSimulatedAnnealing sa(1900.0, 100.0, 1.0, 123);
+TimeBasedSimulatedAnnealing sa(
+    1900.0, 100.0, 1.0, 123, 64);
+
+State current = make_initial_state();
+long long current_score = calculate_score(current);
+State best = current;
+long long best_score = current_score;
 
 while (!sa.is_over()) {
-  // 変更案を作る
-  double improvement = new_score - current_score;  // 最大化の場合
+  Move move = make_random_move(current);
+  long long improvement = calculate_delta(current, move);
 
   if (sa.accept(improvement)) {
-    // 変更を採用する
-    current_score = new_score;
-  } else {
-    // 変更を元に戻す
+    apply(current, move);
+    current_score += improvement;
+    if (best_score < current_score) {
+      best_score = current_score;
+      best = current;
+    }
   }
 }
 ```
 
 温度は `100.0` から `1.0` へ指数的に下がります。得点差の大きさに合わせて
-開始温度と終了温度を変えてください。
+開始温度と終了温度を変えてください。最後の`64`は時計を見る間隔です。
+近傍1回が重いなら1〜8、軽いなら64〜256が目安です。焼きなましの
+終了時状態は最良とは限らないため、`best`を別に保存します。
 
 ## 進捗率を外から渡す焼きなまし
 
@@ -83,16 +93,22 @@ while (!sa.is_over()) {
 使います。
 
 ```cpp
-Timer timer;
+BatchedTimer timer(1200.0, 64);
 SimulatedAnnealing sa(100.0, 1.0, 123);
 
-while (!timer.is_over(1200.0)) {
-  long long improvement = new_score - current_score;
-  if (sa.accept(improvement, timer.progress(1200.0))) {
-    // 採用
+while (!timer.is_over()) {
+  sa.set_progress(timer.cached_progress());
+  Move move = make_random_move(current);
+  long long improvement = calculate_delta(current, move);
+  if (sa.accept(improvement)) {
+    apply(current, move);
+    current_score += improvement;
   }
 }
 ```
+
+従来どおり`sa.accept(improvement, progress)`と書くこともできます。同じ
+`progress`が続く間は温度を再計算しません。
 
 ## BestKeeper
 
@@ -1349,6 +1365,19 @@ auto evaluate = [](const State& state) { return state.score; };
 State answer = simple_beam_search(State{}, 100, 200, expand, evaluate);
 ```
 
+`evaluate`は候補を残す順位用です。提出解は問題本来の得点で別に
+比べます。一部の状態だけ早くterminalになる場合、子を持たない状態は
+次の層で消えるため、`expand`内で最良terminalを別に保存します。
+
+同じ層の同じ状態へ別経路から到達するなら、`step_with_key`を使えます。
+
+```cpp
+SimpleBeamSearch<State, long long> beam(State{}, 200);
+for (int turn = 0; turn < 100; ++turn) {
+  if (!beam.step_with_key(expand, evaluate, make_key)) break;
+}
+```
+
 ## TreeBeamSearch
 
 状態が大きくコピーが重い時の発展版です。1手進める `apply` と、その1手だけを
@@ -1391,6 +1420,9 @@ vector<Move> answer = beam.restore();
 ```
 
 `apply` でscore、hash、補助配列も変更したなら、`revert` ではそれらを全部戻します。
+`Move`には上書き前の値など、復元に必要な情報も入れます。
+現在幅の状態を確認する時は`for_each_state(visit, apply, revert)`を使えます。
+`visit(rank, state)`内では`beam.restore(rank)`でその状態の手順を復元できます。
 
 同じ盤面へ別の手順で到達する問題では、`step_with_key` を使えます。
 `state.hash` が同じ候補は、評価値が一番良い1件だけ残ります。
@@ -1409,6 +1441,36 @@ for (int turn = 0; turn < 100; ++turn) {
 
 `hash` は自分で更新します。盤面のswapなら `zobrist-hash.hpp` と組み合わせると
 差分更新しやすいです。64bit hashにはごく小さい衝突可能性があります。
+
+## CostTreeBeamSearch
+
+状態コピーを避けたい点は`TreeBeamSearch`と同じですが、1行動の
+消費手数が1、2、3と異なる時に使います。同じ到着世代の候補だけを
+比べます。
+
+```cpp
+struct Move {
+  int difference;
+  int advance;
+};
+
+auto get_advance = [](const Move& move) { return move.advance; };
+
+CostTreeBeamSearch<State, Move, long long> beam(
+    initial, initial.score, 200, 100);  // 幅200、最大世代100
+
+while (beam.step(expand, apply, revert, evaluate, get_advance)) {
+}
+
+vector<Move> answer = beam.restore();
+```
+
+`advance`は正の整数にします。最大世代を超える行動は自動で候補から
+外れます。重複を消す場合は、同じ1つのbeamで`step`と`step_with_key`を
+混ぜず、最初から最後までどちらか一方を使います。
+
+順位評価、terminal保存、keyの作り方、`apply / revert`の確認方法は
+[`SEARCH_GUIDE.md`](SEARCH_GUIDE.md)にまとめています。
 
 ## SharedHistory
 

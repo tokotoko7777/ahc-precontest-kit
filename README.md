@@ -35,6 +35,10 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 [`USAGE.md`](USAGE.md) にあります。
 似たアルゴリズムの使い分けは [`ALGORITHM_SELECTION.md`](ALGORITHM_SELECTION.md) の
 早見表から選べます。
+焼きなましと3種類のビームサーチは [`SEARCH_GUIDE.md`](SEARCH_GUIDE.md) に
+最小例と安全な使い方をまとめています。
+それぞれを単体で実際の問題へ使った完全な `main.cpp` は
+[`examples/search/`](examples/search/README.md) にあります。
 
 ## 高速化の方針
 
@@ -42,6 +46,19 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 間接関数呼び出し、時計取得、メモリ配置も確認します。制約が厳しい高速版は、
 使える条件をファイル先頭へ明記します。詳しい判断基準は
 [`PERFORMANCE.md`](PERFORMANCE.md) にまとめています。
+
+## 探索コア4本
+
+| 問題の形 | 最初に使うパーツ |
+|---|---|
+| 1つの解を局所変更する | `time-based-simulated-annealing.hpp` |
+| 各手で1世代進み、状態コピーが軽い | `simple-beam-search.hpp` |
+| 各手で1世代進み、状態コピーが重い | `tree-beam-search.hpp` |
+| 行動ごとに到着世代が飛ぶ | `cost-tree-beam-search.hpp` |
+
+ビームの`evaluate`は候補の順位用であり、提出得点と同じでなくても
+構いません。最終解は問題本来の得点で別に比較し、早く終了した
+terminalもその場で保存します。
 
 ## パーツ一覧
 
@@ -70,11 +87,14 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 | [`time-based-simulated-annealing.hpp`](library/time-based-simulated-annealing.hpp) | タイマー内蔵の焼きなまし |
 | [`multi-start.hpp`](library/multi-start.hpp) | 回数または時間指定の多点スタート |
 | [`simple-beam-search.hpp`](library/simple-beam-search.hpp) | 状態をコピーする初心者向けビームサーチ |
-| [`tree-beam-search.hpp`](library/tree-beam-search.hpp) | apply / revert型ビームサーチ。同じ状態キーの重複除去にも対応 |
+| [`tree-beam-search.hpp`](library/tree-beam-search.hpp) | 1手1世代のapply / revert型ビームサーチ |
+| [`cost-tree-beam-search.hpp`](library/cost-tree-beam-search.hpp) | 1手の進み幅が異なるapply / revert型ビームサーチ |
 | [`common-scenario-average.hpp`](library/common-scenario-average.hpp) | 全候補を同じ未来sampleで比較するrollout補助 |
 
 ビームサーチを初めて使う場合は `simple-beam-search.hpp` から始めてください。
 `tree-beam-search.hpp` は状態が大きく、コピーが重い場合の発展版です。
+1行動で2世代以上進む場合があるなら `cost-tree-beam-search.hpp` を使います。
+どちらの木上版も`step_with_key`で同一世代の重複状態を1件に絞れます。
 
 ### 探索状態・候補管理
 
@@ -209,6 +229,11 @@ GitHub 上ではファイルを開き、右上のコピーアイコン、また�
 - [heuristic-library-rs](https://github.com/e1jirou/heuristic-library-rs) —
   ヒューリスティックに限定しない分類と、1機能ずつ取り出せるAPIの粒度を
   参考にしています。コードの移植ではなく、このリポジトリ向けにC++で新規実装します。
+- [TERRYのAHC練習問題まとめ](https://www.terry-u16.net/entry/ahc-practice-problem) —
+  焼きなまし・ビームサーチを小問題から練習する順序を参考にしています。
+- [AHC001参加記](https://blog.terry-u16.net/entry/ahc001)・
+  [AHC039解説](https://blog.terry-u16.net/entry/ahc039) —
+  固定長領域、差分評価、多点スタート、粗密を変える探索の実例を確認しています。
 - [AC Library Documentation](https://atcoder.github.io/ac-library/production/document_ja/) —
   計算量、境界条件、型をコンパイル時に確定する汎用データ構造の設計を確認しています。
 - [Introduction to Heuristics Contest A の実装記録](https://ruthen.hatenablog.com/entry/2024/01/25/000000) —
@@ -216,8 +241,9 @@ GitHub 上ではファイルを開き、右上のコピーアイコン、また�
 - 手元のAHC001〜AHC068優勝コードレビュー知識から、複数問題で再利用例が
   確認できた時間管理・候補制限・重複除去・差分更新を選んでいます。
 
-`tree-beam-search.hpp` は記事のRust実装の移植ではありません。記事の高度な
-帰りがけ順管理より理解しやすい、親をたどって共通祖先まで戻る独自のC++実装です。
+`tree-beam-search.hpp` と `cost-tree-beam-search.hpp` は参考記事のコード移植ではありません。
+生き残った履歴木だけをDFSし、`apply / revert`で状態を1個だけ管理する
+独自のC++実装です。
 
 ## 過去AHCでの実戦例
 
