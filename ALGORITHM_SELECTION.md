@@ -117,14 +117,22 @@ Alias Tableの作成自体に `O(N)` かかるため、重みを毎回作り直�
 `min-cost-flow.hpp` に追加できるのはコスト0以上の辺だけで、同じインスタンスの
 `flow` は1回だけ呼びます。
 
-## 探索候補の保存
+## AHC探索コア
 
-| 状況 | パーツ |
-|---|---|
-| Kが小さく、候補を1件ずつ追加 | `top-k.hpp` |
-| 状態をコピーしても軽い | `simple-beam-search.hpp` |
-| 状態コピーが重く、1手を正確に戻せる | `tree-beam-search.hpp` |
-| 同じ状態へ何度も到達する | `best-by-key.hpp` または `step_with_key` |
+| 状況 | パーツ | 必要な条件 |
+|---|---|---|
+| 1つの解の局所変更を繰り返す | `time-based-simulated-annealing.hpp` | 得点差を正しく計算できる |
+| 手数ごとに複数候補を残し、状態が小さい | `simple-beam-search.hpp` | 子の`State`コピーが十分軽い |
+| 全行動で1世代ずつ進み、状態が大きい | `tree-beam-search.hpp` | `apply / revert`が完全に逆操作 |
+| 行動ごとに到着世代が異なる | `cost-tree-beam-search.hpp` | `apply / revert`に加え、`advance > 0` |
+| Kが小さく、候補を1件ずつ追加 | `top-k.hpp` | 局所的な上位K件だけ必要 |
+| ビーム以外で同keyの最良候補だけ保存 | `best-by-key.hpp` | keyが将来に必要な状態を区別できる |
 
-高速版ほど使える条件が狭くなります。まず条件を確認し、迷う場合は単純なパーツから
-始めてください。
+木上版は状態コピーを避けられますが、`apply / revert`の実装ミスは探索全体を
+壊します。まず`SimpleBeamSearch`で形を作り、コピーが実際に重い時に移行すると
+安全です。
+
+`evaluate`はビーム内の順位用であり、問題本来の最終得点とは分けます。
+早くterminalに到達する状態は次層で消える前に別保存します。同一世代の重複が
+多い時だけ`step_with_key`を使い、keyには残り資源など将来に必要な情報も
+含めます。最小例は [`SEARCH_GUIDE.md`](SEARCH_GUIDE.md) にあります。
