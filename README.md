@@ -293,6 +293,8 @@ AHC001〜AHC069を順次追加しています。全問題の状態と次の作�
 | [`practice/ahc065`](practice/ahc065/) | Hamilton主ベルト、局所swap、円環順序対応 |
 | [`practice/ahc066`](practice/ahc066/) | 向き付きBFS、運搬順序とmacroの交互探索 |
 | [`practice/ahc067`](practice/ahc067/) | 橋の木、10ビットカウンタ、状態付きBFS |
+| [`practice/ahc068`](practice/ahc068/) | 境界peel、長方形swap、正確な操作再生 |
+| [`practice/ahc069`](practice/ahc069/) | compact配置、受理価格、限定的な再配置 |
 
 各フォルダの `main.cpp` はローカルヘッダを参照しない、提出可能な単一ファイルです。
 
