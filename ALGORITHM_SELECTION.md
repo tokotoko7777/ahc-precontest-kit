@@ -25,6 +25,7 @@
 | 頂点間の差分制約を追加・質問 | `weighted-dsu.hpp` | ほぼ `O(1)` / 回 |
 | 無向グラフを2色に塗れるか | `bipartite-check.hpp` | `O(N + M)` |
 | 無向グラフを最小コストで連結 | `kruskal.hpp` | `O(M log M)` |
+| 無向グラフの切れやすい辺・橋で分かれる領域 | `bridge-tree.hpp` | `O(N + M)` |
 | 有向グラフで互いに行き来できる集合 | `strongly-connected-components.hpp` | `O(N + M)` |
 | 有向グラフを依存関係順に並べる | `topological-sort.hpp` | `O(N + M)` |
 | 各頂点の出辺が1本で、周期と大きな回数後の頂点を知る | `functional-graph.hpp` | 構築 `O(64N)`、質問 `O(64)` |
@@ -108,6 +109,7 @@ Alias Tableの作成自体に `O(N)` かかるため、重みを毎回作り直�
 | 有向辺の容量を守って最大量を運ぶ | `max-flow.hpp` | Dinic法 `O(N^2 M)` |
 | 決めた量を最小コストで運ぶ | `min-cost-flow.hpp` | `O(F M log N)` |
 | 左集合と右集合から1対1の組を最大数選ぶ | `bipartite-matching.hpp` | `O(M sqrt(N))` |
+| 左右の順番を保ち、交差しない組の重みを最大化 | `non-crossing-matching.hpp` | `O(LR)` |
 | true/falseの「AまたはB」条件をすべて満たす | `two-sat.hpp` | `O(N + M)` |
 
 二部グラフの単純な最大マッチングは、最大流でも解けますが

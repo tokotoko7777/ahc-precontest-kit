@@ -130,6 +130,7 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 | [`topological-sort.hpp`](library/topological-sort.hpp) | DAGの順序と閉路検出 |
 | [`bipartite-check.hpp`](library/bipartite-check.hpp) | 無向グラフの2色塗り・二部グラフ判定 |
 | [`strongly-connected-components.hpp`](library/strongly-connected-components.hpp) | 有向グラフの強連結成分分解 |
+| [`bridge-tree.hpp`](library/bridge-tree.hpp) | 無向グラフの橋と、橋を渡らず行き来できる成分 |
 | [`functional-graph.hpp`](library/functional-graph.hpp) | 出辺1本のグラフの周期・入口・大きな回数の遷移 |
 | [`floyd-warshall.hpp`](library/floyd-warshall.hpp) | 全頂点間最短距離と負閉路検出 |
 | [`kruskal.hpp`](library/kruskal.hpp) | 最小全域木・最小全域森 |
@@ -138,6 +139,7 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 | [`max-flow.hpp`](library/max-flow.hpp) | Dinic法の最大流・最小カット |
 | [`min-cost-flow.hpp`](library/min-cost-flow.hpp) | 非負辺コスト用の最小費用流 |
 | [`bipartite-matching.hpp`](library/bipartite-matching.hpp) | 左右の頂点を1対1対応させる最大マッチング |
+| [`non-crossing-matching.hpp`](library/non-crossing-matching.hpp) | 左右の順序を保つ、交差しない重み最大の組選び |
 | [`hungarian.hpp`](library/hungarian.hpp) | 費用最小の1対1割り当て |
 | [`two-sat.hpp`](library/two-sat.hpp) | 「AまたはB」の論理条件を満たす割り当て |
 
@@ -287,6 +289,10 @@ AHC001〜AHC069を順次追加しています。全問題の状態と次の作�
 | [`practice/ahc061`](practice/ahc061/) | 粒子推定、共通シナリオ、3手rollout |
 | [`practice/ahc062`](practice/ahc062/) | Hamilton閉路、prefix差分2-opt、合法swap |
 | [`practice/ahc063`](practice/ahc063/) | リングバッファ蛇状態、bitset、層別beam |
+| [`practice/ahc064`](practice/ahc064/) | ブロック移送、差分評価、非交差DP付きbeam |
+| [`practice/ahc065`](practice/ahc065/) | Hamilton主ベルト、局所swap、円環順序対応 |
+| [`practice/ahc066`](practice/ahc066/) | 向き付きBFS、運搬順序とmacroの交互探索 |
+| [`practice/ahc067`](practice/ahc067/) | 橋の木、10ビットカウンタ、状態付きBFS |
 
 各フォルダの `main.cpp` はローカルヘッダを参照しない、提出可能な単一ファイルです。
 

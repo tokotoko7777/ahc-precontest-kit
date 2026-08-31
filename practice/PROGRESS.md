@@ -90,12 +90,12 @@
 | AHC061 | オンライン領土ゲーム | kit-ready | 512粒子推定＋共通40scenarioの3手rollout。公式100seed全完走、平均168,377点 |
 | AHC062 | 全セルを通る巡回路 | kit-ready | 4列Hamilton閉路＋差分2-opt。seed 0〜9平均469,036,820点 |
 | AHC063 | 色付き蛇の操作列 | kit-ready | リングバッファ＋bitset層別beam。公式100seed全完全一致、平均337.39手 |
-| AHC064 | 線路車両間の荷物並べ替え | local-audit | `/home/utility/AHC064/main.cpp` と公式testerを監査 |
-| AHC065 | 環状コンベア設計 | local-audit | main〜main3の合法性・スコアを比較 |
-| AHC066 | macro付きロボット制御 | local-audit | batch結果と複数mainから再現可能な正本を選定 |
-| AHC067 | 扉・スイッチ環境設計 | local-audit | main〜main4とlegacyを同条件で比較 |
+| AHC064 | 線路車両間の荷物並べ替え | kit-ready | ブロック差分beam＋非交差同時移動DP。公式100seed全完成、平均4,967.41点 |
+| AHC065 | 環状コンベア設計 | kit-ready | 200マス主ベルト＋局所swap。公式100seed全搬出、平均7,256,401.57点 |
+| AHC066 | macro付きロボット制御 | kit-ready | 運搬順序とmacroの交互探索。公式100seed全収納、平均186.32操作 |
+| AHC067 | 扉・スイッチ環境設計 | kit-ready | 橋の木＋10ビットカウンタ。公式100seed全構築成功、平均10,844,691.34点 |
 | AHC068 | 長方形範囲swap整列 | new | 状態重複除去付き構築・ビームを検討 |
-| AHC069 | オンライン連結領域配置 | local-audit | `/home/utility/AHC069` に大量の比較済み候補。正本と文書を一本化 |
+| AHC069 | オンライン連結領域配置 | local-audit | 手元に多数の比較済み候補あり。正本と文書を一本化 |
 
 ## 処理順
 
