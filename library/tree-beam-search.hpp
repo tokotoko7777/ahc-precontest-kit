@@ -34,6 +34,10 @@
 // 同じ盤面を1つにまとめる場合:
 // beam.step_with_key(expand, apply, revert, evaluate,
 //                    [](const State& s) { return s.hash; });
+//
+// 幅から落ちる候補も含め、生成した全候補を調べたい場合は
+// step_and_observe（key付きはstep_with_key_and_observe）を使う。
+// observerは候補をapplyしたState上で、選抜前にちょうど1回呼ばれる。
 template <class State, class Action, class Score>
 struct TreeBeamSearch {
   struct Node {
@@ -80,15 +84,21 @@ struct TreeBeamSearch {
     nodes.push_back(
         {-1, 0, std::nullopt, std::move(initial_score),
          -1, -1, -1, true, 0});
+    beam.reserve(static_cast<std::size_t>(beam_width_value));
     beam.push_back(0);
     candidate_buffer.reserve(static_cast<std::size_t>(beam_width_value) * 4);
     selection_buffer.reserve(static_cast<std::size_t>(beam_width_value) * 4);
+    old_beam_buffer.reserve(static_cast<std::size_t>(beam_width_value));
     move_buffer.reserve(64);
   }
 
   void set_beam_width(int new_beam_width) {
     if (new_beam_width <= 0) {
       throw std::invalid_argument("beam_width must be positive");
+    }
+    if (new_beam_width > beam_width) {
+      beam.reserve(static_cast<std::size_t>(new_beam_width));
+      old_beam_buffer.reserve(static_cast<std::size_t>(new_beam_width));
     }
     beam_width = new_beam_width;
     if (beam.size() > static_cast<std::size_t>(beam_width)) {
@@ -114,6 +124,8 @@ struct TreeBeamSearch {
     return nodes[beam.front()].depth;
   }
 
+  int size() const { return static_cast<int>(beam.size()); }
+
   // 現在のビームを共有履歴木のDFSで巡回する。
   // visit(rank, state) のstateはそのrankの状態。終了時はrootへ戻る。
   template <class Visit, class Apply, class Revert>
@@ -128,28 +140,28 @@ struct TreeBeamSearch {
 
   // 候補が1つもなければ false。それ以外は1世代進めて true。
   template <class Expand, class Apply, class Revert, class Evaluate>
-  bool step(Expand expand, Apply apply, Revert revert, Evaluate evaluate) {
-    candidate_buffer.clear();
-    for_each_active_leaf(
-        [&](int parent) {
-          auto&& actions = expand(state);
-          std::uint64_t action_order = 0;
-          for (auto&& expanded_action : actions) {
-            Action action = std::move(expanded_action);
-            apply(state, action);
-            Score score = evaluate(state);
-            revert(state, action);
-            candidate_buffer.push_back({parent,
-                                        std::move(action),
-                                        std::move(score),
-                                        nodes[parent].beam_rank,
-                                        action_order++});
-          }
-        },
-        apply,
-        revert);
+  bool step(Expand&& expand,
+            Apply&& apply,
+            Revert&& revert,
+            Evaluate&& evaluate) {
+    NoObserver observer;
+    return step_impl<false>(expand, apply, revert, evaluate, observer);
+  }
 
-    return select_and_advance();
+  // observer(parent_rank, action, child_state, rank_score) を、生成した
+  // 全候補について選抜前に呼ぶ。child_stateにはactionがapply済み。
+  // observer内ではこのオブジェクトを変更せず、例外も投げないこと。
+  template <class Expand,
+            class Apply,
+            class Revert,
+            class Evaluate,
+            class Observer>
+  bool step_and_observe(Expand&& expand,
+                        Apply&& apply,
+                        Revert&& revert,
+                        Evaluate&& evaluate,
+                        Observer&& observer) {
+    return step_impl<true>(expand, apply, revert, evaluate, observer);
   }
 
   // 同じ key の状態は、評価値が一番良い候補だけを残す。
@@ -159,50 +171,31 @@ struct TreeBeamSearch {
             class Revert,
             class Evaluate,
             class MakeKey>
-  bool step_with_key(
-      Expand expand,
-      Apply apply,
-      Revert revert,
-      Evaluate evaluate,
-      MakeKey make_key) {
-    using Key = std::decay_t<decltype(make_key(state))>;
+  bool step_with_key(Expand&& expand,
+                     Apply&& apply,
+                     Revert&& revert,
+                     Evaluate&& evaluate,
+                     MakeKey&& make_key) {
+    NoObserver observer;
+    return step_with_key_impl<false>(
+        expand, apply, revert, evaluate, make_key, observer);
+  }
 
-    candidate_buffer.clear();
-    std::unordered_map<Key, int> index_by_key;
-    index_by_key.reserve(static_cast<std::size_t>(beam_width) * 4);
-    for_each_active_leaf(
-        [&](int parent) {
-          auto&& actions = expand(state);
-          std::uint64_t action_order = 0;
-          for (auto&& expanded_action : actions) {
-            Action action = std::move(expanded_action);
-            apply(state, action);
-            Score score = evaluate(state);
-            Key key = make_key(state);
-            revert(state, action);
-
-            Candidate candidate{
-                parent,
-                std::move(action),
-                std::move(score),
-                nodes[parent].beam_rank,
-                action_order++};
-            const auto found = index_by_key.find(key);
-            if (found == index_by_key.end()) {
-              const int index = static_cast<int>(candidate_buffer.size());
-              index_by_key.emplace(std::move(key), index);
-              candidate_buffer.push_back(std::move(candidate));
-            } else if (candidate_is_better(
-                           candidate,
-                           candidate_buffer[found->second])) {
-              candidate_buffer[found->second] = std::move(candidate);
-            }
-          }
-        },
-        apply,
-        revert);
-
-    return select_and_advance();
+  // keyで重複除去する前の全候補をobserverで調べる。
+  template <class Expand,
+            class Apply,
+            class Revert,
+            class Evaluate,
+            class MakeKey,
+            class Observer>
+  bool step_with_key_and_observe(Expand&& expand,
+                                 Apply&& apply,
+                                 Revert&& revert,
+                                 Evaluate&& evaluate,
+                                 MakeKey&& make_key,
+                                 Observer&& observer) {
+    return step_with_key_impl<true>(
+        expand, apply, revert, evaluate, make_key, observer);
   }
 
   const Score& best_score() const {
@@ -210,17 +203,39 @@ struct TreeBeamSearch {
     return nodes[beam.front()].score;
   }
 
-  // rank=0 が現在のビームで最良の候補。
-  std::vector<Action> restore(int rank = 0) const {
+  // rank=0 が現在のビームで最良の候補。outの容量は再利用する。
+  void restore(int rank, std::vector<Action>& out) const {
     assert(0 <= rank && rank < static_cast<int>(beam.size()));
     int node = beam[rank];
-    std::vector<Action> actions;
-    actions.reserve(static_cast<std::size_t>(nodes[node].depth));
+    out.clear();
+    out.reserve(static_cast<std::size_t>(nodes[node].depth));
     while (nodes[node].parent != -1) {
-      actions.push_back(*nodes[node].action);
+      out.push_back(*nodes[node].action);
       node = nodes[node].parent;
     }
-    std::reverse(actions.begin(), actions.end());
+    std::reverse(out.begin(), out.end());
+  }
+
+  std::vector<Action> restore(int rank = 0) const {
+    std::vector<Action> actions;
+    restore(rank, actions);
+    return actions;
+  }
+
+  // observerで受け取ったparent_rankとactionから、その候補の経路を作る。
+  // observer内で即時に呼ぶこと。parent_rankやaction、observerが受け取る
+  // 各参照を保存して、step終了後に使ってはいけない。
+  void restore_candidate(int parent_rank,
+                         const Action& action,
+                         std::vector<Action>& out) const {
+    restore(parent_rank, out);
+    out.push_back(action);
+  }
+
+  std::vector<Action> restore_candidate(
+      int parent_rank, const Action& action) const {
+    std::vector<Action> actions;
+    restore_candidate(parent_rank, action, actions);
     return actions;
   }
 
@@ -254,8 +269,110 @@ struct TreeBeamSearch {
   }
 
  private:
+  struct NoObserver {};
+
   std::vector<int> selection_buffer;
+  std::vector<int> old_beam_buffer;
   std::vector<int> move_buffer;
+
+  template <bool Observe,
+            class Expand,
+            class Apply,
+            class Revert,
+            class Evaluate,
+            class Observer>
+  bool step_impl(Expand& expand,
+                 Apply& apply,
+                 Revert& revert,
+                 Evaluate& evaluate,
+                 Observer& observer) {
+    candidate_buffer.clear();
+    for_each_active_leaf(
+        [&](int parent) {
+          auto&& actions = expand(state);
+          std::uint64_t action_order = 0;
+          for (auto&& expanded_action : actions) {
+            Action action = std::move(expanded_action);
+            apply(state, action);
+            Score score = evaluate(state);
+            if constexpr (Observe) {
+              observer(nodes[parent].beam_rank,
+                       static_cast<const Action&>(action),
+                       static_cast<const State&>(state),
+                       static_cast<const Score&>(score));
+            }
+            revert(state, action);
+            candidate_buffer.push_back({parent,
+                                        std::move(action),
+                                        std::move(score),
+                                        nodes[parent].beam_rank,
+                                        action_order++});
+          }
+        },
+        apply,
+        revert);
+
+    return select_and_advance();
+  }
+
+  template <bool Observe,
+            class Expand,
+            class Apply,
+            class Revert,
+            class Evaluate,
+            class MakeKey,
+            class Observer>
+  bool step_with_key_impl(Expand& expand,
+                          Apply& apply,
+                          Revert& revert,
+                          Evaluate& evaluate,
+                          MakeKey& make_key,
+                          Observer& observer) {
+    using Key = std::decay_t<decltype(make_key(state))>;
+
+    candidate_buffer.clear();
+    std::unordered_map<Key, int> index_by_key;
+    index_by_key.reserve(static_cast<std::size_t>(beam_width) * 4);
+    for_each_active_leaf(
+        [&](int parent) {
+          auto&& actions = expand(state);
+          std::uint64_t action_order = 0;
+          for (auto&& expanded_action : actions) {
+            Action action = std::move(expanded_action);
+            apply(state, action);
+            Score score = evaluate(state);
+            Key key = make_key(state);
+            if constexpr (Observe) {
+              observer(nodes[parent].beam_rank,
+                       static_cast<const Action&>(action),
+                       static_cast<const State&>(state),
+                       static_cast<const Score&>(score));
+            }
+            revert(state, action);
+
+            Candidate candidate{
+                parent,
+                std::move(action),
+                std::move(score),
+                nodes[parent].beam_rank,
+                action_order++};
+            const auto found = index_by_key.find(key);
+            if (found == index_by_key.end()) {
+              const int index = static_cast<int>(candidate_buffer.size());
+              index_by_key.emplace(std::move(key), index);
+              candidate_buffer.push_back(std::move(candidate));
+            } else if (candidate_is_better(
+                           candidate,
+                           candidate_buffer[found->second])) {
+              candidate_buffer[found->second] = std::move(candidate);
+            }
+          }
+        },
+        apply,
+        revert);
+
+    return select_and_advance();
+  }
 
   bool score_is_nan(const Score& value) const {
     if constexpr (std::is_floating_point_v<Score>) {
@@ -351,7 +468,9 @@ struct TreeBeamSearch {
     }
     std::sort(selection_buffer.begin(), selection_buffer.end(), better_index);
 
-    const std::vector<int> old_beam = beam;
+    // old beam用bufferの容量を再利用し、新しいbeamのhot storageは
+    // 同じvectorに固定する。予約後はheap確保を発生させない。
+    old_beam_buffer.assign(beam.begin(), beam.end());
     beam.clear();
     beam.reserve(static_cast<std::size_t>(kept));
 
@@ -375,7 +494,7 @@ struct TreeBeamSearch {
     }
 
     // 子が1つも選ばれなかった古い葉と、不要になった祖先を外す。
-    for (int old_leaf : old_beam) prune_empty_branch(old_leaf);
+    for (int old_leaf : old_beam_buffer) prune_empty_branch(old_leaf);
     return true;
   }
 

@@ -60,6 +60,22 @@ while (!sa.is_over()) {
 軽いなら64〜256を目安にします。焼きなましの最終状態は最良とは限らないため、
 `best`は必ず別に保存します。
 
+温度は「典型的な悪化幅を何%で受け入れたいか」から逆算できます。
+
+```cpp
+double start_temperature =
+    TimeBasedSimulatedAnnealing::temperature_for_acceptance(20.0, 0.8);
+double end_temperature =
+    TimeBasedSimulatedAnnealing::temperature_for_acceptance(20.0, 0.01);
+
+TimeBasedSimulatedAnnealing sa(
+    1900.0, start_temperature, end_temperature, 123, 64);
+```
+
+既定は指数冷却です。`sa.use_linear_schedule()`で線形冷却、
+`sa.set_cooling_power(2.0)`で高温の時間を長くできます。重い処理へ入る直前など、
+間引きを無視して現在時刻を確認したい時は`sa.is_over_now()`を使います。
+
 ## SimpleBeamSearchの最小形
 
 `expand(state)`は子状態の`vector`、`rank_score(state)`はビーム内の
@@ -79,6 +95,23 @@ State answer = beam.best();
 `State`の中に盤面、得点、操作履歴を入れられるので、最初に試すのに
 向いています。履歴や盤面が大きくなり、子ごとのコピーが重くなったら
 `TreeBeamSearch`へ移します。
+
+子を並べる一時`vector`を作りたくない場合は、生成した状態を直接渡せます。
+
+```cpp
+beam.step_each(
+    [&](const State& parent, auto&& emit) {
+      for (Move move : make_moves(parent)) {
+        State child = parent;
+        apply(child, move);
+        emit(std::move(child));
+      }
+    },
+    rank_score);
+```
+
+`last_generated_count()`、`last_unique_count()`、`last_kept_count()`で、直近層の
+生成数・key重複除去後の数・採用数を確認できます。
 
 ## 世代が飛ばないTreeBeamSearch
 
@@ -119,6 +152,8 @@ vector<Move> answer = beam.restore();
 
 `advance <= 0`は不正です。`max_generation`を超える行動は自動で候補から外れます。
 `step()`は、候補が存在する最小の到着世代へ進みます。
+時間が減ったら`beam.set_beam_width(smaller_width)`で、現在層と予約済みの
+未来層をまとめて縮められます。後から幅を広げても、既に落とした候補は戻りません。
 
 ## 順位評価と最終目的を分ける
 
@@ -140,43 +175,55 @@ long long official_score(const State& state) {
 
 ## terminalを消さない
 
-一部の状態だけ早く終端に着く問題では、`expand`が空の候補を返すと
-その状態は次の層に残りません。終端に到達した瞬間に、本来の得点と
-出力に必要な情報を別に保存します。
+一部の状態だけ早く終端に着く問題では、生成した終端候補が順位幅から落ちると、
+次の層には一度も現れません。`step`の前後で現在層を見るだけでは不十分です。
+全生成候補を選抜前に受け取るobserverで、本来の得点と答えを保存します。
 
 ```cpp
-optional<pair<long long, Answer>> best_terminal;
-
-auto expand = [&](const State& state) {
-  if (is_terminal(state)) {
-    long long score = official_score(state);
-    if (!best_terminal || best_terminal->first < score) {
-      best_terminal = pair{score, make_answer(state)};
-    }
-    return vector<Move>{};
-  }
-  return make_moves(state);
-};
+// SimpleBeamSearch
+beam.step_and_observe(
+    expand, rank_score,
+    [&](const State& child, const long long&) {
+      if (is_terminal(child)) {
+        save_if_better(official_score(child), make_answer(child));
+      }
+    });
 ```
 
 全経路が必ず同じ最終世代へ着くなら、探索後の`best()`または`restore()`で
 十分です。早く終わるterminalがある時は、現在のビームだけを見て答えにしては
 いけません。
 
-木上版では、各`step`の前に現在層をコピーなしで確認できます。
+木上版のobserverは、親rankと生成した行動も受け取ります。
 
 ```cpp
-beam.for_each_state(
-    [&](int rank, const State& state) {
-      if (is_terminal(state)) {
-        save_if_better(official_score(state), beam.restore(rank));
-      }
-    },
-    apply, revert);
+beam.step_and_observe(
+    expand, apply, revert, rank_score,
+    [&](int parent_rank, const Move& move,
+        const State& child, const long long&) {
+      if (!is_terminal(child)) return;
+      vector<Move> answer = beam.restore_candidate(parent_rank, move);
+      save_if_better(official_score(child), answer);
+    });
 ```
 
-これは現在の幅に残った状態を調べるAPIです。幅から落ちた候補は戻らないため、
-terminalを過小評価しない`rank_score`も用意します。
+`CostTreeBeamSearch`では末尾に到着世代も渡されます。
+
+```cpp
+beam.step_and_observe(
+    expand, apply, revert, rank_score, get_advance,
+    [&](int parent_rank, const Move& move,
+        const State& child, const long long&, int next_generation) {
+      if (is_terminal(child, next_generation)) {
+        save_if_better(official_score(child),
+                       beam.restore_candidate(parent_rank, move));
+      }
+    });
+```
+
+key版は`step_with_key_and_observe`、Simpleの直接生成版は
+`step_each_and_observe`を使います。observerは全候補へ呼ばれるため、内部では
+terminal判定と必要な保存だけを行い、重い処理は避けます。
 
 ## keyで重複を消す
 
@@ -221,6 +268,7 @@ assert(state == before);
 - 得点とhashはできるだけ差分更新する。
 - `rank_score`は全候補に呼ばれるため、安い評価を先に使う。
 - `expand`の`vector`と候補bufferは容量を再利用する。
+- `SimpleBeamSearch::step_each`なら、子を並べる一時コンテナ自体を省ける。
 - `SimpleBeamSearch::reserve_candidates`、`TreeBeamSearch::reserve_nodes`、
   `TreeBeamSearch::reserve_candidates`、`CostTreeBeamSearch`の同名関数で
   上限が分かる領域を予約する。
@@ -234,4 +282,5 @@ assert(state == before);
   読み取り専用の固定行動表は`const vector<Move>&`で返せばコピーして使える。
 - `State`と`Move`を小さく保ち、文字列や全履歴を候補ごとに持たない。
 - key重複除去は、同じ世代の重複が十分多い時だけ使う。
+- 時間に応じて幅を変える場合は`set_width`または`set_beam_width`を使う。
 - ビーム幅だけでなく、1秒当たりの候補評価数と複数seedの最終得点で比べる。

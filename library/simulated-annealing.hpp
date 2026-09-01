@@ -19,12 +19,83 @@ struct SimulatedAnnealing {
   double start_temperature;
   double end_temperature;
   std::mt19937_64 engine;
-  double log_start_temperature = 0.0;
-  double log_temperature_ratio = 0.0;
+  mutable double log_start_temperature = 0.0;
+  mutable double log_temperature_ratio = 0.0;
   double cached_progress_value = 0.0;
-  double cached_temperature_value;
-  double cached_inverse_temperature_value;
+  mutable double cached_temperature_value;
+  mutable double cached_inverse_temperature_value;
 
+ private:
+  bool linear_schedule_value = false;
+  double cooling_power_value = 1.0;
+  mutable double prepared_start_temperature = 0.0;
+  mutable double prepared_end_temperature = 0.0;
+
+  static void validate_temperatures(double start_value, double end_value) {
+    if (!(start_value > 0.0) || !std::isfinite(start_value) ||
+        !(end_value > 0.0) || !std::isfinite(end_value)) {
+      throw std::invalid_argument("temperatures must be positive and finite");
+    }
+  }
+
+  double shape_progress(double progress) const {
+    if (cooling_power_value == 1.0) return progress;
+    return std::pow(progress, cooling_power_value);
+  }
+
+  double temperature_from_prepared_settings(double progress) const {
+    if (progress <= 0.0) return start_temperature;
+    if (progress >= 1.0) return end_temperature;
+
+    const double shaped_progress = shape_progress(progress);
+    if (linear_schedule_value) {
+      return start_temperature +
+             (end_temperature - start_temperature) * shaped_progress;
+    }
+    return std::exp(
+        log_start_temperature + log_temperature_ratio * shaped_progress);
+  }
+
+  void refresh_cached_temperature() const {
+    cached_temperature_value =
+        temperature_from_prepared_settings(cached_progress_value);
+    cached_inverse_temperature_value = 1.0 / cached_temperature_value;
+  }
+
+  // 以前からpublicだった温度を直接書き換えたコードにも対応する。
+  void synchronize_temperature_settings() const {
+    if (start_temperature == prepared_start_temperature &&
+        end_temperature == prepared_end_temperature) {
+      return;
+    }
+    validate_temperatures(start_temperature, end_temperature);
+    prepared_start_temperature = start_temperature;
+    prepared_end_temperature = end_temperature;
+    log_start_temperature = std::log(start_temperature);
+    log_temperature_ratio =
+        std::log(end_temperature) - log_start_temperature;
+    refresh_cached_temperature();
+  }
+
+  double acceptance_exponent(double worsening_value) const {
+    // 普通の温度では速い乗算を維持する。極小温度で1/Tがinfに
+    // なった時だけ除算し、worsening_valueと温度の比を失わない。
+    if (std::isfinite(cached_inverse_temperature_value)) {
+      return worsening_value * cached_inverse_temperature_value;
+    }
+    return worsening_value / cached_temperature_value;
+  }
+
+  bool accept_worsening(double exponent) {
+    // 従来と同じく、悪化手では必ず乱数をちょうど1個消費する。
+    const double random_value = random_01();
+    // exp(-37) は random_01() の最小の正値 2^-53 より小さい。
+    // random_value==0 の時だけunderflowを含めて従来式で確認する。
+    if (exponent <= -37.0 && random_value != 0.0) return false;
+    return random_value < std::exp(exponent);
+  }
+
+ public:
   SimulatedAnnealing(
       double start_temperature_value,
       double end_temperature_value,
@@ -37,27 +108,50 @@ struct SimulatedAnnealing {
     set_temperatures(start_temperature_value, end_temperature_value);
   }
 
-  // 探索途中で温度範囲を変える時は、public fieldを直接変えずこれを使う。
+  // 探索途中で温度範囲を変える時はこちらが分かりやすい。
+  // 以前どおりpublic fieldを直接変えても、次回利用時に自動同期する。
   void set_temperatures(double new_start, double new_end) {
-    if (!(new_start > 0.0) || !std::isfinite(new_start) ||
-        !(new_end > 0.0) || !std::isfinite(new_end)) {
-      throw std::invalid_argument("temperatures must be positive and finite");
-    }
+    validate_temperatures(new_start, new_end);
     start_temperature = new_start;
     end_temperature = new_end;
+    prepared_start_temperature = start_temperature;
+    prepared_end_temperature = end_temperature;
     log_start_temperature = std::log(start_temperature);
     log_temperature_ratio =
         std::log(end_temperature) - log_start_temperature;
-    cached_temperature_value = temperature(cached_progress_value);
-    cached_inverse_temperature_value = 1.0 / cached_temperature_value;
+    refresh_cached_temperature();
+  }
+
+  // 指数冷却が既定。必要な時だけ線形冷却へ切り替えられる。
+  void use_linear_schedule() {
+    synchronize_temperature_settings();
+    linear_schedule_value = true;
+    refresh_cached_temperature();
+  }
+
+  void use_geometric_schedule() {
+    synchronize_temperature_settings();
+    linear_schedule_value = false;
+    refresh_cached_temperature();
+  }
+
+  // 1より大きいと高温を長く保ち、1未満なら早めに冷える。
+  void set_cooling_power(double power) {
+    if (!(power > 0.0) || !std::isfinite(power)) {
+      throw std::invalid_argument("cooling power must be positive and finite");
+    }
+    synchronize_temperature_settings();
+    cooling_power_value = power;
+    refresh_cached_temperature();
   }
 
   double temperature(double progress) const {
+    if (std::isnan(progress)) {
+      throw std::invalid_argument("progress must not be NaN");
+    }
     progress = std::clamp(progress, 0.0, 1.0);
-    if (progress <= 0.0) return start_temperature;
-    if (progress >= 1.0) return end_temperature;
-    return std::exp(
-        log_start_temperature + log_temperature_ratio * progress);
+    synchronize_temperature_settings();
+    return temperature_from_prepared_settings(progress);
   }
 
   // 同じ progress を繰り返し渡しても温度は最初の1回しか計算しない。
@@ -66,15 +160,55 @@ struct SimulatedAnnealing {
       throw std::invalid_argument("progress must not be NaN");
     }
     progress = std::clamp(progress, 0.0, 1.0);
+    synchronize_temperature_settings();
     if (progress == cached_progress_value) return;
     cached_progress_value = progress;
-    cached_temperature_value = temperature(progress);
-    cached_inverse_temperature_value = 1.0 / cached_temperature_value;
+    refresh_cached_temperature();
   }
 
   double cached_progress() const { return cached_progress_value; }
 
-  double current_temperature() const { return cached_temperature_value; }
+  double current_temperature() const {
+    synchronize_temperature_settings();
+    return cached_temperature_value;
+  }
+
+  // 現在の温度で、この得点差を採用する確率。温度調整の確認用。
+  template <class Score>
+  double acceptance_probability(Score improvement) const {
+    const double value = static_cast<double>(improvement);
+    if (std::isnan(value)) return 0.0;
+    if (value >= 0.0) return 1.0;
+    synchronize_temperature_settings();
+    return std::exp(acceptance_exponent(value));
+  }
+
+  template <class Score>
+  double acceptance_probability(Score improvement, double progress) const {
+    const double value = static_cast<double>(improvement);
+    const double selected_temperature = temperature(progress);
+    if (std::isnan(value)) return 0.0;
+    if (value >= 0.0) return 1.0;
+    return std::exp(value / selected_temperature);
+  }
+
+  // d点悪化する手をprobabilityで採用したい時の温度を返す。
+  static double temperature_for_acceptance(
+      double typical_worsening,
+      double probability) {
+    if (!(typical_worsening > 0.0) ||
+        !std::isfinite(typical_worsening) ||
+        !(probability > 0.0 && probability < 1.0) ||
+        !std::isfinite(probability)) {
+      throw std::invalid_argument(
+          "worsening must be positive and probability must be in (0, 1)");
+    }
+    const double result = -typical_worsening / std::log(probability);
+    if (!(result > 0.0) || !std::isfinite(result)) {
+      throw std::invalid_argument("calculated temperature is not finite");
+    }
+    return result;
+  }
 
   // mt19937_64 の上位53bitから [0, 1) の double を作る。
   // uniform_real_distribution を熱いループで毎回作らない。
@@ -92,9 +226,8 @@ struct SimulatedAnnealing {
     if (std::isnan(value)) return false;
     if (value >= 0.0) return true;
 
-    const double probability =
-        std::exp(value * cached_inverse_temperature_value);
-    return random_01() < probability;
+    synchronize_temperature_settings();
+    return accept_worsening(acceptance_exponent(value));
   }
 
   template <class Score>

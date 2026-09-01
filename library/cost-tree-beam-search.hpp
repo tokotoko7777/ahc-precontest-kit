@@ -37,6 +37,9 @@
 //
 // hash が同じ状態を1つにまとめる場合は step_with_key を使う。
 // Key は標準では uint64_t。string などを使う場合は第4テンプレート引数に指定する。
+// 幅から落ちる候補も調べる場合はstep_and_observe、key付きなら
+// step_with_key_and_observeを使う。observerは上限内の全候補について、
+// actionをapplyしたState上で選抜前にちょうど1回呼ばれる。
 template <class State,
           class Action,
           class Score,
@@ -86,13 +89,35 @@ struct CostTreeBeamSearch {
             class Revert,
             class Evaluate,
             class GetAdvance>
-  bool step(Expand expand,
-            Apply apply,
-            Revert revert,
-            Evaluate evaluate,
-            GetAdvance get_advance) {
-    return step_impl<false>(expand, apply, revert, evaluate, get_advance,
-                            NoKeyMaker{});
+  bool step(Expand&& expand,
+            Apply&& apply,
+            Revert&& revert,
+            Evaluate&& evaluate,
+            GetAdvance&& get_advance) {
+    NoKeyMaker make_key;
+    NoObserver observer;
+    return step_impl<false, false>(
+        expand, apply, revert, evaluate, get_advance, make_key, observer);
+  }
+
+  // observer(parent_rank, action, child_state, rank_score, next_generation)
+  // を、max_generation内に入る全候補について選抜前に呼ぶ。
+  // observer内ではこのオブジェクトを変更せず、例外も投げないこと。
+  template <class Expand,
+            class Apply,
+            class Revert,
+            class Evaluate,
+            class GetAdvance,
+            class Observer>
+  bool step_and_observe(Expand&& expand,
+                        Apply&& apply,
+                        Revert&& revert,
+                        Evaluate&& evaluate,
+                        GetAdvance&& get_advance,
+                        Observer&& observer) {
+    NoKeyMaker make_key;
+    return step_impl<false, true>(
+        expand, apply, revert, evaluate, get_advance, make_key, observer);
   }
 
   // 同じ generation かつ同じ key の候補は、最良の1個だけを残す。
@@ -103,14 +128,34 @@ struct CostTreeBeamSearch {
             class Evaluate,
             class GetAdvance,
             class MakeKey>
-  bool step_with_key(Expand expand,
-                     Apply apply,
-                     Revert revert,
-                     Evaluate evaluate,
-                     GetAdvance get_advance,
-                     MakeKey make_key) {
-    return step_impl<true>(expand, apply, revert, evaluate, get_advance,
-                           make_key);
+  bool step_with_key(Expand&& expand,
+                     Apply&& apply,
+                     Revert&& revert,
+                     Evaluate&& evaluate,
+                     GetAdvance&& get_advance,
+                     MakeKey&& make_key) {
+    NoObserver observer;
+    return step_impl<true, false>(
+        expand, apply, revert, evaluate, get_advance, make_key, observer);
+  }
+
+  // 同じgeneration・keyの候補をまとめる前に、全候補をobserverで調べる。
+  template <class Expand,
+            class Apply,
+            class Revert,
+            class Evaluate,
+            class GetAdvance,
+            class MakeKey,
+            class Observer>
+  bool step_with_key_and_observe(Expand&& expand,
+                                 Apply&& apply,
+                                 Revert&& revert,
+                                 Evaluate&& evaluate,
+                                 GetAdvance&& get_advance,
+                                 MakeKey&& make_key,
+                                 Observer&& observer) {
+    return step_impl<true, true>(
+        expand, apply, revert, evaluate, get_advance, make_key, observer);
   }
 
   template <class Expand,
@@ -118,11 +163,11 @@ struct CostTreeBeamSearch {
             class Revert,
             class Evaluate,
             class GetAdvance>
-  int run(Expand expand,
-          Apply apply,
-          Revert revert,
-          Evaluate evaluate,
-          GetAdvance get_advance) {
+  int run(Expand&& expand,
+          Apply&& apply,
+          Revert&& revert,
+          Evaluate&& evaluate,
+          GetAdvance&& get_advance) {
     while (step(expand, apply, revert, evaluate, get_advance)) {
     }
     return generation_;
@@ -134,12 +179,12 @@ struct CostTreeBeamSearch {
             class Evaluate,
             class GetAdvance,
             class MakeKey>
-  int run_with_key(Expand expand,
-                   Apply apply,
-                   Revert revert,
-                   Evaluate evaluate,
-                   GetAdvance get_advance,
-                   MakeKey make_key) {
+  int run_with_key(Expand&& expand,
+                   Apply&& apply,
+                   Revert&& revert,
+                   Evaluate&& evaluate,
+                   GetAdvance&& get_advance,
+                   MakeKey&& make_key) {
     while (step_with_key(expand, apply, revert, evaluate, get_advance,
                          make_key)) {
     }
@@ -149,6 +194,26 @@ struct CostTreeBeamSearch {
   int generation() const { return generation_; }
 
   int size() const { return static_cast<int>(beam_.size()); }
+
+  int beam_width() const { return beam_width_; }
+
+  int max_generation() const { return max_generation_; }
+
+  // 幅を小さくした場合、現在層と予約済みの全未来層を直ちに縮める。
+  // 後から幅を広げても、既に捨てた候補は復元されない。
+  void set_beam_width(int new_beam_width) {
+    if (new_beam_width <= 0) {
+      throw std::invalid_argument("beam_width must be positive");
+    }
+    if (new_beam_width >= beam_width_) {
+      beam_width_ = new_beam_width;
+      return;
+    }
+
+    beam_width_ = new_beam_width;
+    trim_entries(beam_);
+    for (std::vector<Entry>& entries : layers_) trim_entries(entries);
+  }
 
   // 長い探索で再確保を避けたい場合だけ使う。使わなくても正しく動く。
   // 削除nodeは再利用するので、同時に残る現在層・未来層・祖先が目安。
@@ -205,17 +270,39 @@ struct CostTreeBeamSearch {
     return beam_.front().score;
   }
 
-  // rank=0 が現在の generation で最良の候補。
-  std::vector<Action> restore(int rank = 0) const {
+  // rank=0 が現在の generation で最良の候補。outの容量は再利用する。
+  void restore(int rank, std::vector<Action>& out) const {
     assert(0 <= rank && rank < static_cast<int>(beam_.size()));
     int node = beam_[rank].node;
-    std::vector<Action> actions;
+    out.clear();
     while (node != 0) {
       assert(nodes_[node].action.has_value());
-      actions.push_back(*nodes_[node].action);
+      out.push_back(*nodes_[node].action);
       node = nodes_[node].parent;
     }
-    std::reverse(actions.begin(), actions.end());
+    std::reverse(out.begin(), out.end());
+  }
+
+  std::vector<Action> restore(int rank = 0) const {
+    std::vector<Action> actions;
+    restore(rank, actions);
+    return actions;
+  }
+
+  // observerで受け取ったparent_rankとactionから、その候補の経路を作る。
+  // observer内で即時に呼ぶこと。parent_rankやaction、observerが受け取る
+  // 各参照を保存して、step終了後に使ってはいけない。
+  void restore_candidate(int parent_rank,
+                         const Action& action,
+                         std::vector<Action>& out) const {
+    restore(parent_rank, out);
+    out.push_back(action);
+  }
+
+  std::vector<Action> restore_candidate(
+      int parent_rank, const Action& action) const {
+    std::vector<Action> actions;
+    restore_candidate(parent_rank, action, actions);
     return actions;
   }
 
@@ -264,6 +351,7 @@ struct CostTreeBeamSearch {
   };
 
   struct NoKeyMaker {};
+  struct NoObserver {};
 
   State state_;
   int beam_width_;
@@ -285,6 +373,7 @@ struct CostTreeBeamSearch {
   std::vector<int> first_candidate_;
   std::vector<int> touched_generations_;
   std::vector<Choice> choices_;
+  std::vector<int> removed_nodes_buffer_;
   std::unordered_map<Key, int, KeyHash> choice_by_key_;
 
   std::uint32_t mark_stamp_ = 0;
@@ -309,6 +398,22 @@ struct CostTreeBeamSearch {
     if (a_nan != b_nan) return !a_nan;
     if (a_nan) return false;
     return maximize_ ? b < a : a < b;
+  }
+
+  void trim_entries(std::vector<Entry>& entries) {
+    if (entries.size() <= static_cast<std::size_t>(beam_width_)) return;
+
+    const std::size_t first_removed = static_cast<std::size_t>(beam_width_);
+    removed_nodes_buffer_.clear();
+    removed_nodes_buffer_.reserve(entries.size() - first_removed);
+    for (std::size_t i = first_removed; i < entries.size(); ++i) {
+      removed_nodes_buffer_.push_back(entries[i].node);
+    }
+    // resize(n)は縮小だけでもEntryのdefault構築可能性を要求し、eraseも
+    // 実装によっては末尾削除だけでmove代入をinstantiateする。pop_backなら
+    // Scoreにdefault構築もmove代入も要求せず、末尾だけを確実に捨てられる。
+    while (entries.size() > first_removed) entries.pop_back();
+    for (int node : removed_nodes_buffer_) remove_scheduled_leaf(node);
   }
 
   const Score& choice_score(const Choice& choice,
@@ -454,19 +559,22 @@ struct CostTreeBeamSearch {
   }
 
   template <bool UseKey,
+            bool Observe,
             class Expand,
             class Apply,
             class Revert,
             class Evaluate,
             class GetAdvance,
-            class MakeKey>
+            class MakeKey,
+            class Observer>
   bool expand_node(int node,
                    Expand& expand,
                    Apply& apply,
                    Revert& revert,
                    Evaluate& evaluate,
                    GetAdvance& get_advance,
-                   MakeKey& make_key) {
+                   MakeKey& make_key,
+                   Observer& observer) {
     assert(current_beam_rank_[node] >= 0);
     auto&& actions = expand(static_cast<const State&>(state_));
     int action_index = 0;
@@ -489,6 +597,12 @@ struct CostTreeBeamSearch {
       std::optional<Key> key;
       if constexpr (UseKey) {
         key.emplace(make_key(static_cast<const State&>(state_)));
+      }
+      if constexpr (Observe) {
+        observer(current_beam_rank_[node],
+                 static_cast<const Action&>(action),
+                 static_cast<const State&>(state_),
+                 static_cast<const Score&>(score), next_generation);
       }
       revert(state_, action);
 
@@ -589,30 +703,34 @@ struct CostTreeBeamSearch {
       }
     }
 
-    std::vector<int> removed_nodes;
+    removed_nodes_buffer_.clear();
+    removed_nodes_buffer_.reserve(old_entries.size());
     for (int i = 0; i < static_cast<int>(old_entries.size()); ++i) {
-      if (!keep_old[i]) removed_nodes.push_back(old_entries[i].node);
+      if (!keep_old[i]) removed_nodes_buffer_.push_back(old_entries[i].node);
     }
 
     const bool was_empty = old_entries.empty();
     old_entries = std::move(next_entries);
     if (was_empty) ready_generations_.push(generation);
-    for (int node : removed_nodes) remove_scheduled_leaf(node);
+    for (int node : removed_nodes_buffer_) remove_scheduled_leaf(node);
   }
 
   template <bool UseKey,
+            bool Observe,
             class Expand,
             class Apply,
             class Revert,
             class Evaluate,
             class GetAdvance,
-            class MakeKey>
-  bool step_impl(Expand expand,
-                 Apply apply,
-                 Revert revert,
-                 Evaluate evaluate,
-                 GetAdvance get_advance,
-                 MakeKey make_key) {
+            class MakeKey,
+            class Observer>
+  bool step_impl(Expand& expand,
+                 Apply& apply,
+                 Revert& revert,
+                 Evaluate& evaluate,
+                 GetAdvance& get_advance,
+                 MakeKey& make_key,
+                 Observer& observer) {
     const int requested_mode = UseKey ? 2 : 1;
     if (mode_ == 0) mode_ = requested_mode;
     if (mode_ != requested_mode) {
@@ -628,8 +746,9 @@ struct CostTreeBeamSearch {
         [&](int rank, const State&) {
           if (!valid_advance) return;
           const int node = beam_[rank].node;
-          valid_advance = expand_node<UseKey>(
-              node, expand, apply, revert, evaluate, get_advance, make_key);
+          valid_advance = expand_node<UseKey, Observe>(
+              node, expand, apply, revert, evaluate, get_advance, make_key,
+              observer);
         },
         apply,
         revert);
