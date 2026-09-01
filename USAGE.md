@@ -87,6 +87,16 @@ while (!sa.is_over()) {
 近傍1回が重いなら1〜8、軽いなら64〜256が目安です。焼きなましの
 終了時状態は最良とは限らないため、`best`を別に保存します。
 
+例えば「20点悪化する手を80%で受け入れる温度」は、次のように逆算できます。
+
+```cpp
+double temperature =
+    TimeBasedSimulatedAnnealing::temperature_for_acceptance(20.0, 0.8);
+```
+
+既定は指数冷却です。必要なら`use_linear_schedule()`で線形冷却、
+`set_cooling_power(2.0)`で高温の時間を長くできます。
+
 ## 進捗率を外から渡す焼きなまし
 
 探索全体で1個の `Timer` を共有したい時や、複数フェーズに分けたい時はこちらを
@@ -1367,7 +1377,17 @@ State answer = simple_beam_search(State{}, 100, 200, expand, evaluate);
 
 `evaluate`は候補を残す順位用です。提出解は問題本来の得点で別に
 比べます。一部の状態だけ早くterminalになる場合、子を持たない状態は
-次の層で消えるため、`expand`内で最良terminalを別に保存します。
+次の層で消えます。さらに幅から落ちると現在層にも一度も現れないため、
+生成直後に全候補を見る`step_and_observe`で別保存します。
+
+```cpp
+SimpleBeamSearch<State, long long> beam(State{}, 200);
+beam.step_and_observe(
+    expand, evaluate,
+    [&](const State& child, const long long&) {
+      if (is_terminal(child)) save_if_better(child);
+    });
+```
 
 同じ層の同じ状態へ別経路から到達するなら、`step_with_key`を使えます。
 
@@ -1376,6 +1396,20 @@ SimpleBeamSearch<State, long long> beam(State{}, 200);
 for (int turn = 0; turn < 100; ++turn) {
   if (!beam.step_with_key(expand, evaluate, make_key)) break;
 }
+```
+
+一時`vector`を作らず子を直接渡す場合は、`step_each`を使います。
+
+```cpp
+beam.step_each(
+    [&](const State& parent, auto&& emit) {
+      for (Move move : make_moves(parent)) {
+        State child = parent;
+        apply(child, move);
+        emit(std::move(child));
+      }
+    },
+    evaluate);
 ```
 
 ## TreeBeamSearch
@@ -1423,6 +1457,8 @@ vector<Move> answer = beam.restore();
 `Move`には上書き前の値など、復元に必要な情報も入れます。
 現在幅の状態を確認する時は`for_each_state(visit, apply, revert)`を使えます。
 `visit(rank, state)`内では`beam.restore(rank)`でその状態の手順を復元できます。
+幅から落ちる生成直後の候補まで見る場合は`step_and_observe`を使い、
+`restore_candidate(parent_rank, move)`でその候補の手順を復元します。
 
 同じ盤面へ別の手順で到達する問題では、`step_with_key` を使えます。
 `state.hash` が同じ候補は、評価値が一番良い1件だけ残ります。
@@ -1468,6 +1504,8 @@ vector<Move> answer = beam.restore();
 `advance`は正の整数にします。最大世代を超える行動は自動で候補から
 外れます。重複を消す場合は、同じ1つのbeamで`step`と`step_with_key`を
 混ぜず、最初から最後までどちらか一方を使います。
+途中で幅を縮める時は`set_beam_width`を使います。現在層だけでなく、
+既に予約された未来層も同じ幅まで縮みます。
 
 順位評価、terminal保存、keyの作り方、`apply / revert`の確認方法は
 [`SEARCH_GUIDE.md`](SEARCH_GUIDE.md)にまとめています。

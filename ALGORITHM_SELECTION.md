@@ -133,6 +133,7 @@ Alias Tableの作成自体に `O(N)` かかるため、重みを毎回作り直�
 安全です。
 
 `evaluate`はビーム内の順位用であり、問題本来の最終得点とは分けます。
-早くterminalに到達する状態は次層で消える前に別保存します。同一世代の重複が
-多い時だけ`step_with_key`を使い、keyには残り資源など将来に必要な情報も
-含めます。最小例は [`SEARCH_GUIDE.md`](SEARCH_GUIDE.md) にあります。
+早くterminalに到達する状態は`step_and_observe`で生成直後に別保存します。
+同一世代の重複が多い時だけ`step_with_key`を使い、keyには残り資源など
+将来に必要な情報も含めます。最小例は
+[`SEARCH_GUIDE.md`](SEARCH_GUIDE.md) にあります。
