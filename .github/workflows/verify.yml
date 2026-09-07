@@ -11,3 +11,5 @@ jobs:
       - uses: actions/checkout@v4
       - name: Verify copyable parts and template
         run: make verify
+      - name: Verify core tests with ASan and UBSan
+        run: make verify-sanitize

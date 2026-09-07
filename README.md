@@ -40,6 +40,11 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 それぞれを単体で実際の問題へ使った完全な `main.cpp` は
 [`examples/search/`](examples/search/README.md) にあります。
 
+コンテスト前に公開版を固定し、commit固定URL付きでコピーする方法と
+オフラインbundleの作り方は [`PRECONTEST.md`](PRECONTEST.md) にあります。
+自作した差分評価や`apply/revert`を全再計算と照合する例は
+[`examples/debug/`](examples/debug/README.md) にあります。
+
 ## 高速化の方針
 
 探索回数へ直結するため、パーツ追加時は計算量だけでなく、全ソート、動的確保、
@@ -82,6 +87,7 @@ terminalも`step_and_observe`で生成直後に保存します。
 | [`top-k.hpp`](library/top-k.hpp) | 良い候補を上位 K 個だけ保存 |
 | [`move-statistics.hpp`](library/move-statistics.hpp) | 近傍ごとの採用率・改善率を集計 |
 | [`route-utils.hpp`](library/route-utils.hpp) | 経路長と挿入・削除・区間反転の距離差分 |
+| [`debug-state-check.hpp`](library/debug-state-check.hpp) | 差分検査失敗時のseed・Move列・相違項目を記録 |
 
 ### 探索
 
@@ -132,7 +138,7 @@ terminalも`step_and_observe`で生成直後に保存します。
 | [`coordinate-compression.hpp`](library/coordinate-compression.hpp) | 座標圧縮 |
 | [`dsu.hpp`](library/dsu.hpp) | Union-Find。連結成分数とグループ一覧も取得可能 |
 | [`weighted-dsu.hpp`](library/weighted-dsu.hpp) | 頂点間の差分制約を管理する重み付きUnion-Find |
-| [`rollback-array.hpp`](library/rollback-array.hpp) | 変更を過去の状態へ戻せる配列 |
+| [`rollback-array.hpp`](library/rollback-array.hpp) | 変更を過去へ戻す配列。採用済み履歴の破棄にも対応 |
 | [`rollback-dsu.hpp`](library/rollback-dsu.hpp) | 過去の状態へ戻せる Union-Find |
 | [`stamp-array.hpp`](library/stamp-array.hpp) | ほぼ O(1) で初期化し直せる配列 |
 | [`dense-int-set.hpp`](library/dense-int-set.hpp) | 固定範囲の整数集合。追加・削除・clearがO(1) |
