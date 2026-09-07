@@ -27,6 +27,7 @@
 #include "library/cumulative-sum-2d.hpp"
 #include "library/cumulative-sum.hpp"
 #include "library/dense-int-set.hpp"
+#include "library/debug-state-check.hpp"
 #include "library/difference-array-2d.hpp"
 #include "library/dsu.hpp"
 #include "library/extended-gcd.hpp"
@@ -108,6 +109,30 @@ struct TreeBeamTestState {
 };
 
 int main() {
+  {
+    AhcDebugStateCheck check(123, 45, "[(1,2),(3,4)]");
+    check.require(true, "boolean");
+    check.require_equal("integer", 7, 7LL);
+    check.require_close("floating", 1.0, 1.0 + 1e-12, 1e-10, 1e-10);
+    check.require_close(
+        "same_infinity", std::numeric_limits<double>::infinity(),
+        std::numeric_limits<double>::infinity(), 1e-10, 1e-10);
+    bool caught = false;
+    try {
+      check.require_close(
+          "floating_nan", std::numeric_limits<double>::quiet_NaN(),
+          0.0, 1e-10, 1e-10);
+    } catch (const std::runtime_error& error) {
+      const std::string message = error.what();
+      caught = message.find("seed=123") != std::string::npos &&
+               message.find("iteration=45") != std::string::npos &&
+               message.find("moves=[(1,2),(3,4)]") != std::string::npos &&
+               message.find("first_difference=floating_nan") !=
+                   std::string::npos;
+    }
+    assert(caught);
+  }
+
   Random first(42);
   Random second(42);
   for (int i = 0; i < 1000; ++i) {
@@ -1673,10 +1698,20 @@ int main() {
   RollbackArray<std::string> rollback_array({"a", "b", "c"});
   const int array_snapshot = rollback_array.snapshot();
   rollback_array.set(1, "changed");
+  const int nested_array_snapshot = rollback_array.snapshot();
+  rollback_array.set(1, "changed twice");
   rollback_array.set(2, "also changed");
-  assert(rollback_array[1] == "changed");
+  assert(rollback_array[1] == "changed twice");
+  rollback_array.rollback(nested_array_snapshot);
+  assert(rollback_array[1] == "changed" && rollback_array[2] == "c");
+  rollback_array.set(2, "also changed");
   rollback_array.rollback(array_snapshot);
   assert(rollback_array[1] == "b" && rollback_array[2] == "c");
+  rollback_array.set(0, "accepted");
+  assert(rollback_array.history_size() == 1);
+  rollback_array.clear_history();
+  assert(rollback_array[0] == "accepted");
+  assert(rollback_array.history_size() == 0);
 
   StampArray<int> stamped(5, -1);
   assert(stamped.get(2) == -1);

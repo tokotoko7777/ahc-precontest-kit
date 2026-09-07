@@ -1207,11 +1207,41 @@ state.set(i, new_value_i);
 state.set(j, new_value_j);
 
 if (accept_move) {
-  // 何もしない。変更後の状態が残る
+  // 変更後の状態が残る。もう以前へ戻さない時だけ履歴を破棄する
+  state.clear_history();
 } else {
   state.rollback(snapshot);
 }
 ```
+
+`clear_history()`は現在値を変えず、蓄積した履歴の容量を再利用できる状態で
+履歴件数だけを0にします。それ以前に取得したsnapshot番号は全て無効になります。
+入れ子の試行中や、外側のsnapshotへまだ戻る可能性がある時は呼ばないでください。
+
+## 差分更新とapply/revertの検査
+
+`AhcDebugStateCheck`は、差分更新後の値を独立な全再計算と照合した時に、再現に必要な
+seed、反復番号、Move列、最初に違った項目をまとめて報告します。
+
+```cpp
+#ifndef NDEBUG
+State before = state;
+#endif
+
+apply(state, move);
+
+#ifndef NDEBUG
+AhcDebugStateCheck check(seed, iteration, moves_text);
+check.require_equal("score", state.score, calculate_score_from_scratch(state));
+check.require_equal("hash", state.hash, calculate_hash_from_board(state));
+check.require(is_legal(state), "legality");
+#endif
+```
+
+浮動小数点は`require_close(name, actual, expected, absolute, relative)`を使います。
+全Stateの`memcmp`はせず、盤面、score、hash、cache、候補集合を個別に比較します。
+実行可能な経路swapとグリッド更新の検査は
+[`examples/debug/`](examples/debug/README.md) にあります。
 
 ## RollbackDsu
 
