@@ -12,7 +12,8 @@
 
 // 状態を丸ごと持つ、分かりやすさ優先のビームサーチ。
 // State が小さい時や、まずビームサーチを試したい時に向いている。
-// 状態が大きくコピーが重い時は tree-beam-search.hpp も検討する。
+// 状態が大きくコピーが重い時は、actionから順位を差分計算できるなら
+// action-beam-search.hpp、apply/revertを書けるならtree-beam-search.hppも検討する。
 //
 // 一番簡単な使い方:
 // SimpleBeamSearch<State, long long> beam(initial_state, 100);

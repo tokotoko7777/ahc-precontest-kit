@@ -35,7 +35,7 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 [`USAGE.md`](USAGE.md) にあります。
 似たアルゴリズムの使い分けは [`ALGORITHM_SELECTION.md`](ALGORITHM_SELECTION.md) の
 早見表から選べます。
-焼きなましと3種類のビームサーチは [`SEARCH_GUIDE.md`](SEARCH_GUIDE.md) に
+焼きなましと4種類のビームサーチは [`SEARCH_GUIDE.md`](SEARCH_GUIDE.md) に
 最小例と安全な使い方をまとめています。
 それぞれを単体で実際の問題へ使った完全な `main.cpp` は
 [`examples/search/`](examples/search/README.md) にあります。
@@ -52,18 +52,22 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 使える条件をファイル先頭へ明記します。詳しい判断基準は
 [`PERFORMANCE.md`](PERFORMANCE.md) にまとめています。
 
-## 探索コア4本
+## 探索コア5本
 
 | 問題の形 | 最初に使うパーツ |
 |---|---|
 | 1つの解を局所変更する | `time-based-simulated-annealing.hpp` |
 | 各手で1世代進み、状態コピーが軽い | `simple-beam-search.hpp` |
+| 次状態を作らずActionの順位を差分計算できる | `action-beam-search.hpp` |
 | 各手で1世代進み、状態コピーが重い | `tree-beam-search.hpp` |
 | 行動ごとに到着世代が飛ぶ | `cost-tree-beam-search.hpp` |
 
 ビームの`evaluate`は候補の順位用であり、提出得点と同じでなくても
 構いません。最終解は問題本来の得点で別に比較し、早く終了した
 terminalも`step_and_observe`で生成直後に保存します。
+
+`ActionBeamSearch`のobserverは、全候補のStateコピーを避けるため
+`parent + action`を渡します。他の3ビームは生成済みchild Stateを渡します。
 
 `SimpleBeamSearch`は通常の`step`に加え、一時コンテナを作らない`step_each`、
 生成数・重複除去後の数・採用数を調べるカウンタを持ちます。木上2種類も
@@ -97,12 +101,14 @@ terminalも`step_and_observe`で生成直後に保存します。
 | [`time-based-simulated-annealing.hpp`](library/time-based-simulated-annealing.hpp) | タイマー内蔵の焼きなまし |
 | [`multi-start.hpp`](library/multi-start.hpp) | 回数または時間指定の多点スタート |
 | [`simple-beam-search.hpp`](library/simple-beam-search.hpp) | 状態をコピーする初心者向けビームサーチ |
+| [`action-beam-search.hpp`](library/action-beam-search.hpp) | Actionを先に上位N件へ絞り、採用Stateだけ作るビームサーチ |
 | [`tree-beam-search.hpp`](library/tree-beam-search.hpp) | 1手1世代のapply / revert型ビームサーチ |
 | [`cost-tree-beam-search.hpp`](library/cost-tree-beam-search.hpp) | 1手の進み幅が異なるapply / revert型ビームサーチ |
 | [`common-scenario-average.hpp`](library/common-scenario-average.hpp) | 全候補を同じ未来sampleで比較するrollout補助 |
 
 ビームサーチを初めて使う場合は `simple-beam-search.hpp` から始めてください。
-`tree-beam-search.hpp` は状態が大きく、コピーが重い場合の発展版です。
+Stateが大きくてもActionから次の順位を計算できるなら`action-beam-search.hpp`、
+完全な`apply / revert`を書けるなら`tree-beam-search.hpp`が発展版です。
 1行動で2世代以上進む場合があるなら `cost-tree-beam-search.hpp` を使います。
 どちらの木上版も`step_with_key`で同一世代の重複状態を1件に絞れます。
 
@@ -236,6 +242,11 @@ GitHub 上ではファイルを開き、右上のコピーアイコン、また�
 
 - [木上のビームサーチ：高速化編](https://trap.jp/post/2920/) —
   apply / revert、履歴共有、状態コピー削減という考え方を参考にしています。
+- [AtCoder Heuristic Contest Memo: Beam Search](https://jetbead.github.io/AtCoderHeuristicContestMemo/Library/beam_search.html) —
+  候補を先に選んでから状態化する方法、上位N件のcutoff、多様性、
+  重複除去、可変幅を監査項目として参考にしています。
+- [上位N個を選ぶ処理の速度比較](https://zenn.dev/siman/articles/e94f63246f6cb3) —
+  2N件ごとにN件へ縮め、既知の境界以下を保存しないvector方式を参考にしています。
 - [heuristic-library-rs](https://github.com/e1jirou/heuristic-library-rs) —
   ヒューリスティックに限定しない分類と、1機能ずつ取り出せるAPIの粒度を
   参考にしています。コードの移植ではなく、このリポジトリ向けにC++で新規実装します。
@@ -251,9 +262,10 @@ GitHub 上ではファイルを開き、右上のコピーアイコン、また�
 - 手元のAHC001〜AHC068優勝コードレビュー知識から、複数問題で再利用例が
   確認できた時間管理・候補制限・重複除去・差分更新を選んでいます。
 
-`tree-beam-search.hpp` と `cost-tree-beam-search.hpp` は参考記事のコード移植ではありません。
+各ビームサーチは参考記事のコード移植ではありません。
 生き残った履歴木だけをDFSし、`apply / revert`で状態を1個だけ管理する
-独自のC++実装です。
+木上2種に加え、候補Actionだけを2N件ずつ選抜して採用N件のみState化する
+`action-beam-search.hpp`も、このkit向けの独自C++実装です。
 
 ## 過去AHCでの実戦例
 

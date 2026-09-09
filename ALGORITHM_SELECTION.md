@@ -123,6 +123,7 @@ Alias Tableの作成自体に `O(N)` かかるため、重みを毎回作り直�
 |---|---|---|
 | 1つの解の局所変更を繰り返す | `time-based-simulated-annealing.hpp` | 得点差を正しく計算できる |
 | 手数ごとに複数候補を残し、状態が小さい | `simple-beam-search.hpp` | 子の`State`コピーが十分軽い |
+| 状態は大きいが、Actionから次の順位を差分計算できる | `action-beam-search.hpp` | 順位計算とapplyの結果が対応する |
 | 全行動で1世代ずつ進み、状態が大きい | `tree-beam-search.hpp` | `apply / revert`が完全に逆操作 |
 | 行動ごとに到着世代が異なる | `cost-tree-beam-search.hpp` | `apply / revert`に加え、`advance > 0` |
 | Kが小さく、候補を1件ずつ追加 | `top-k.hpp` | 局所的な上位K件だけ必要 |

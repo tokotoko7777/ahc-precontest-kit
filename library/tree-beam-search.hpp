@@ -23,6 +23,8 @@
 // constコンテナはコピーし、非constコンテナの要素はmoveして消費する。
 // apply(state, action) と revert(state, action) は必ず逆の操作にする。
 // 各コールバック自身は探索中に例外を投げない前提。
+// revertを書くのが難しいが、Actionから次の順位を差分計算できる場合は
+// action-beam-search.hppの方が単純に書ける。
 //
 // 使い方:
 // TreeBeamSearch<State, Move, long long> beam(initial, initial_score, 200);
@@ -125,6 +127,15 @@ struct TreeBeamSearch {
   }
 
   int size() const { return static_cast<int>(beam.size()); }
+
+  // 直近stepの生成数、重複除去後の数、採用数。
+  // buffered_peakは、同時に保持したAction候補の最大件数。
+  std::size_t last_generated_count() const { return last_generated_count_; }
+  std::size_t last_unique_count() const { return last_unique_count_; }
+  std::size_t last_kept_count() const { return last_kept_count_; }
+  std::size_t last_buffered_peak_count() const {
+    return last_buffered_peak_count_;
+  }
 
   // 現在のビームを共有履歴木のDFSで巡回する。
   // visit(rank, state) のstateはそのrankの状態。終了時はrootへ戻る。
@@ -274,6 +285,19 @@ struct TreeBeamSearch {
   std::vector<int> selection_buffer;
   std::vector<int> old_beam_buffer;
   std::vector<int> move_buffer;
+  std::size_t last_generated_count_ = 0;
+  std::size_t last_unique_count_ = 0;
+  std::size_t last_kept_count_ = 0;
+  std::size_t last_buffered_peak_count_ = 0;
+
+  void begin_candidate_step() {
+    candidate_buffer.clear();
+    selection_buffer.clear();
+    last_generated_count_ = 0;
+    last_unique_count_ = 0;
+    last_kept_count_ = 0;
+    last_buffered_peak_count_ = 0;
+  }
 
   template <bool Observe,
             class Expand,
@@ -286,7 +310,7 @@ struct TreeBeamSearch {
                  Revert& revert,
                  Evaluate& evaluate,
                  Observer& observer) {
-    candidate_buffer.clear();
+    begin_candidate_step();
     for_each_active_leaf(
         [&](int parent) {
           auto&& actions = expand(state);
@@ -302,16 +326,20 @@ struct TreeBeamSearch {
                        static_cast<const Score&>(score));
             }
             revert(state, action);
-            candidate_buffer.push_back({parent,
-                                        std::move(action),
-                                        std::move(score),
-                                        nodes[parent].beam_rank,
-                                        action_order++});
+            ++last_generated_count_;
+            candidate_buffer.push_back(
+                {parent,
+                 std::move(action),
+                 std::move(score),
+                 nodes[parent].beam_rank,
+                 action_order++});
+            last_buffered_peak_count_ = candidate_buffer.size();
           }
         },
         apply,
         revert);
 
+    last_unique_count_ = last_generated_count_;
     return select_and_advance();
   }
 
@@ -330,7 +358,7 @@ struct TreeBeamSearch {
                           Observer& observer) {
     using Key = std::decay_t<decltype(make_key(state))>;
 
-    candidate_buffer.clear();
+    begin_candidate_step();
     std::unordered_map<Key, int> index_by_key;
     index_by_key.reserve(static_cast<std::size_t>(beam_width) * 4);
     for_each_active_leaf(
@@ -356,6 +384,7 @@ struct TreeBeamSearch {
                 std::move(score),
                 nodes[parent].beam_rank,
                 action_order++};
+            ++last_generated_count_;
             const auto found = index_by_key.find(key);
             if (found == index_by_key.end()) {
               const int index = static_cast<int>(candidate_buffer.size());
@@ -371,6 +400,8 @@ struct TreeBeamSearch {
         apply,
         revert);
 
+    last_unique_count_ = candidate_buffer.size();
+    last_buffered_peak_count_ = candidate_buffer.size();
     return select_and_advance();
   }
 
@@ -451,6 +482,7 @@ struct TreeBeamSearch {
 
     const int candidate_count = static_cast<int>(candidate_buffer.size());
     const int kept = std::min(beam_width, candidate_count);
+    last_kept_count_ = static_cast<std::size_t>(kept);
     selection_buffer.resize(static_cast<std::size_t>(candidate_count));
     std::iota(selection_buffer.begin(), selection_buffer.end(), 0);
 
