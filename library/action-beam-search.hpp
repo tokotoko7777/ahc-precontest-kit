@@ -19,24 +19,29 @@
 // - action から次状態の順位を差分計算できる
 // - tree-beam-search.hpp の revert を書くのは難しい
 //
-// 使い方:
-// ActionBeamSearch<State, Move, long long> beam(initial, 0, 200);
-// for (int turn = 0; turn < turns; ++turn) {
-//   if (!beam.step(
-//           [](const State& state) { return state.actions(); },
-//           [](const State& state, const Move& move) {
-//             return state.score + move.score_delta;  // Stateを作らず順位計算
-//           },
-//           [](State& state, Move& move) { state.apply(move); })) {
-//     break;
-//   }
-// }
-// State answer = beam.best();
+// 問題ごとのコードを1か所にまとめる使い方:
+// struct Problem {
+//   using State = MyState;
+//   using Action = MyMove;
+//   using Score = long long;
 //
-// expand(parent) は Action のコンテナを返す。
-// evaluate_action(parent, action) は、そのaction適用後の順位値を返す。
-// apply(child, action) は、コピー済みchildへactionを反映する。
-// applyは選ばれた最大beam_width件にしか呼ばれない。
+//   vector<Action> generate_actions(const State& state) { /* 問題依存 */ }
+//   Score evaluate_action(const State& state, const Action& action) {
+//     return state.score + action.score_delta;          // 問題依存
+//   }
+//   void apply_action(State& state, Action& action) {    // 問題依存
+//     state.apply(action);
+//   }
+// };
+// Problem problem;
+// ActionBeamRunner<Problem> beam(problem, initial, 0, 200);
+// beam.run(turns);
+// MyState answer = beam.best();
+//
+// 下のActionBeamSearchを直接使う場合、expand(parent)はActionのコンテナ、
+// evaluate_action(parent, action)はaction適用後の順位値を返す。
+// apply(child, action)はコピー済みchildへactionを反映し、
+// 選ばれた最大beam_width件にしか呼ばれない。
 //
 // 候補は2 * beam_width件たまるたび上位beam_width件へ縮める。
 // 一度境界が分かった後は、境界以下の候補を保存しない。この選抜は近似ではなく、
@@ -614,4 +619,170 @@ struct ActionBeamSearch {
     select_candidate_ids();
     return finish_step(apply);
   }
+};
+
+// 問題依存コードをProblemへ集めるための薄いラッパー。
+// ビーム選抜の実装を変更せず、Problemの次の3関数だけを呼ぶ。
+//
+// 必須:
+//   generate_actions(const State&)                  -> Actionのコンテナ
+//   evaluate_action(const State&, const Action&)    -> Score
+//   apply_action(State&, Action&)                   -> void
+//
+// 任意:
+//   make_key(const State&, const Action&)           // step_with_key用
+//   make_bucket(const State&, const Action&)        // step_with_bucket_limit用
+//
+// 入力、出力、State、Action、評価、状態更新はProblem側に置く。
+// Runner側はターンループ、候補選抜、Stateコピー、幅、統計を担当する。
+template <class Problem>
+struct ActionBeamRunner {
+  using State = typename Problem::State;
+  using Action = typename Problem::Action;
+  using Score = typename Problem::Score;
+
+  ActionBeamRunner(Problem& problem,
+                   State initial_state,
+                   Score initial_score,
+                   int beam_width,
+                   bool maximize = true)
+      : problem_(problem),
+        beam_(std::move(initial_state),
+              std::move(initial_score),
+              beam_width,
+              maximize) {}
+
+  bool step() {
+    return beam_.step(
+        [&](const State& state) -> decltype(auto) {
+          return problem_.generate_actions(state);
+        },
+        [&](const State& state, const Action& action) {
+          return problem_.evaluate_action(state, action);
+        },
+        [&](State& state, Action& action) {
+          problem_.apply_action(state, action);
+        });
+  }
+
+  // observer(parent_rank, parent, action, rank_score)を全候補へ呼ぶ。
+  template <class OnGenerated>
+  bool step_and_observe(OnGenerated&& observer) {
+    return beam_.step_and_observe(
+        [&](const State& state) -> decltype(auto) {
+          return problem_.generate_actions(state);
+        },
+        [&](const State& state, const Action& action) {
+          return problem_.evaluate_action(state, action);
+        },
+        [&](State& state, Action& action) {
+          problem_.apply_action(state, action);
+        },
+        std::forward<OnGenerated>(observer));
+  }
+
+  // Problem::make_keyが同じ候補を1件にまとめる。
+  bool step_with_key() {
+    return beam_.step_with_key(
+        [&](const State& state) -> decltype(auto) {
+          return problem_.generate_actions(state);
+        },
+        [&](const State& state, const Action& action) {
+          return problem_.evaluate_action(state, action);
+        },
+        [&](const State& state, const Action& action) {
+          return problem_.make_key(state, action);
+        },
+        [&](State& state, Action& action) {
+          problem_.apply_action(state, action);
+        });
+  }
+
+  // Problem::make_bucketごとに最大max_per_bucket件を残す。
+  bool step_with_bucket_limit(int max_per_bucket) {
+    return beam_.step_with_bucket_limit(
+        [&](const State& state) -> decltype(auto) {
+          return problem_.generate_actions(state);
+        },
+        [&](const State& state, const Action& action) {
+          return problem_.evaluate_action(state, action);
+        },
+        [&](const State& state, const Action& action) {
+          return problem_.make_bucket(state, action);
+        },
+        max_per_bucket,
+        [&](State& state, Action& action) {
+          problem_.apply_action(state, action);
+        });
+  }
+
+  // 最大turns回進め、実際に進んだ回数を返す。
+  int run(int turns) {
+    if (turns < 0) {
+      throw std::invalid_argument("turns must be non-negative");
+    }
+    int advanced = 0;
+    while (advanced < turns && step()) ++advanced;
+    return advanced;
+  }
+
+  int run_with_key(int turns) {
+    if (turns < 0) {
+      throw std::invalid_argument("turns must be non-negative");
+    }
+    int advanced = 0;
+    while (advanced < turns && step_with_key()) ++advanced;
+    return advanced;
+  }
+
+  int run_with_bucket_limit(int turns, int max_per_bucket) {
+    if (turns < 0) {
+      throw std::invalid_argument("turns must be non-negative");
+    }
+    int advanced = 0;
+    while (advanced < turns &&
+           step_with_bucket_limit(max_per_bucket)) {
+      ++advanced;
+    }
+    return advanced;
+  }
+
+  const std::vector<State>& states() const { return beam_.states(); }
+  const std::vector<Score>& scores() const { return beam_.scores(); }
+  const State& best() const { return beam_.best(); }
+  State& best() { return beam_.best(); }
+  const Score& best_score() const { return beam_.best_score(); }
+  std::size_t size() const { return beam_.size(); }
+  int depth() const { return beam_.depth(); }
+  int width() const { return beam_.width(); }
+
+  void set_width(int beam_width) { beam_.set_width(beam_width); }
+  void set_batched_selection(bool enabled) {
+    beam_.set_batched_selection(enabled);
+  }
+  bool batched_selection() const { return beam_.batched_selection(); }
+  void reserve_candidates(std::size_t count) {
+    beam_.reserve_candidates(count);
+  }
+  void reset(State initial_state, Score initial_score) {
+    beam_.reset(std::move(initial_state), std::move(initial_score));
+  }
+  void release_memory() { beam_.release_memory(); }
+
+  std::size_t last_generated_count() const {
+    return beam_.last_generated_count();
+  }
+  std::size_t last_unique_count() const {
+    return beam_.last_unique_count();
+  }
+  std::size_t last_kept_count() const {
+    return beam_.last_kept_count();
+  }
+  std::size_t last_buffered_peak_count() const {
+    return beam_.last_buffered_peak_count();
+  }
+
+ private:
+  Problem& problem_;
+  ActionBeamSearch<State, Action, Score> beam_;
 };

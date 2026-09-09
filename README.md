@@ -68,6 +68,9 @@ terminalも`step_and_observe`で生成直後に保存します。
 
 `ActionBeamSearch`のobserverは、全候補のStateコピーを避けるため
 `parent + action`を渡します。他の3ビームは生成済みchild Stateを渡します。
+問題依存コードを明確に分けたい場合は`ActionBeamRunner<Problem>`を使います。
+人が書く型・候補生成・評価・更新を1個の`Problem` structへまとめ、ターンループと
+上位N件選抜はライブラリ側へ隠せます。
 
 `SimpleBeamSearch`は通常の`step`に加え、一時コンテナを作らない`step_each`、
 生成数・重複除去後の数・採用数を調べるカウンタを持ちます。木上2種類も
@@ -101,7 +104,7 @@ terminalも`step_and_observe`で生成直後に保存します。
 | [`time-based-simulated-annealing.hpp`](library/time-based-simulated-annealing.hpp) | タイマー内蔵の焼きなまし |
 | [`multi-start.hpp`](library/multi-start.hpp) | 回数または時間指定の多点スタート |
 | [`simple-beam-search.hpp`](library/simple-beam-search.hpp) | 状態をコピーする初心者向けビームサーチ |
-| [`action-beam-search.hpp`](library/action-beam-search.hpp) | Actionを先に上位N件へ絞り、採用Stateだけ作るビームサーチ |
+| [`action-beam-search.hpp`](library/action-beam-search.hpp) | Actionを先に上位N件へ絞るビーム。問題依存部分をまとめるRunner付き |
 | [`tree-beam-search.hpp`](library/tree-beam-search.hpp) | 1手1世代のapply / revert型ビームサーチ |
 | [`cost-tree-beam-search.hpp`](library/cost-tree-beam-search.hpp) | 1手の進み幅が異なるapply / revert型ビームサーチ |
 | [`common-scenario-average.hpp`](library/common-scenario-average.hpp) | 全候補を同じ未来sampleで比較するrollout補助 |
@@ -245,6 +248,9 @@ GitHub 上ではファイルを開き、右上のコピーアイコン、また�
 - [AtCoder Heuristic Contest Memo: Beam Search](https://jetbead.github.io/AtCoderHeuristicContestMemo/Library/beam_search.html) —
   候補を先に選んでから状態化する方法、上位N件のcutoff、多様性、
   重複除去、可変幅を監査項目として参考にしています。
+- [ビームサーチ用C++テンプレート](https://jetbead.github.io/AtCoderHeuristicContestMemo/Library/cpp_lib/beam_cpp.html) —
+  問題ごとに書き換える区間と探索処理を分ける構成を参考にし、
+  このkitでは問題依存部分を`Problem` structへ集約しています。
 - [上位N個を選ぶ処理の速度比較](https://zenn.dev/siman/articles/e94f63246f6cb3) —
   2N件ごとにN件へ縮め、既知の境界以下を保存しないvector方式を参考にしています。
 - [heuristic-library-rs](https://github.com/e1jirou/heuristic-library-rs) —

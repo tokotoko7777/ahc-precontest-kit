@@ -35,6 +35,84 @@ struct Move {
   int id;
 };
 
+struct SeparatedProblem {
+  struct State {
+    int value = 0;
+    std::vector<int> path;
+  };
+
+  struct Action {
+    int delta;
+    int group;
+  };
+
+  using Score = int;
+
+  std::array<Action, 4> actions{{{1, 0}, {4, 0}, {2, 1}, {3, 1}}};
+  int apply_count = 0;
+
+  const std::array<Action, 4>& generate_actions(const State&) const {
+    return actions;
+  }
+
+  Score evaluate_action(const State& state, const Action& action) const {
+    return state.value + action.delta;
+  }
+
+  void apply_action(State& state, Action& action) {
+    ++apply_count;
+    state.value += action.delta;
+    state.path.push_back(action.delta);
+  }
+
+  int make_key(const State& state, const Action& action) const {
+    return (state.value + action.delta) % 2;
+  }
+
+  int make_bucket(const State&, const Action& action) const {
+    return action.group;
+  }
+};
+
+void test_problem_library_boundary_runner() {
+  SeparatedProblem problem;
+  ActionBeamRunner<SeparatedProblem> runner(
+      problem, SeparatedProblem::State{}, 0, 2);
+  assert(runner.run(3) == 3);
+  assert(runner.depth() == 3);
+  assert(runner.best().value == 12);
+  assert((runner.best().path == std::vector<int>{4, 4, 4}));
+  assert(problem.apply_count == 6);
+  assert(runner.last_generated_count() == 8);
+  assert(runner.last_kept_count() == 2);
+
+  int observed = 0;
+  assert(runner.step_and_observe(
+      [&](std::size_t,
+          const SeparatedProblem::State&,
+          const SeparatedProblem::Action&,
+          const int&) { ++observed; }));
+  assert(observed == 8);
+
+  runner.reset(SeparatedProblem::State{}, 0);
+  assert(runner.step_with_key());
+  assert(runner.last_unique_count() == 2);
+
+  runner.reset(SeparatedProblem::State{}, 0);
+  assert(runner.step_with_bucket_limit(1));
+  assert(runner.last_unique_count() == 2);
+  assert(runner.states()[0].value == 4);
+  assert(runner.states()[1].value == 3);
+
+  bool threw = false;
+  try {
+    runner.run(-1);
+  } catch (const std::invalid_argument&) {
+    threw = true;
+  }
+  assert(threw);
+}
+
 void test_materializes_only_top_n() {
   ActionBeamSearch<State, Move, int> beam(State{}, 0, 7);
   State::copy_count = 0;
@@ -371,6 +449,7 @@ void test_reset_width_and_empty_step() {
 }  // namespace
 
 int main() {
+  test_problem_library_boundary_runner();
   test_materializes_only_top_n();
   test_full_buffer_selection_has_same_result();
   test_observer_sees_candidates_before_cutoff();
