@@ -31,6 +31,32 @@ struct ForwardMove {
   int add;
 };
 
+struct ForwardProblem {
+  using State = LargeState;
+  using Action = ForwardMove;
+  using Score = long long;
+
+  std::array<Action, 24> generate_actions(const State& parent) const {
+    std::array<Action, 24> moves;
+    for (int i = 0; i < 24; ++i) {
+      moves[static_cast<std::size_t>(i)] = {
+          parent.turn % 64,
+          (i * 17 + parent.turn) % 31};
+    }
+    return moves;
+  }
+
+  Score evaluate_action(const State& parent, const Action& move) const {
+    return parent.score + move.add;
+  }
+
+  void apply_action(State& child, Action& move) const {
+    child.values[static_cast<std::size_t>(move.index)] += move.add;
+    child.score += move.add;
+    ++child.turn;
+  }
+};
+
 int main() {
   constexpr int width = 800;
   constexpr int branch = 24;
@@ -74,29 +100,10 @@ int main() {
   }
   const auto after_simple_each = Clock::now();
 
-  ActionBeamSearch<LargeState, ForwardMove, long long> action_beam(
-      LargeState{}, 0, width);
-  const auto forward_actions = [](const LargeState& parent) {
-    std::array<ForwardMove, branch> moves;
-    for (int i = 0; i < branch; ++i) {
-      moves[static_cast<std::size_t>(i)] = {
-          parent.turn % 64,
-          (i * 17 + parent.turn) % 31};
-    }
-    return moves;
-  };
-  for (int turn = 0; turn < simple_turns; ++turn) {
-    action_beam.step(
-        forward_actions,
-        [](const LargeState& parent, const ForwardMove& move) {
-          return parent.score + move.add;
-        },
-        [](LargeState& child, ForwardMove& move) {
-          child.values[static_cast<std::size_t>(move.index)] += move.add;
-          child.score += move.add;
-          ++child.turn;
-        });
-  }
+  ForwardProblem forward_problem;
+  ActionBeamRunner<ForwardProblem> action_beam(
+      forward_problem, LargeState{}, 0, width);
+  action_beam.run(simple_turns);
   const auto after_action_beam = Clock::now();
 
   TreeBeamSearch<TreeState, TreeMove, long long> tree(TreeState{}, 0, width);

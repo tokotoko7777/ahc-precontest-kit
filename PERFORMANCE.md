@@ -58,6 +58,8 @@ AHCでは、同じ制限時間で評価できる候補数が増えること自�
   全Action候補をいったん保存する。
   候補が生成順に改善し続けて中間選抜が増える場合は、
   `set_batched_selection(false)`で最後の`nth_element`1回と比較する。
+  `ActionBeamRunner<Problem>`を使っても薄いテンプレートラッパーなので、
+  Problemの各関数はコンパイル時に型が決まり、`std::function`の間接呼び出しはない。
 - `TreeBeamSearch`と`CostTreeBeamSearch`は`State`を1個にできるが、
   `apply / revert`は得点、hash、候補集合まで完全に戻す。`Move`も小さく保つ。
 - `rank_score`は全候補に呼ばれる。安い近似評価で絞り、問題本来の

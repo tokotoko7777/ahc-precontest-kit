@@ -120,22 +120,47 @@ beam.step_each(
 全候補について`State child = parent`を行わず、Actionと順位だけを先に計算します。
 `apply`は選ばれた最大`beam_width`件にしか呼ばれません。
 
-```cpp
-ActionBeamSearch<State, Move, long long> beam(
-    initial_state, initial_rank_score, 200);
+問題に合わせて書くものは、次の`Problem` structへ集めます。
 
-for (int turn = 0; turn < max_turn; ++turn) {
-  if (!beam.step(
-          make_moves,
-          [](const State& parent, const Move& move) {
-            return parent.rank_score + calculate_rank_delta(parent, move);
-          },
-          [](State& child, Move& move) { apply(child, move); })) {
-    break;
+```cpp
+struct Problem {
+  using State = MyState;
+  using Action = MyMove;
+  using Score = long long;
+
+  vector<Action> generate_actions(const State& state) {
+    return make_moves(state);
   }
-}
-State answer = beam.best();
+
+  Score evaluate_action(const State& state, const Action& action) {
+    return state.rank_score + calculate_rank_delta(state, action);
+  }
+
+  void apply_action(State& state, Action& action) {
+    apply(state, action);
+  }
+};
+
+Problem problem;
+ActionBeamRunner<Problem> beam(
+    problem, initial_state, initial_rank_score, 200);
+beam.run(max_turn);
+MyState answer = beam.best();
 ```
+
+境界は次の通りです。
+
+| 人が問題に合わせて書く | ライブラリが担当する |
+|---|---|
+| 入力・出力、`State`、`Action` | 候補bufferと上位N件選抜 |
+| `generate_actions` | `2N → N`のcutoff |
+| `evaluate_action` | 親Stateの管理と採用N件だけのコピー |
+| `apply_action` | ターンループ、幅変更、件数統計 |
+| 必要なら`make_key`・`make_bucket` | 重複除去・bucket上限の適用 |
+
+通常は`Problem`と`main`だけを書き、`ActionBeamSearch`や`ActionBeamRunner`本体は
+変更しません。入力から出力まで分離した実例は
+[`intro_heuristics_action_beam.cpp`](examples/search/intro_heuristics_action_beam.cpp)です。
 
 内部ではAction候補が`2 * width`件たまるたび上位`width`件へ縮め、以後は既知の
 境界以下を保存しません。これは近似選抜ではなく、同点の生成順も含めて厳密です。
@@ -145,8 +170,9 @@ State answer = beam.best();
 結果は同じなので、速い方を選びます。
 
 同一状態を消す時は、次状態を作らず計算できるhashを
-`step_with_key`へ渡します。似た候補ばかりになる時は、粗い特徴ごとの上限を
-`step_with_bucket_limit(..., max_per_bucket, apply)`で設定できます。keyやbucketを
+Problemの`make_key`に書き、`step_with_key()`または`run_with_key()`を使います。
+似た候補ばかりになる時は`make_bucket`を書き、粗い特徴ごとの上限を
+`step_with_bucket_limit(max_per_bucket)`で設定できます。keyやbucketを
 使う経路は正しさのため全Action候補を一度保存するので、候補数も測って選びます。
 
 早期terminalを全候補から拾う時は`step_and_observe`を使います。ただしStateを
