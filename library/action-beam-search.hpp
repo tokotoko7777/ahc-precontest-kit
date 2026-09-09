@@ -19,22 +19,47 @@
 // - action から次状態の順位を差分計算できる
 // - tree-beam-search.hpp の revert を書くのは難しい
 //
-// 問題ごとのコードを1か所にまとめる使い方:
+// 問題ごとのコードを1か所にまとめる使い方。
+// 下のコメントは、その項目に「何を入れ、何を返すか」を示している。
 // struct Problem {
+//   // State = 探索途中の解を1個だけ表す型。
+//   // 盤面、現在ターン、使用回数、途中得点、答えの操作列など、
+//   // Actionを1回適用して次へ進むために必要な「変化する情報」を入れる。
+//   // 入力データのように全Stateで共通の情報は、コピーを避けるためProblem側に置く。
 //   using State = MyState;
+//
+//   // Action = Stateを1手進めるための軽い情報。
+//   // 例: 選ぶ頂点番号、(置く場所, 向き)、近傍操作の種類。
+//   // 次の盤面全体を入れる必要はない。全候補ぶん保存されるため小さいほど速い。
 //   using Action = MyMove;
+//
+//   // Score = ビーム内で候補の良さを比較する数値型。
+//   // 既定では大きい値ほど良い。小さい値を良くする時はRunner構築時にfalseを渡す。
 //   using Score = long long;
 //
-//   vector<Action> generate_actions(const State& state) { /* 問題依存 */ }
-//   Score evaluate_action(const State& state, const Action& action) {
-//     return state.score + action.score_delta;          // 問題依存
+//   // stateから次に試せるActionを全て返す。空なら、そのStateは行き止まり。
+//   // vector/arrayなどを値で返しても、Problemが持つコンテナをconst参照で返してもよい。
+//   vector<Action> generate_actions(const State& state) {
+//     return make_legal_moves(state);
 //   }
-//   void apply_action(State& state, Action& action) {    // 問題依存
-//     state.apply(action);
+//
+//   // actionを適用した「後」の子Stateを並べるためのScoreを返す。
+//   // 差分だけでなく、子Stateの順位値そのものを返すことに注意。
+//   // 全候補に呼ばれるため、stateを変更せず、できればO(1)の差分計算にする。
+//   Score evaluate_action(const State& state, const Action& action) {
+//     return state.rank_score + calculate_delta(state, action);
+//   }
+//
+//   // 採用されたActionを、親からコピー済みのstateへ本当に反映する。
+//   // 盤面だけでなく、ターン、得点、hash、使用回数、操作履歴もここで更新する。
+//   // evaluate_actionと同じ子状態・同じ順位になるように書く。
+//   void apply_action(State& state, Action& action) {
+//     apply_move(state, action);
 //   }
 // };
 // Problem problem;
-// ActionBeamRunner<Problem> beam(problem, initial, 0, 200);
+// // 第3引数はinitialの順位値、第4引数はビーム幅。
+// ActionBeamRunner<Problem> beam(problem, initial, initial.rank_score, 200);
 // beam.run(turns);
 // MyState answer = beam.best();
 //
@@ -625,13 +650,18 @@ struct ActionBeamSearch {
 // ビーム選抜の実装を変更せず、Problemの次の3関数だけを呼ぶ。
 //
 // 必須:
-//   generate_actions(const State&)                  -> Actionのコンテナ
-//   evaluate_action(const State&, const Action&)    -> Score
-//   apply_action(State&, Action&)                   -> void
+//   generate_actions(const State&)
+//     -> そのStateから試すActionのコンテナ。空なら行き止まり。
+//   evaluate_action(const State&, const Action&)
+//     -> Action適用後の子Stateの順位値。差分値ではなくScoreそのもの。
+//   apply_action(State&, Action&)
+//     -> 親からコピー済みのStateを、Action適用後の子Stateへ変更する。
 //
 // 任意:
-//   make_key(const State&, const Action&)           // step_with_key用
-//   make_bucket(const State&, const Action&)        // step_with_bucket_limit用
+//   make_key(const State&, const Action&)
+//     -> Action適用後の同一局面を表す値。step_with_key用。
+//   make_bucket(const State&, const Action&)
+//     -> 似た候補を同じ組にする粗い特徴。step_with_bucket_limit用。
 //
 // 入力、出力、State、Action、評価、状態更新はProblem側に置く。
 // Runner側はターンループ、候補選抜、Stateコピー、幅、統計を担当する。

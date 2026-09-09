@@ -8,13 +8,17 @@
 |---|---|---|---|
 | [`ahc006_sa.cpp`](ahc006_sa.cpp) | `TimeBasedSimulatedAnnealing` | AHC006 | 4近傍、合法性確認、最良解保存。ランダム1000注文の100ms確認で距離7136から5856へ改善し、50注文・集荷前配達の条件を満たした |
 | [`intro_heuristics_simple_beam.cpp`](intro_heuristics_simple_beam.cpp) | `SimpleBeamSearch` | Introduction to Heuristics Contest A | 365日入力を最後まで構築し、出力日数・番号範囲・得点計算を確認した |
-| [`intro_heuristics_action_beam.cpp`](intro_heuristics_action_beam.cpp) | `ActionBeamRunner` | Introduction to Heuristics Contest A | 問題依存コードを1 structへ分離し、全Actionを差分評価して採用N件だけState化する経路を確認した |
+| [`intro_heuristics_action_beam.cpp`](intro_heuristics_action_beam.cpp) | `ActionBeamRunner` | Introduction to Heuristics Contest A | 問題依存コードを1 structへ分離。State・Action・Scoreと3関数へ何を書き何を返すか、行ごとのコメント付き |
 | [`ahc021_tree_beam.cpp`](ahc021_tree_beam.cpp) | `TreeBeamSearch` | AHC021 | 交換の`apply / revert`と差分評価。ランダム13ケースを全て合法な完成状態まで解いた |
 | [`variable_cost_beam.cpp`](variable_cost_beam.cpp) | `CostTreeBeamSearch` | 締切付き宝集め | 1、2、3世代進む行動と再訪を扱う。200ランダムケースを厳密DPと照合した |
 
 数値はライブラリの適用確認用で、AtCoder上の順位やスコアを主張するものでは
 ありません。乱数seedは固定ですが、壁時計で終了するAHC006例の反復回数と結果は
 実行負荷によって多少変わります。
+
+ビーム幅による問題本来の得点差は、`make benchmark-search`でAHC032
+「Mod Stamp」相当の固定5ケースを解いて確認できます。これは公式入力ではなく、
+公式仕様と同じ値域・分布で独自生成した回帰ベンチマークです。
 
 ## コンパイル
 

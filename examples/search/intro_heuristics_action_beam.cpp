@@ -14,16 +14,29 @@
 // ========= ここだけ問題に合わせて書く =========
 
 struct ContestSchedulingProblem {
+  // Stateは「ある日まで決めた予定」を1個表す。
+  // Actionを適用するために変化する情報だけを入れる。
+  // decayやsatisfactionのような全候補で共通の入力はProblem本体へ置く。
   struct State {
+    // 次に決める日の0-index。day日ぶんの予定は決定済み。
     int day = 0;
+    // コンテスト種類ごとに、最後に開催した日を1-indexで保存する。
     std::array<int, 26> last_day{};
+    // day日目までの問題文どおりの得点。出力解の得点計算にも使える。
     long long score = 0;
+    // 復元用の操作履歴。answer[d]はd日目に選んだコンテストの0-index。
     std::array<unsigned char, 365> answer{};
   };
 
+  // Actionは「次の日にどのコンテストを開くか」だけなのでintで十分。
+  // 全候補ぶん一時保存されるため、盤面やState全体を入れない。
   using Action = int;
+
+  // Scoreは候補を残す順番の比較に使う型。既定では大きいほど良い。
+  // この例では本来の得点に将来の見込みを足した順位値をlong longで持つ。
   using Score = long long;
 
+  // ここからは全Stateで共通の入力。Stateへ入れないので、幅500でもコピーされない。
   int days = 0;
   std::array<int, 26> decay{};
   std::vector<std::array<int, 26>> satisfaction;
@@ -40,18 +53,27 @@ struct ContestSchedulingProblem {
     return true;
   }
 
+  // まだ1日も決めていないStateを返す。
   State initial_state() const { return State{}; }
 
+  // initial_state()の順位値を返す。Runnerの第3引数に渡す。
   Score initial_score() const { return 0; }
 
+  // Actionを何回適用すれば完成か。この問題では1日につき1回。
   int max_turns() const { return days; }
 
-  // 現在のStateから試すActionを返す。
+  // 現在のStateから次に試すActionを全て返す。
+  // この問題では毎日26種類を全て試す。合法手がStateごとに違う問題なら、
+  // stateを見てvector<Action>を作る。空のコンテナを返すとその枝は行き止まりになる。
+  // contestsはProblemが探索中ずっと保持するため、const参照で返しても安全。
   const std::array<int, 26>& generate_actions(const State&) const {
     return contests;
   }
 
-  // Action適用後の順位を、Stateをコピーせずに計算する。
+  // contestを選んだ「後」の子Stateの順位値を返す。
+  // 返すのは得点差分ではなく順位値そのもの。大きい候補から残される。
+  // この関数は全候補に呼ばれるのでstateを変更せず、Stateをコピーせずに計算する。
+  // 順位値は候補選抜専用なので、問題文の最終得点と完全に同じでなくてもよい。
   Score evaluate_action(const State& state, const Action& contest) const {
     const int next_day = state.day + 1;
     Score next_score = state.score + satisfaction[state.day][contest];
@@ -73,7 +95,11 @@ struct ContestSchedulingProblem {
     return rank_score;
   }
 
-  // 選ばれたActionだけがここへ来る。Stateは既に親からコピー済み。
+  // 選抜を通ったcontestをStateへ本当に適用する。
+  // stateはライブラリが親からコピー済みなので、直接変更してよい。
+  // evaluate_actionと同じ1手後になるよう、盤面相当の情報、得点、ターン、
+  // hashや使用回数がある問題ならそれら全て、そして答えの履歴を更新する。
+  // Actionも候補ごとのコピーなので変更可能だが、この例では変更しない。
   void apply_action(State& state, Action& contest) const {
     state.answer[state.day] = static_cast<unsigned char>(contest);
     state.last_day[contest] = state.day + 1;
@@ -85,6 +111,7 @@ struct ContestSchedulingProblem {
     ++state.day;
   }
 
+  // 探索完了後のStateから、問題文が要求する形式だけを出力する。
   void print_answer(const State& answer) const {
     for (int day = 0; day < days; ++day) {
       std::cout << static_cast<int>(answer.answer[day]) + 1 << '\n';
@@ -102,11 +129,15 @@ int main() {
   if (!problem.read_input()) return 0;
 
   constexpr int BEAM_WIDTH = 500;
+  // 引数は順に Problem、初期State、初期順位値、幅。
+  // 小さいScoreを良いものとして残す問題では、最後にfalseを追加する。
   ActionBeamRunner<ContestSchedulingProblem> beam(
       problem,
       problem.initial_state(),
       problem.initial_score(),
       BEAM_WIDTH);
+  // 最大max_turns世代進める。全枝が行き止まりなら、その時点で停止する。
   beam.run(problem.max_turns());
+  // best()は最終ビームの中で順位値が最大のState。
   problem.print_answer(beam.best());
 }
