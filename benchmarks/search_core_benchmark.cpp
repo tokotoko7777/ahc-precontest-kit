@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <iostream>
 
+#include "library/action-beam-search.hpp"
 #include "library/simple-beam-search.hpp"
 #include "library/simulated-annealing.hpp"
 #include "library/tree-beam-search.hpp"
@@ -23,6 +24,11 @@ struct TreeState {
 struct TreeMove {
   int add;
   std::uint64_t hash_delta;
+};
+
+struct ForwardMove {
+  int index;
+  int add;
 };
 
 int main() {
@@ -68,6 +74,31 @@ int main() {
   }
   const auto after_simple_each = Clock::now();
 
+  ActionBeamSearch<LargeState, ForwardMove, long long> action_beam(
+      LargeState{}, 0, width);
+  const auto forward_actions = [](const LargeState& parent) {
+    std::array<ForwardMove, branch> moves;
+    for (int i = 0; i < branch; ++i) {
+      moves[static_cast<std::size_t>(i)] = {
+          parent.turn % 64,
+          (i * 17 + parent.turn) % 31};
+    }
+    return moves;
+  };
+  for (int turn = 0; turn < simple_turns; ++turn) {
+    action_beam.step(
+        forward_actions,
+        [](const LargeState& parent, const ForwardMove& move) {
+          return parent.score + move.add;
+        },
+        [](LargeState& child, ForwardMove& move) {
+          child.values[static_cast<std::size_t>(move.index)] += move.add;
+          child.score += move.add;
+          ++child.turn;
+        });
+  }
+  const auto after_action_beam = Clock::now();
+
   TreeBeamSearch<TreeState, TreeMove, long long> tree(TreeState{}, 0, width);
   tree.reserve_candidates(static_cast<std::size_t>(width * branch));
   tree.reserve_nodes(static_cast<std::size_t>(1 + width * tree_turns));
@@ -109,10 +140,12 @@ int main() {
   std::cout << "simple_range_ms " << milliseconds(begin, after_simple) << '\n';
   std::cout << "simple_each_ms "
             << milliseconds(after_simple, after_simple_each) << '\n';
-  std::cout << "tree_ms " << milliseconds(after_simple_each, after_tree) << '\n';
+  std::cout << "action_beam_ms "
+            << milliseconds(after_simple_each, after_action_beam) << '\n';
+  std::cout << "tree_ms " << milliseconds(after_action_beam, after_tree) << '\n';
   std::cout << "sa_hopeless_ms "
             << milliseconds(after_tree, after_sa) << '\n';
   std::cout << "checksum " << simple.best().score << ' '
-            << simple_each.best().score << ' ' << tree.best_score() << ' '
-            << accepted << '\n';
+            << simple_each.best().score << ' ' << action_beam.best().score
+            << ' ' << tree.best_score() << ' ' << accepted << '\n';
 }

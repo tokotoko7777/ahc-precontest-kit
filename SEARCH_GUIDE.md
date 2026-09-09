@@ -6,19 +6,21 @@
 |---|---|---|
 | `time-based-simulated-annealing.hpp` | 1つの解を局所変更し続けられる | 現在解を1つ保持 |
 | `simple-beam-search.hpp` | 手数ごとに候補を残したい。`State`が小さい | 子の`State`をコピー |
+| `action-beam-search.hpp` | Actionから次状態の順位を安く計算できる | 採用N件だけ`State`をコピー |
 | `tree-beam-search.hpp` | 全行動で1世代ずつ進む。`State`のコピーが重い | `apply / revert`と履歴木 |
 | `cost-tree-beam-search.hpp` | 行動ごとに1、2、3世代など進み幅が違う | `apply / revert`と到着世代別の履歴木 |
 
 迷ったら、局所変更が自然なら焼きなまし、手順を1手ずつ作るなら
-`SimpleBeamSearch`から始めます。状態コピーがボトルネックになった時だけ、
-木上版へ移します。
+`SimpleBeamSearch`から始めます。状態コピーがボトルネックになったら、差分評価を
+書ける場合は`ActionBeamSearch`、完全な逆操作も書ける場合は木上版へ移します。
 
-## 4本を単体で使った完全な例
+## 5本を単体で使った完全な例
 
 | 探索コア | 問題例 | 完全な`main.cpp` |
 |---|---|---|
 | 時間焼きなまし | AHC006の配達経路 | [`ahc006_sa.cpp`](examples/search/ahc006_sa.cpp) |
 | 通常ビーム | Introduction to Heuristics Contest A | [`intro_heuristics_simple_beam.cpp`](examples/search/intro_heuristics_simple_beam.cpp) |
+| Action先行ビーム | Introduction to Heuristics Contest A | [`intro_heuristics_action_beam.cpp`](examples/search/intro_heuristics_action_beam.cpp) |
 | 木上ビーム | AHC021の山崩し | [`ahc021_tree_beam.cpp`](examples/search/ahc021_tree_beam.cpp) |
 | 世代飛ばし木上ビーム | 移動時間1〜3の締切付き宝集め | [`variable_cost_beam.cpp`](examples/search/variable_cost_beam.cpp) |
 
@@ -112,6 +114,45 @@ beam.step_each(
 
 `last_generated_count()`、`last_unique_count()`、`last_kept_count()`で、直近層の
 生成数・key重複除去後の数・採用数を確認できます。
+
+## ActionBeamSearchの最小形
+
+全候補について`State child = parent`を行わず、Actionと順位だけを先に計算します。
+`apply`は選ばれた最大`beam_width`件にしか呼ばれません。
+
+```cpp
+ActionBeamSearch<State, Move, long long> beam(
+    initial_state, initial_rank_score, 200);
+
+for (int turn = 0; turn < max_turn; ++turn) {
+  if (!beam.step(
+          make_moves,
+          [](const State& parent, const Move& move) {
+            return parent.rank_score + calculate_rank_delta(parent, move);
+          },
+          [](State& child, Move& move) { apply(child, move); })) {
+    break;
+  }
+}
+State answer = beam.best();
+```
+
+内部ではAction候補が`2 * width`件たまるたび上位`width`件へ縮め、以後は既知の
+境界以下を保存しません。これは近似選抜ではなく、同点の生成順も含めて厳密です。
+`last_buffered_peak_count()`で、通常の`step`が同時に持った候補数を確認できます。
+生成順に候補が改善し続ける場合は中間選抜が増えるため、
+`set_batched_selection(false)`の「最後に`nth_element`を1回」も同じ入力で測れます。
+結果は同じなので、速い方を選びます。
+
+同一状態を消す時は、次状態を作らず計算できるhashを
+`step_with_key`へ渡します。似た候補ばかりになる時は、粗い特徴ごとの上限を
+`step_with_bucket_limit(..., max_per_bucket, apply)`で設定できます。keyやbucketを
+使う経路は正しさのため全Action候補を一度保存するので、候補数も測って選びます。
+
+早期terminalを全候補から拾う時は`step_and_observe`を使います。ただしStateを
+全候補ぶん作らない設計なので、observerが受け取るのは
+`(parent_rank, parent, action, rank_score)`です。親の履歴へactionを1個足せば
+候補の手順を保存できます。
 
 ## 世代が飛ばないTreeBeamSearch
 

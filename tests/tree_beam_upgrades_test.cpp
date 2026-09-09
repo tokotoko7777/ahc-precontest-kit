@@ -114,6 +114,11 @@ void test_fixed_observer(bool keyed) {
   assert(terminal_path == std::vector<FixedMove>({{1, 0}}));
   assert(beam.restore() == std::vector<FixedMove>({{2, 1}}));
   assert(beam.size() == 1);
+  assert(beam.last_generated_count() == 2);
+  assert(beam.last_unique_count() == static_cast<std::size_t>(keyed ? 1 : 2));
+  assert(beam.last_kept_count() == 1);
+  assert(beam.last_buffered_peak_count() ==
+         static_cast<std::size_t>(keyed ? 1 : 2));
   assert(beam.state.depth == 0 && beam.state.value == 0);
 
   std::vector<FixedMove> reused;

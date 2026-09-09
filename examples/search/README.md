@@ -1,6 +1,6 @@
 # 探索コアを単体で使う完全な例
 
-4種類の探索ヘッダを、それぞれ1個だけ使って問題を最初から最後まで解く
+5種類の探索ヘッダを、それぞれ1個だけ使って問題を最初から最後まで解く
 `main.cpp`です。小さなAPI例ではなく、入力、状態、近傍または遷移、得点計算、
 解の保存、出力まで含みます。差分更新が有効な例では、その実装も確認できます。
 
@@ -8,6 +8,7 @@
 |---|---|---|---|
 | [`ahc006_sa.cpp`](ahc006_sa.cpp) | `TimeBasedSimulatedAnnealing` | AHC006 | 4近傍、合法性確認、最良解保存。ランダム1000注文の100ms確認で距離7136から5856へ改善し、50注文・集荷前配達の条件を満たした |
 | [`intro_heuristics_simple_beam.cpp`](intro_heuristics_simple_beam.cpp) | `SimpleBeamSearch` | Introduction to Heuristics Contest A | 365日入力を最後まで構築し、出力日数・番号範囲・得点計算を確認した |
+| [`intro_heuristics_action_beam.cpp`](intro_heuristics_action_beam.cpp) | `ActionBeamSearch` | Introduction to Heuristics Contest A | 全Actionを差分評価してから採用N件だけState化する経路を確認した |
 | [`ahc021_tree_beam.cpp`](ahc021_tree_beam.cpp) | `TreeBeamSearch` | AHC021 | 交換の`apply / revert`と差分評価。ランダム13ケースを全て合法な完成状態まで解いた |
 | [`variable_cost_beam.cpp`](variable_cost_beam.cpp) | `CostTreeBeamSearch` | 締切付き宝集め | 1、2、3世代進む行動と再訪を扱う。200ランダムケースを厳密DPと照合した |
 
@@ -22,6 +23,7 @@
 ```sh
 g++ -std=c++17 -O2 -Wall -Wextra -pedantic examples/search/ahc006_sa.cpp -o /tmp/ahc006_sa
 g++ -std=c++17 -O2 -Wall -Wextra -pedantic examples/search/intro_heuristics_simple_beam.cpp -o /tmp/intro_beam
+g++ -std=c++17 -O2 -Wall -Wextra -pedantic examples/search/intro_heuristics_action_beam.cpp -o /tmp/action_beam
 g++ -std=c++17 -O2 -Wall -Wextra -pedantic examples/search/ahc021_tree_beam.cpp -o /tmp/ahc021_beam
 g++ -std=c++17 -O2 -Wall -Wextra -pedantic examples/search/variable_cost_beam.cpp -o /tmp/cost_beam
 ```
