@@ -8,7 +8,8 @@ SANITIZER_TESTS := tests/parts_test.cpp tests/search_engines_test.cpp $(UPGRADE_
 SANITIZER_FLAGS := -std=c++17 -O1 -g -Wall -Wextra -pedantic \
 	-fsanitize=address,undefined -fno-omit-frame-pointer
 
-.PHONY: verify verify-practice verify-copy verify-debug verify-sanitize benchmark-search clean
+.PHONY: verify verify-practice verify-copy verify-debug verify-sanitize \
+	benchmark-search benchmark-search-speed clean
 
 verify: verify-practice verify-copy verify-debug
 	mkdir -p build
@@ -26,6 +27,8 @@ verify: verify-practice verify-copy verify-debug
 		echo "checking $$solver"; \
 		$(CXX) $(CXXFLAGS) -I. -fsyntax-only $$solver || exit 1; \
 	done
+	$(CXX) $(CXXFLAGS) -I. -fsyntax-only \
+		benchmarks/ahc032_score_benchmark.cpp
 	$(CXX) $(CXXFLAGS) -I. -DVARIABLE_COST_BEAM_SELF_TEST \
 		examples/search/variable_cost_beam.cpp -o build/variable_cost_beam_test
 	./build/variable_cost_beam_test
@@ -95,6 +98,12 @@ verify-practice:
 	done
 
 benchmark-search:
+	mkdir -p build
+	$(CXX) $(CXXFLAGS) -O3 -DNDEBUG -I. \
+		benchmarks/ahc032_score_benchmark.cpp -o build/ahc032_score_benchmark
+	./build/ahc032_score_benchmark
+
+benchmark-search-speed:
 	mkdir -p build
 	$(CXX) $(CXXFLAGS) -O3 -DNDEBUG -I. \
 		benchmarks/search_core_benchmark.cpp -o build/search_core_benchmark

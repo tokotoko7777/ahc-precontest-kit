@@ -124,29 +124,50 @@ beam.step_each(
 
 ```cpp
 struct Problem {
+  // 探索途中の解1個。盤面、現在ターン、使用回数、得点、操作履歴などを入れる。
+  // 入力のような全候補で共通の読み取り専用データはProblem本体へ置く。
   using State = MyState;
+
+  // 1手を表す軽い型。次の盤面全体ではなく、番号・場所・向きなどだけを入れる。
   using Action = MyMove;
+
+  // 候補の順位を比較する型。既定では大きい値ほど良い。
   using Score = long long;
 
+  // stateから合法なActionを全て返す。空ならこの枝は行き止まり。
+  // vector/arrayを値で返しても、Problemが持つコンテナをconst参照で返してもよい。
   vector<Action> generate_actions(const State& state) {
     return make_moves(state);
   }
 
+  // action適用後の「子Stateの順位値そのもの」を返す。差分だけを返さない。
+  // 全候補に呼ばれるのでstateを変更せず、できれば差分計算で軽くする。
   Score evaluate_action(const State& state, const Action& action) {
     return state.rank_score + calculate_rank_delta(state, action);
   }
 
+  // 採用されたactionを、親からコピー済みのstateへ反映する。
+  // 盤面、得点、ターン、hash、使用回数、答えの履歴を漏れなく更新する。
   void apply_action(State& state, Action& action) {
     apply(state, action);
   }
 };
 
 Problem problem;
+// initial_rank_scoreはinitial_stateを候補として比較する時の順位値。
+// 小さいScoreを良いものとして残す場合は第5引数へfalseを渡す。
 ActionBeamRunner<Problem> beam(
     problem, initial_state, initial_rank_score, 200);
 beam.run(max_turn);
+// best()は最後の世代に残った中で最も順位値が良いState。
 MyState answer = beam.best();
 ```
+
+`evaluate_action`が返すものを迷ったら、まず「Actionを適用した後のState全体を
+採点する関数」をそのまま書けば正しく動きます。動作確認後、その計算を
+`現在の順位値 + このActionによる変化量`へ置き換えると高速になります。
+`evaluate_action`が返した順位値と、`apply_action`後のStateが表す局面が食い違うと、
+ライブラリは意図と違う候補を残すため、この2関数は必ず対にして考えます。
 
 境界は次の通りです。
 
@@ -161,6 +182,10 @@ MyState answer = beam.best();
 通常は`Problem`と`main`だけを書き、`ActionBeamSearch`や`ActionBeamRunner`本体は
 変更しません。入力から出力まで分離した実例は
 [`intro_heuristics_action_beam.cpp`](examples/search/intro_heuristics_action_beam.cpp)です。
+各項目のさらに詳しいコメントは、この実例と
+[`action-beam-search.hpp`](library/action-beam-search.hpp)先頭の雛形に入っています。
+実問題で幅による解の質を比較する時は`make benchmark-search`で、AHC032
+「Mod Stamp」相当の固定ケースに対する最終得点を測れます。
 
 内部ではAction候補が`2 * width`件たまるたび上位`width`件へ縮め、以後は既知の
 境界以下を保存しません。これは近似選抜ではなく、同点の生成順も含めて厳密です。
