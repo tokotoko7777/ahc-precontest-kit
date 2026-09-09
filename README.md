@@ -53,8 +53,9 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 [`PERFORMANCE.md`](PERFORMANCE.md) にまとめています。
 
 ビームサーチは`make benchmark-search`で、AHC032「Mod Stamp」相当の固定5ケースを
-実際に解き、問題本来の得点を幅1・20・100で比較できます。合成データの速度だけを
-測る旧ベンチマークは`make benchmark-search-speed`です。
+実際に解き、問題本来の得点を幅1・100・1000・3000・10000で比較できます。
+ケース数と幅は`./build/ahc032_score_benchmark 30 10000`のように変更できます。
+合成データの速度だけを測る旧ベンチマークは`make benchmark-search-speed`です。
 
 ## 探索コア5本
 
