@@ -15,6 +15,11 @@
 `SimpleBeamSearch`から始めます。状態コピーがボトルネックになったら、差分評価を
 書ける場合は`ActionBeamSearch`、完全な逆操作も書ける場合は木上版へ移します。
 
+各探索ヘッダでは`TODO:`を検索してください。そこに自分の`main.cpp`側へ書く型、
+候補生成、評価、更新を記しています。ライブラリの探索エンジン本体を問題ごとに
+書き換える必要はありません。実問題ベンチマークの`Problem`にも同じ`TODO:`を置き、
+完成した実装では何が入るかをすぐ横で確認できるようにしています。
+
 ## 5本を単体で使った完全な例
 
 | 探索コア | 問題例 | 完全な`main.cpp` |
@@ -86,29 +91,33 @@ TimeBasedSimulatedAnnealing sa(
 
 ```cpp
 struct Problem {
-  // 現在解1個。盤面、順列、長方形集合、現在の補助cacheなどを入れる。
+  // TODO: 【問題ごと】現在解1個と差分更新用cacheを書く。
+  // 盤面、順列、長方形集合、現在の補助cacheなどを入れる。
   using State = MyState;
 
-  // 近傍1回分。変更位置、新しい値、差分更新に必要な情報だけを小さく持つ。
+  // TODO: 【問題ごと】近傍1回分を小さく書く。
+  // 変更位置、新しい値、差分更新に必要な情報だけを持つ。
   using Move = MyMove;
 
-  // 解の評価値の型。Runnerでは大きいほど良い値として扱う。
+  // TODO: 【問題ごと】評価値の型を選ぶ。Runnerでは大きいほど良くする。
   using Score = long long;
 
-  // 近傍を1個作って返す。合法な近傍を作れない試行はnulloptでよい。
+  // TODO: 【問題ごと】近傍を1個作って返す。
+  // 合法な近傍を作れない試行はnulloptでよい。
   // progressは開始時0、終了時1。探索前半・後半で近傍の大きさを変えられる。
   optional<Move> propose_move(
       const State& state, mt19937_64& rng, double progress) {
     return make_move(state, rng, progress);
   }
 
-  // move適用後の「改善量」を返す。正なら良化、負なら悪化。
+  // TODO: 【問題ごと】move適用後の改善量を差分計算する。
+  // 正なら良化、負なら悪化。
   // stateを変更しない。不採用手をrevertせず捨てられるよう差分計算する。
   Score evaluate_move(const State& state, const Move& move) {
     return calculate_score_delta(state, move);
   }
 
-  // 採用が決まったmoveだけを反映する。盤面と補助cacheを全て更新する。
+  // TODO: 【問題ごと】採用済みmoveを反映し、全cacheを更新する。
   void apply_move(State& state, const Move& move) {
     apply(state, move);
   }
@@ -182,29 +191,31 @@ beam.step_each(
 
 ```cpp
 struct Problem {
-  // 探索途中の解1個。盤面、現在ターン、使用回数、得点、操作履歴などを入れる。
+  // TODO: 【問題ごと】探索途中の解1個をStateへ書く。
+  // 盤面、現在ターン、使用回数、得点、操作履歴などを入れる。
   // 入力のような全候補で共通の読み取り専用データはProblem本体へ置く。
   using State = MyState;
 
-  // 1手を表す軽い型。次の盤面全体ではなく、番号・場所・向きなどだけを入れる。
+  // TODO: 【問題ごと】1手を表す軽いActionを書く。
+  // 次の盤面全体ではなく、番号・場所・向きなどだけを入れる。
   using Action = MyMove;
 
-  // 候補の順位を比較する型。既定では大きい値ほど良い。
+  // TODO: 【問題ごと】候補順位Scoreの型を選ぶ。既定では大きい値ほど良い。
   using Score = long long;
 
-  // stateから合法なActionを全て返す。空ならこの枝は行き止まり。
+  // TODO: 【問題ごと】stateから合法なActionを全て返す。
   // vector/arrayを値で返しても、Problemが持つコンテナをconst参照で返してもよい。
   vector<Action> generate_actions(const State& state) {
     return make_moves(state);
   }
 
-  // action適用後の「子Stateの順位値そのもの」を返す。差分だけを返さない。
+  // TODO: 【問題ごと】action適用後の子Stateの順位値そのものを返す。
   // 全候補に呼ばれるのでstateを変更せず、できれば差分計算で軽くする。
   Score evaluate_action(const State& state, const Action& action) {
     return state.rank_score + calculate_rank_delta(state, action);
   }
 
-  // 採用されたactionを、親からコピー済みのstateへ反映する。
+  // TODO: 【問題ごと】採用されたactionをコピー済みstateへ反映する。
   // 盤面、得点、ターン、hash、使用回数、答えの履歴を漏れなく更新する。
   void apply_action(State& state, Action& action) {
     apply(state, action);
@@ -287,32 +298,33 @@ vector<Move> answer = beam.restore();
 
 ```cpp
 struct Problem {
+  // TODO: 【問題ごと】全状態、1手+undo、候補順位の型を書く。
   using State = MyState;       // DFS中に1個だけ持つ全状態。
   using Move = MyMove;         // 1手とundoに必要な情報。
   using Score = long long;     // 候補順位。大きいほど良い。
 
-  // このstateから試す合法手。Moveはできるだけ小さくする。
+  // TODO: 【問題ごと】このstateから試す合法手を返す。
   vector<Move> generate_moves(const State& state) {
     return make_moves(state);
   }
 
-  // 盤面、score、hash、個数表などを1手分だけ差分更新する。
+  // TODO: 【問題ごと】盤面、score、hashなどを1手分だけ差分更新する。
   // 復元に必要な旧値が生成時に不明ならmoveへここで書き込んでよい。
   void apply_move(State& state, Move& move) {
     apply(state, move);
   }
 
-  // apply_moveの直前と完全に同じ状態へ戻す。
+  // TODO: 【問題ごと】apply_move直前と完全に同じ状態へ戻す。
   void revert_move(State& state, const Move& move) {
     revert(state, move);
   }
 
-  // 現在stateの順位値そのもの。差分ではない。
+  // TODO: 【問題ごと】現在stateの順位値そのものを返す。差分ではない。
   Score evaluate(const State& state) {
     return state.rank_score;
   }
 
-  // run_with_keyを使う時だけ書く。同じ未来を持つ局面は同じkeyにする。
+  // TODO: 【必要な問題だけ】同じ未来を持つ局面を同じkeyにする。
   uint64_t make_key(const State& state) {
     return state.hash;
   }
@@ -343,22 +355,24 @@ AHC021のピラミッドをこの境界で解く実例は
 
 ```cpp
 struct Problem {
+  // TODO: 【問題ごと】現在情報、今の1手、未知の未来、評価値の型を書く。
   using State = MyState;          // 現在までに確定している情報。
   using Action = MyAction;        // 今選ぶ1手。
   using Scenario = MyScenario;    // 未知の未来1本。
   using Score = long long;        // 1 rolloutの最終評価値。
 
-  // 今選べるActionを返す。
+  // TODO: 【問題ごと】今選べるActionを全て返す。
   vector<Action> generate_actions(const State& state) {
     return legal_actions(state);
   }
 
-  // 未知情報だけを1本sampleする。未来の自分の手まで乱数で固定しない。
+  // TODO: 【問題ごと】未知情報だけを1本sampleする。
   Scenario generate_scenario(const State& state, mt19937_64& rng) {
     return sample_unknown_future(state, rng);
   }
 
-  // 最初のactionを適用し、その後は問題固有のルール方策などで終端まで進め、
+  // TODO: 【問題ごと】最初のaction後を終端まで進めて評価する。
+  // その後は問題固有のルール方策などで終端まで進め、
   // 最終評価値を返す。元のstateは変更しない。
   Score evaluate_action(
       const State& state, const Action& action, const Scenario& scenario) {

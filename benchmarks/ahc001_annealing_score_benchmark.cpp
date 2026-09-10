@@ -110,19 +110,24 @@ double satisfaction(long long desired, long long actual) {
 }
 
 struct AdvertisementProblem {
+  // TODO: 【問題ごと】現在解と、差分評価に必要なcacheをここへ書く。
   struct State {
     std::vector<Rectangle> rectangle;
   };
 
+  // TODO: 【問題ごと】近傍1回分の変更内容を小さくまとめる。
   struct Move {
     int index = 0;
     Rectangle next;
   };
 
+  // TODO: 【問題ごと】得点型を選ぶ。大きいほど良い値にする。
   using Score = double;
 
+  // TODO: 【問題ごと】全Stateで共通の入力・事前計算をProblemへ置く。
   const AdvertisementCase& input;
 
+  // TODO: 【問題ごと】必ず合法な初期解を作る。
   State initial_state() const {
     State state;
     state.rectangle.reserve(input.requests.size());
@@ -133,6 +138,7 @@ struct AdvertisementProblem {
     return state;
   }
 
+  // TODO: 【問題ごと】初期得点と完成解検査用の全再計算を書く。
   Score score(const State& state) const {
     Score result = 0.0;
     for (std::size_t i = 0; i < state.rectangle.size(); ++i) {
@@ -146,6 +152,7 @@ struct AdvertisementProblem {
     return std::uniform_int_distribution<int>(left, right - 1)(engine);
   }
 
+  // TODO: 【問題ごと】次に試す近傍を1個作る。作れなければnullopt。
   // 他の長方形を越えない範囲で、選んだ1辺の新しい座標を作る。
   // 70%は希望面積に近い座標、30%は広い乱択で局所解を崩す。
   std::optional<Move> propose_move(const State& state,
@@ -258,12 +265,14 @@ struct AdvertisementProblem {
     return Move{index, next};
   }
 
+  // TODO: 【問題ごと】Stateを変更せず、正=改善となる得点差を返す。
   Score evaluate_move(const State& state, const Move& move) const {
     const long long desired = input.requests[move.index].desired_area;
     return satisfaction(desired, move.next.area()) -
            satisfaction(desired, state.rectangle[move.index].area());
   }
 
+  // TODO: 【問題ごと】採用されたMoveだけをStateへ反映する。
   void apply_move(State& state, const Move& move) const {
     state.rectangle[move.index] = move.next;
   }

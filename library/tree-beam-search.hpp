@@ -561,15 +561,24 @@ struct TreeBeamSearch {
 
 // 問題依存コードをProblemへ集める、apply/revert型ビームの薄いRunner。
 //
-// Problemに書くもの:
+// 【使う人がmain.cpp側へ書く場所】
+// 次のTODOだけを自分の問題に合わせる。Runner本体は通常変更しない。
+//
+//   TODO: 【問題ごと】State、軽いMove、候補順位Scoreを書く。
 //   using State, Move, Score
+//   TODO: 【問題ごと】現在状態から試す合法手を列挙する。
 //   generate_moves(const State&)       -> 次に試すMoveのコンテナ。
+//   TODO: 【問題ごと】盤面、score、hashなどを1手分だけ進める。
 //   apply_move(State&, Move&)          -> 1手進める。Moveへundo情報を書ける。
+//   TODO: 【問題ごと】apply前と完全に同じ状態へ戻す。
 //   revert_move(State&, const Move&)   -> apply_move前と完全に同じ状態へ戻す。
+//   TODO: 【問題ごと】子Stateの順位値そのものを返す。
 //   evaluate(const State&)             -> 子Stateの順位値そのもの。
+//   TODO: 【必要な問題だけ】同一局面を表すkeyを書く。
 //   make_key(const State&)             -> 同一局面のkey。step_with_key時だけ必要。
 //
 // Runnerは履歴木、DFS巡回、上位N個選択、重複除去、世代ループを担当する。
+// ↓↓↓ ここから下はライブラリ本体。通常は編集しない。↓↓↓
 template <class Problem>
 struct TreeBeamRunner {
   using State = typename Problem::State;

@@ -22,27 +22,32 @@
 // 問題ごとのコードを1か所にまとめる使い方。
 // 下のコメントは、その項目に「何を入れ、何を返すか」を示している。
 // struct Problem {
+//   // TODO: 【問題ごと】探索途中の解1個を表すStateを書く。
 //   // State = 探索途中の解を1個だけ表す型。
 //   // 盤面、現在ターン、使用回数、途中得点、答えの操作列など、
 //   // Actionを1回適用して次へ進むために必要な「変化する情報」を入れる。
 //   // 入力データのように全Stateで共通の情報は、コピーを避けるためProblem側に置く。
 //   using State = MyState;
 //
+//   // TODO: 【問題ごと】次の1手だけを表す軽いActionを書く。
 //   // Action = Stateを1手進めるための軽い情報。
 //   // 例: 選ぶ頂点番号、(置く場所, 向き)、近傍操作の種類。
 //   // 次の盤面全体を入れる必要はない。全候補ぶん保存されるため小さいほど速い。
 //   using Action = MyMove;
 //
+//   // TODO: 【問題ごと】候補順位の型を選ぶ。
 //   // Score = ビーム内で候補の良さを比較する数値型。
 //   // 既定では大きい値ほど良い。小さい値を良くする時はRunner構築時にfalseを渡す。
 //   using Score = long long;
 //
+//   // TODO: 【問題ごと】stateから試せるActionを全て返す。
 //   // stateから次に試せるActionを全て返す。空なら、そのStateは行き止まり。
 //   // vector/arrayなどを値で返しても、Problemが持つコンテナをconst参照で返してもよい。
 //   vector<Action> generate_actions(const State& state) {
 //     return make_legal_moves(state);
 //   }
 //
+//   // TODO: 【問題ごと】action適用後の順位値そのものを差分計算する。
 //   // actionを適用した「後」の子Stateを並べるためのScoreを返す。
 //   // 差分だけでなく、子Stateの順位値そのものを返すことに注意。
 //   // 全候補に呼ばれるため、stateを変更せず、できればO(1)の差分計算にする。
@@ -50,6 +55,7 @@
 //     return state.rank_score + calculate_delta(state, action);
 //   }
 //
+//   // TODO: 【問題ごと】採用されたactionをコピー済みStateへ反映する。
 //   // 採用されたActionを、親からコピー済みのstateへ本当に反映する。
 //   // 盤面だけでなく、ターン、得点、hash、使用回数、操作履歴もここで更新する。
 //   // evaluate_actionと同じ子状態・同じ順位になるように書く。
@@ -62,6 +68,7 @@
 // ActionBeamRunner<Problem> beam(problem, initial, initial.rank_score, 200);
 // beam.run(turns);
 // MyState answer = beam.best();
+// ↑↑↑ TODOが付いた箇所だけ問題ごとに書く。ライブラリ本体は通常編集しない。↑↑↑
 //
 // 下のActionBeamSearchを直接使う場合、expand(parent)はActionのコンテナ、
 // evaluate_action(parent, action)はaction適用後の順位値を返す。

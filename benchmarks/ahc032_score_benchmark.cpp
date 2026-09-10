@@ -90,6 +90,7 @@ struct ModStampProblem {
     std::uint8_t cumulative_limit = 0;
   };
 
+  // TODO: 【問題ごと】探索途中の解と差分評価用cacheをStateへ書く。
   struct State {
     std::array<std::uint32_t, BOARD_SIZE * BOARD_SIZE> board{};
     // choices[position]は、その置き場所で選んだComboの番号。
@@ -99,6 +100,7 @@ struct ModStampProblem {
     long long finalized_score = 0;
   };
 
+  // TODO: 【問題ごと】次の1手を表す軽いActionと、候補順位Scoreを選ぶ。
   // Actionには3x3加算値を持たせず、Problem側のComboを引く番号だけを置く。
   // 全候補ぶん保存されるデータを2 byteに抑える。
   using Action = std::uint16_t;
@@ -116,6 +118,7 @@ struct ModStampProblem {
     build_combinations();
   }
 
+  // TODO: 【問題ごと】初期Stateと、その候補順位値を作る。
   State initial_state() const {
     State state;
     state.board = instance.board;
@@ -126,6 +129,7 @@ struct ModStampProblem {
     return 6LL * MODULO * PLACEMENT_COUNT * OPERATION_LIMIT;
   }
 
+  // TODO: 【問題ごと】現在Stateから試す合法Actionを全て返す。
   // 青マスは最大2回、端の緑マスは最大3回、最後の赤マスは最大4回。
   // さらに累積上限を設け、81回を序盤だけで使い切らないよう終盤へ手数を残す。
   // allowed_actionsはProblemが保持するので、毎Stateでvectorを作らず参照を返せる。
@@ -140,6 +144,7 @@ struct ModStampProblem {
     return allowed_actions[static_cast<std::size_t>(maximum)];
   }
 
+  // TODO: 【問題ごと】Action適用後の順位値そのものを差分計算する。
   // 次の置き場所を処理すると、そこより右下のスタンプでは二度と変更できない
   // マスが生じる。その「新しく確定するマス」の合計を順位値へ加える。
   // 最終世代では全81マスが確定するため、この順位値が問題本来の得点になる。
@@ -173,6 +178,7 @@ struct ModStampProblem {
            6LL * MODULO * remaining_placements * remaining_operations;
   }
 
+  // TODO: 【問題ごと】採用されたActionだけをコピー済みStateへ反映する。
   // 選ばれたComboだけを、コピー済みの子Stateへ反映する。
   void apply_action(State& state, Action& action) const {
     const Placement& placement =
