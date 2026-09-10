@@ -3,13 +3,16 @@ CXXFLAGS ?= -std=c++17 -O2 -Wall -Wextra -pedantic
 HEADERS := $(wildcard library/*.hpp)
 PRACTICE_SOLVERS := $(wildcard practice/ahc*/main.cpp)
 SEARCH_EXAMPLES := $(wildcard examples/search/*.cpp)
+SCORE_BENCHMARKS := $(wildcard benchmarks/*_score_benchmark.cpp)
 UPGRADE_TESTS := $(wildcard tests/*_upgrades_test.cpp)
 SANITIZER_TESTS := tests/parts_test.cpp tests/search_engines_test.cpp $(UPGRADE_TESTS)
 SANITIZER_FLAGS := -std=c++17 -O1 -g -Wall -Wextra -pedantic \
 	-fsanitize=address,undefined -fno-omit-frame-pointer
 
 .PHONY: verify verify-practice verify-copy verify-debug verify-sanitize \
-	benchmark-search benchmark-search-speed clean
+	benchmark-search benchmark-search-speed \
+	benchmark-sa benchmark-tree-beam benchmark-monte-carlo \
+	benchmark-real-search clean
 
 verify: verify-practice verify-copy verify-debug
 	mkdir -p build
@@ -27,8 +30,10 @@ verify: verify-practice verify-copy verify-debug
 		echo "checking $$solver"; \
 		$(CXX) $(CXXFLAGS) -I. -fsyntax-only $$solver || exit 1; \
 	done
-	$(CXX) $(CXXFLAGS) -I. -fsyntax-only \
-		benchmarks/ahc032_score_benchmark.cpp
+	for benchmark in $(SCORE_BENCHMARKS); do \
+		echo "checking $$benchmark"; \
+		$(CXX) $(CXXFLAGS) -I. -fsyntax-only $$benchmark || exit 1; \
+	done
 	$(CXX) $(CXXFLAGS) -I. -DVARIABLE_COST_BEAM_SELF_TEST \
 		examples/search/variable_cost_beam.cpp -o build/variable_cost_beam_test
 	./build/variable_cost_beam_test
@@ -108,6 +113,30 @@ benchmark-search-speed:
 	$(CXX) $(CXXFLAGS) -O3 -DNDEBUG -I. \
 		benchmarks/search_core_benchmark.cpp -o build/search_core_benchmark
 	./build/search_core_benchmark
+
+benchmark-sa:
+	mkdir -p build
+	$(CXX) $(CXXFLAGS) -O3 -DNDEBUG -I. \
+		benchmarks/ahc001_annealing_score_benchmark.cpp \
+		-o build/ahc001_annealing_score_benchmark
+	./build/ahc001_annealing_score_benchmark
+
+benchmark-tree-beam:
+	mkdir -p build
+	$(CXX) $(CXXFLAGS) -O3 -DNDEBUG -I. \
+		benchmarks/ahc021_tree_beam_score_benchmark.cpp \
+		-o build/ahc021_tree_beam_score_benchmark
+	./build/ahc021_tree_beam_score_benchmark
+
+benchmark-monte-carlo:
+	mkdir -p build
+	$(CXX) $(CXXFLAGS) -O3 -DNDEBUG -I. \
+		benchmarks/ahc015_monte_carlo_score_benchmark.cpp \
+		-o build/ahc015_monte_carlo_score_benchmark
+	./build/ahc015_monte_carlo_score_benchmark
+
+benchmark-real-search: benchmark-sa benchmark-tree-beam \
+	benchmark-monte-carlo benchmark-search
 
 clean:
 	rm -rf build

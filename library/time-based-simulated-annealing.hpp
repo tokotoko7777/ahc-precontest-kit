@@ -2,8 +2,10 @@
 #include <chrono>
 #include <cmath>
 #include <cstdint>
+#include <optional>
 #include <random>
 #include <stdexcept>
+#include <utility>
 
 // タイマーを内蔵した焼きなまし。これ1ファイルだけで使える。
 // 使い方:
@@ -281,4 +283,104 @@ struct TimeBasedSimulatedAnnealing {
     synchronize_temperature_settings();
     return accept_worsening(acceptance_exponent(value));
   }
+};
+
+// 問題依存部分をProblemへ集める、時間ベース焼きなましの薄いRunner。
+//
+// Problemに書くもの:
+//   using State = ...;  // 現在解1個。
+//   using Move = ...;   // 近傍1回分の小さい情報。
+//   using Score = ...;  // 大きいほど良い評価値。
+//
+//   optional<Move> propose_move(const State&, mt19937_64&, double progress)
+//     -> 近傍を1個作る。作れない試行はnullopt。
+//   Score evaluate_move(const State&, const Move&)
+//     -> その手の改善量。正なら良化、負なら悪化。
+//   void apply_move(State&, const Move&)
+//     -> 採用済みの手だけをStateへ反映する。
+//
+// Runnerは時計、温度、採否、現在解、最良解、件数統計を担当する。
+// evaluate_moveはStateを書き換えない。この形なら不採用時のrevertは不要。
+template <class Problem>
+struct TimeBasedAnnealingRunner {
+  using State = typename Problem::State;
+  using Move = typename Problem::Move;
+  using Score = typename Problem::Score;
+
+  TimeBasedAnnealingRunner(Problem& problem,
+                           State initial_state,
+                           Score initial_score,
+                           double time_limit_ms,
+                           double start_temperature,
+                           double end_temperature,
+                           std::uint64_t seed = 0,
+                           int check_interval = 1)
+      : problem_(problem),
+        current_state_(std::move(initial_state)),
+        best_state_(current_state_),
+        current_score_(std::move(initial_score)),
+        best_score_(current_score_),
+        annealing_(time_limit_ms,
+                   start_temperature,
+                   end_temperature,
+                   seed,
+                   check_interval),
+        move_engine_(seed ^ 0xd1b54a32d192ed03ULL) {}
+
+  // 制限時間内なら1試行進める。時間終了後はfalse。
+  bool step() {
+    if (annealing_.is_over()) return false;
+    ++iterations_;
+    std::optional<Move> move = problem_.propose_move(
+        static_cast<const State&>(current_state_),
+        move_engine_,
+        annealing_.cached_progress());
+    if (!move.has_value()) return true;
+
+    ++valid_moves_;
+    const Score improvement = problem_.evaluate_move(
+        static_cast<const State&>(current_state_), *move);
+    if (!annealing_.accept(improvement)) return true;
+
+    problem_.apply_move(current_state_, *move);
+    current_score_ += improvement;
+    ++accepted_moves_;
+    if (best_score_ < current_score_) {
+      best_score_ = current_score_;
+      best_state_ = current_state_;
+      ++best_updates_;
+    }
+    return true;
+  }
+
+  std::uint64_t run() {
+    while (step()) {
+    }
+    return iterations_;
+  }
+
+  const State& current_state() const { return current_state_; }
+  const State& best_state() const { return best_state_; }
+  const Score& current_score() const { return current_score_; }
+  const Score& best_score() const { return best_score_; }
+  std::uint64_t iterations() const { return iterations_; }
+  std::uint64_t valid_moves() const { return valid_moves_; }
+  std::uint64_t accepted_moves() const { return accepted_moves_; }
+  std::uint64_t best_updates() const { return best_updates_; }
+
+  TimeBasedSimulatedAnnealing& annealing() { return annealing_; }
+  const TimeBasedSimulatedAnnealing& annealing() const { return annealing_; }
+
+ private:
+  Problem& problem_;
+  State current_state_;
+  State best_state_;
+  Score current_score_;
+  Score best_score_;
+  TimeBasedSimulatedAnnealing annealing_;
+  std::mt19937_64 move_engine_;
+  std::uint64_t iterations_ = 0;
+  std::uint64_t valid_moves_ = 0;
+  std::uint64_t accepted_moves_ = 0;
+  std::uint64_t best_updates_ = 0;
 };

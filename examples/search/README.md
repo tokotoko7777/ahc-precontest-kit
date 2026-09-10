@@ -22,6 +22,10 @@
 `ActionBeamRunner`が上位N個の選択・Stateの生成・探索ループを担当し、
 問題側には確定順、候補生成、差分評価、反映だけを書いています。
 
+焼きなまし、Monte Carlo、apply/revert木上ビームにも同じ境界のRunnerと実問題
+ベンチマークがあります。各方式で人が書く箇所、ライブラリが担当する箇所、得点は
+[`REAL_PROBLEM_BENCHMARKS.md`](../../REAL_PROBLEM_BENCHMARKS.md)を参照してください。
+
 ## コンパイル
 
 リポジトリのルートで実行します。

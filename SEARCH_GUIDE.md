@@ -9,6 +9,7 @@
 | `action-beam-search.hpp` | Actionから次状態の順位を安く計算できる | 採用N件だけ`State`をコピー |
 | `tree-beam-search.hpp` | 全行動で1世代ずつ進む。`State`のコピーが重い | `apply / revert`と履歴木 |
 | `cost-tree-beam-search.hpp` | 行動ごとに1、2、3世代など進み幅が違う | `apply / revert`と到着世代別の履歴木 |
+| `common-scenario-average.hpp` | 未知の未来を何本か試して今の1手を選ぶ | 全候補へ同じ未来sampleを使用 |
 
 迷ったら、局所変更が自然なら焼きなまし、手順を1手ずつ作るなら
 `SimpleBeamSearch`から始めます。状態コピーがボトルネックになったら、差分評価を
@@ -77,6 +78,63 @@ TimeBasedSimulatedAnnealing sa(
 既定は指数冷却です。`sa.use_linear_schedule()`で線形冷却、
 `sa.set_cooling_power(2.0)`で高温の時間を長くできます。重い処理へ入る直前など、
 間引きを無視して現在時刻を確認したい時は`sa.is_over_now()`を使います。
+
+### 焼きなましで人が書く箇所を分ける
+
+普段の編集箇所を1か所に集めたい時は`TimeBasedAnnealingRunner<Problem>`を使います。
+次のコメント部分だけを問題に合わせます。
+
+```cpp
+struct Problem {
+  // 現在解1個。盤面、順列、長方形集合、現在の補助cacheなどを入れる。
+  using State = MyState;
+
+  // 近傍1回分。変更位置、新しい値、差分更新に必要な情報だけを小さく持つ。
+  using Move = MyMove;
+
+  // 解の評価値の型。Runnerでは大きいほど良い値として扱う。
+  using Score = long long;
+
+  // 近傍を1個作って返す。合法な近傍を作れない試行はnulloptでよい。
+  // progressは開始時0、終了時1。探索前半・後半で近傍の大きさを変えられる。
+  optional<Move> propose_move(
+      const State& state, mt19937_64& rng, double progress) {
+    return make_move(state, rng, progress);
+  }
+
+  // move適用後の「改善量」を返す。正なら良化、負なら悪化。
+  // stateを変更しない。不採用手をrevertせず捨てられるよう差分計算する。
+  Score evaluate_move(const State& state, const Move& move) {
+    return calculate_score_delta(state, move);
+  }
+
+  // 採用が決まったmoveだけを反映する。盤面と補助cacheを全て更新する。
+  void apply_move(State& state, const Move& move) {
+    apply(state, move);
+  }
+};
+
+Problem problem;
+MyState initial = make_initial_state();
+long long initial_score = calculate_score(initial);
+TimeBasedAnnealingRunner<Problem> runner(
+    problem, initial, initial_score,
+    1900.0,       // 時間制限[ms]
+    1000.0, 1.0,  // 開始温度、終了温度
+    123, 64);     // seed、時計を見る間隔
+runner.run();
+MyState answer = runner.best_state();
+```
+
+| 人が問題に合わせて書く | ライブラリが担当する |
+|---|---|
+| `State`、`Move`、初期解 | 時計と温度schedule |
+| `propose_move` | 乱数engineと採否判定 |
+| `evaluate_move`の差分 | 現在score、最良scoreの更新 |
+| `apply_move` | 現在解、最良解、反復件数の保存 |
+
+AHC001の長方形配置をこの境界で解き、同じ近傍の山登りと比較する実例は
+[`ahc001_annealing_score_benchmark.cpp`](benchmarks/ahc001_annealing_score_benchmark.cpp)です。
 
 ## SimpleBeamSearchの最小形
 
@@ -224,6 +282,111 @@ vector<Move> answer = beam.restore();
 `apply(state, move)`で変えたスコア、hash、個数表、集合などは、
 `revert(state, move)`で全て元へ戻します。`Move`には、上書き前の値など
 復元に必要な情報も入れます。
+
+問題依存部分を1か所へ集める場合は`TreeBeamRunner<Problem>`を使います。
+
+```cpp
+struct Problem {
+  using State = MyState;       // DFS中に1個だけ持つ全状態。
+  using Move = MyMove;         // 1手とundoに必要な情報。
+  using Score = long long;     // 候補順位。大きいほど良い。
+
+  // このstateから試す合法手。Moveはできるだけ小さくする。
+  vector<Move> generate_moves(const State& state) {
+    return make_moves(state);
+  }
+
+  // 盤面、score、hash、個数表などを1手分だけ差分更新する。
+  // 復元に必要な旧値が生成時に不明ならmoveへここで書き込んでよい。
+  void apply_move(State& state, Move& move) {
+    apply(state, move);
+  }
+
+  // apply_moveの直前と完全に同じ状態へ戻す。
+  void revert_move(State& state, const Move& move) {
+    revert(state, move);
+  }
+
+  // 現在stateの順位値そのもの。差分ではない。
+  Score evaluate(const State& state) {
+    return state.rank_score;
+  }
+
+  // run_with_keyを使う時だけ書く。同じ未来を持つ局面は同じkeyにする。
+  uint64_t make_key(const State& state) {
+    return state.hash;
+  }
+};
+
+Problem problem;
+TreeBeamRunner<Problem> beam(
+    problem, initial_state, initial_rank_score, 200);
+beam.run_with_key(max_turn);
+vector<MyMove> answer = beam.restore();
+```
+
+| 人が問題に合わせて書く | ライブラリが担当する |
+|---|---|
+| `State`、`Move`、順位値 | 生存履歴木とDFS巡回 |
+| `generate_moves` | 候補bufferと上位N件選抜 |
+| `apply_move` / `revert_move` | State 1個の使い回し |
+| 必要なら`make_key` | 世代ごとの重複除去 |
+
+AHC021のピラミッドをこの境界で解く実例は
+[`ahc021_tree_beam_score_benchmark.cpp`](benchmarks/ahc021_tree_beam_score_benchmark.cpp)です。
+
+## 共通シナリオMonte Carlo
+
+現在の1手を、複数の未知の未来で最後まで試して選ぶ方法です。Actionごとに別の
+未来を引くと、Action差と乱数の当たり外れが混ざります。全Actionを同じScenario
+集合で評価する`CommonScenarioRolloutRunner<Problem>`を使います。
+
+```cpp
+struct Problem {
+  using State = MyState;          // 現在までに確定している情報。
+  using Action = MyAction;        // 今選ぶ1手。
+  using Scenario = MyScenario;    // 未知の未来1本。
+  using Score = long long;        // 1 rolloutの最終評価値。
+
+  // 今選べるActionを返す。
+  vector<Action> generate_actions(const State& state) {
+    return legal_actions(state);
+  }
+
+  // 未知情報だけを1本sampleする。未来の自分の手まで乱数で固定しない。
+  Scenario generate_scenario(const State& state, mt19937_64& rng) {
+    return sample_unknown_future(state, rng);
+  }
+
+  // 最初のactionを適用し、その後は問題固有のルール方策などで終端まで進め、
+  // 最終評価値を返す。元のstateは変更しない。
+  Score evaluate_action(
+      const State& state, const Action& action, const Scenario& scenario) {
+    State simulation = state;
+    apply(simulation, action);
+    play_to_end_with_rule_policy(simulation, scenario);
+    return official_score(simulation);
+  }
+};
+
+Problem problem;
+CommonScenarioRolloutRunner<Problem> rollout(problem, 123);
+rollout.reserve(max_action_count, sample_count);
+MyAction action = rollout.choose_action(state, sample_count);
+apply_real_state(state, action);  // 実状態の更新は呼び出し側。
+```
+
+| 人が問題に合わせて書く | ライブラリが担当する |
+|---|---|
+| `State`、`Action`、`Scenario` | 全Actionで共通のScenario生成 |
+| 未知情報のsample方法 | 各Actionの平均計算 |
+| rollout中の方策と終端評価 | 最大・最小の最良Action選択 |
+| 選択後の実状態更新 | sample・平均値のbuffer再利用 |
+
+AHC015の飴配置を終端までrolloutする実例は
+[`ahc015_monte_carlo_score_benchmark.cpp`](benchmarks/ahc015_monte_carlo_score_benchmark.cpp)です。
+sample数だけを増やしても、未来の自分の行動が弱ければ評価も弱いままです。
+未知情報のsample、未来のルール方策、1 rolloutの軽さを問題ごとに設計します。
 
 ## 世代が飛ぶCostTreeBeamSearch
 

@@ -1,4 +1,9 @@
+#include <algorithm>
 #include <cassert>
+#include <cstdint>
+#include <random>
+#include <stdexcept>
+#include <utility>
 #include <vector>
 
 // 全ての候補を「同じ未来シナリオ集合」で評価し、候補ごとの平均値を返す。
@@ -29,3 +34,89 @@ std::vector<long double> common_scenario_average(
   }
   return average;
 }
+
+// 問題依存部分をProblemへ集める、共通シナリオrolloutの薄いRunner。
+//
+// Problemに書くもの:
+//   using State, Action, Scenario, Score
+//   generate_actions(const State&) -> 比較する最初のAction一覧。
+//   generate_scenario(const State&, mt19937_64&)
+//     -> 未知の未来を1本生成する。
+//   evaluate_action(const State&, const Action&, const Scenario&)
+//     -> その最初のActionからシナリオを辿った評価値。
+//
+// Runnerは全Actionを同じScenario集合で比較し、平均が最良の1手を返す。
+// Stateの更新や出力は行わない。選んだActionの反映は呼び出し側が行う。
+template <class Problem>
+struct CommonScenarioRolloutRunner {
+  using State = typename Problem::State;
+  using Action = typename Problem::Action;
+  using Scenario = typename Problem::Scenario;
+  using Score = typename Problem::Score;
+
+  explicit CommonScenarioRolloutRunner(Problem& problem,
+                                       std::uint64_t seed = 0,
+                                       bool maximize = true)
+      : problem_(problem), engine_(seed), maximize_(maximize) {}
+
+  Action choose_action(const State& state, int sample_count) {
+    if (sample_count <= 0) {
+      throw std::invalid_argument("sample_count must be positive");
+    }
+
+    actions_.clear();
+    auto&& generated_actions = problem_.generate_actions(state);
+    for (const auto& action : generated_actions) actions_.push_back(action);
+    if (actions_.empty()) {
+      throw std::runtime_error("generate_actions returned no action");
+    }
+
+    scenarios_.clear();
+    scenarios_.reserve(static_cast<std::size_t>(sample_count));
+    for (int sample = 0; sample < sample_count; ++sample) {
+      scenarios_.push_back(problem_.generate_scenario(state, engine_));
+    }
+
+    average_scores_.assign(actions_.size(), 0.0L);
+    for (std::size_t action = 0; action < actions_.size(); ++action) {
+      for (const Scenario& scenario : scenarios_) {
+        average_scores_[action] += static_cast<long double>(
+            problem_.evaluate_action(state, actions_[action], scenario));
+      }
+      average_scores_[action] /= static_cast<long double>(sample_count);
+    }
+
+    std::size_t best = 0;
+    for (std::size_t action = 1; action < actions_.size(); ++action) {
+      const bool better = maximize_
+                              ? average_scores_[best] < average_scores_[action]
+                              : average_scores_[action] < average_scores_[best];
+      if (better) best = action;
+    }
+    return actions_[best];
+  }
+
+  void reserve(int action_count, int sample_count) {
+    if (action_count < 0 || sample_count < 0) {
+      throw std::invalid_argument("reserve counts must be non-negative");
+    }
+    actions_.reserve(static_cast<std::size_t>(action_count));
+    scenarios_.reserve(static_cast<std::size_t>(sample_count));
+    average_scores_.reserve(static_cast<std::size_t>(action_count));
+  }
+
+  const std::vector<Action>& last_actions() const { return actions_; }
+  const std::vector<Scenario>& last_scenarios() const { return scenarios_; }
+  const std::vector<long double>& last_average_scores() const {
+    return average_scores_;
+  }
+  std::mt19937_64& engine() { return engine_; }
+
+ private:
+  Problem& problem_;
+  std::mt19937_64 engine_;
+  bool maximize_;
+  std::vector<Action> actions_;
+  std::vector<Scenario> scenarios_;
+  std::vector<long double> average_scores_;
+};

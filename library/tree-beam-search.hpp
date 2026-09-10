@@ -558,3 +558,146 @@ struct TreeBeamSearch {
     }
   }
 };
+
+// 問題依存コードをProblemへ集める、apply/revert型ビームの薄いRunner。
+//
+// Problemに書くもの:
+//   using State, Move, Score
+//   generate_moves(const State&)       -> 次に試すMoveのコンテナ。
+//   apply_move(State&, Move&)          -> 1手進める。Moveへundo情報を書ける。
+//   revert_move(State&, const Move&)   -> apply_move前と完全に同じ状態へ戻す。
+//   evaluate(const State&)             -> 子Stateの順位値そのもの。
+//   make_key(const State&)             -> 同一局面のkey。step_with_key時だけ必要。
+//
+// Runnerは履歴木、DFS巡回、上位N個選択、重複除去、世代ループを担当する。
+template <class Problem>
+struct TreeBeamRunner {
+  using State = typename Problem::State;
+  using Move = typename Problem::Move;
+  using Score = typename Problem::Score;
+
+  TreeBeamRunner(Problem& problem,
+                 State initial_state,
+                 Score initial_score,
+                 int beam_width,
+                 bool maximize = true)
+      : problem_(problem),
+        beam_(std::move(initial_state),
+              std::move(initial_score),
+              beam_width,
+              maximize) {}
+
+  bool step() {
+    return beam_.step(
+        [&](const State& state) -> decltype(auto) {
+          return problem_.generate_moves(state);
+        },
+        [&](State& state, Move& move) { problem_.apply_move(state, move); },
+        [&](State& state, const Move& move) {
+          problem_.revert_move(state, move);
+        },
+        [&](const State& state) { return problem_.evaluate(state); });
+  }
+
+  bool step_with_key() {
+    return beam_.step_with_key(
+        [&](const State& state) -> decltype(auto) {
+          return problem_.generate_moves(state);
+        },
+        [&](State& state, Move& move) { problem_.apply_move(state, move); },
+        [&](State& state, const Move& move) {
+          problem_.revert_move(state, move);
+        },
+        [&](const State& state) { return problem_.evaluate(state); },
+        [&](const State& state) { return problem_.make_key(state); });
+  }
+
+  // key重複除去前の全候補をobserverで受け取る。
+  // observer(parent_rank, move, child_state, rank_score)の形。
+  template <class Observer>
+  bool step_with_key_and_observe(Observer&& observer) {
+    return beam_.step_with_key_and_observe(
+        [&](const State& state) -> decltype(auto) {
+          return problem_.generate_moves(state);
+        },
+        [&](State& state, Move& move) { problem_.apply_move(state, move); },
+        [&](State& state, const Move& move) {
+          problem_.revert_move(state, move);
+        },
+        [&](const State& state) { return problem_.evaluate(state); },
+        [&](const State& state) { return problem_.make_key(state); },
+        std::forward<Observer>(observer));
+  }
+
+  template <class Observer>
+  bool step_and_observe(Observer&& observer) {
+    return beam_.step_and_observe(
+        [&](const State& state) -> decltype(auto) {
+          return problem_.generate_moves(state);
+        },
+        [&](State& state, Move& move) { problem_.apply_move(state, move); },
+        [&](State& state, const Move& move) {
+          problem_.revert_move(state, move);
+        },
+        [&](const State& state) { return problem_.evaluate(state); },
+        std::forward<Observer>(observer));
+  }
+
+  int run(int turns) {
+    if (turns < 0) {
+      throw std::invalid_argument("turns must be non-negative");
+    }
+    int advanced = 0;
+    while (advanced < turns && step()) ++advanced;
+    return advanced;
+  }
+
+  int run_with_key(int turns) {
+    if (turns < 0) {
+      throw std::invalid_argument("turns must be non-negative");
+    }
+    int advanced = 0;
+    while (advanced < turns && step_with_key()) ++advanced;
+    return advanced;
+  }
+
+  const Score& best_score() const { return beam_.best_score(); }
+  int depth() const { return beam_.depth(); }
+  int size() const { return beam_.size(); }
+  std::vector<Move> restore(int rank = 0) const {
+    return beam_.restore(rank);
+  }
+  void restore(int rank, std::vector<Move>& out) const {
+    beam_.restore(rank, out);
+  }
+  std::vector<Move> restore_candidate(
+      int parent_rank, const Move& move) const {
+    return beam_.restore_candidate(parent_rank, move);
+  }
+  void restore_candidate(int parent_rank,
+                         const Move& move,
+                         std::vector<Move>& out) const {
+    beam_.restore_candidate(parent_rank, move, out);
+  }
+  void set_width(int width) { beam_.set_beam_width(width); }
+  void reserve_nodes(std::size_t count) { beam_.reserve_nodes(count); }
+  void reserve_candidates(std::size_t count) {
+    beam_.reserve_candidates(count);
+  }
+  std::size_t last_generated_count() const {
+    return beam_.last_generated_count();
+  }
+  std::size_t last_unique_count() const {
+    return beam_.last_unique_count();
+  }
+  std::size_t last_kept_count() const {
+    return beam_.last_kept_count();
+  }
+  std::size_t last_buffered_peak_count() const {
+    return beam_.last_buffered_peak_count();
+  }
+
+ private:
+  Problem& problem_;
+  TreeBeamSearch<State, Move, Score> beam_;
+};

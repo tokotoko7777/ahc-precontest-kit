@@ -56,6 +56,10 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 実際に解き、問題本来の得点を幅1・100・1000・3000・10000で比較できます。
 ケース数と幅は`./build/ahc032_score_benchmark 30 10000`のように変更できます。
 合成データの速度だけを測る旧ベンチマークは`make benchmark-search-speed`です。
+焼きなましはAHC001、Monte CarloはAHC015、apply/revert木上ビームはAHC021を
+実際に解くベンチマークもあります。まとめと測定値は
+[`REAL_PROBLEM_BENCHMARKS.md`](REAL_PROBLEM_BENCHMARKS.md)、一括実行は
+`make benchmark-real-search`です。
 
 ## 探索コア5本
 
@@ -73,9 +77,10 @@ terminalも`step_and_observe`で生成直後に保存します。
 
 `ActionBeamSearch`のobserverは、全候補のStateコピーを避けるため
 `parent + action`を渡します。他の3ビームは生成済みchild Stateを渡します。
-問題依存コードを明確に分けたい場合は`ActionBeamRunner<Problem>`を使います。
-人が書く型・候補生成・評価・更新を1個の`Problem` structへまとめ、ターンループと
-上位N件選抜はライブラリ側へ隠せます。
+問題依存コードを明確に分けたい場合は各`Runner<Problem>`を使います。
+焼きなまし、Action先行ビーム、apply/revert木上ビーム、Monte Carlo rolloutで、
+人が書く型・候補生成・評価・更新を1個の`Problem` structへまとめ、時計・採否・
+上位N件選抜・共通未来sampleなどはライブラリ側へ隠せます。
 
 `SimpleBeamSearch`は通常の`step`に加え、一時コンテナを作らない`step_each`、
 生成数・重複除去後の数・採用数を調べるカウンタを持ちます。木上2種類も
@@ -106,13 +111,13 @@ terminalも`step_and_observe`で生成直後に保存します。
 | ファイル | できること |
 |---|---|
 | [`simulated-annealing.hpp`](library/simulated-annealing.hpp) | 外部から進捗率を渡す焼きなまし |
-| [`time-based-simulated-annealing.hpp`](library/time-based-simulated-annealing.hpp) | タイマー内蔵の焼きなまし |
+| [`time-based-simulated-annealing.hpp`](library/time-based-simulated-annealing.hpp) | タイマー内蔵の焼きなまし。問題分離Runner付き |
 | [`multi-start.hpp`](library/multi-start.hpp) | 回数または時間指定の多点スタート |
 | [`simple-beam-search.hpp`](library/simple-beam-search.hpp) | 状態をコピーする初心者向けビームサーチ |
 | [`action-beam-search.hpp`](library/action-beam-search.hpp) | Actionを先に上位N件へ絞るビーム。問題依存部分をまとめるRunner付き |
-| [`tree-beam-search.hpp`](library/tree-beam-search.hpp) | 1手1世代のapply / revert型ビームサーチ |
+| [`tree-beam-search.hpp`](library/tree-beam-search.hpp) | 1手1世代のapply / revert型ビームサーチ。問題分離Runner付き |
 | [`cost-tree-beam-search.hpp`](library/cost-tree-beam-search.hpp) | 1手の進み幅が異なるapply / revert型ビームサーチ |
-| [`common-scenario-average.hpp`](library/common-scenario-average.hpp) | 全候補を同じ未来sampleで比較するrollout補助 |
+| [`common-scenario-average.hpp`](library/common-scenario-average.hpp) | 全候補を同じ未来sampleで比較するrollout。問題分離Runner付き |
 
 ビームサーチを初めて使う場合は `simple-beam-search.hpp` から始めてください。
 Stateが大きくてもActionから次の順位を計算できるなら`action-beam-search.hpp`、
