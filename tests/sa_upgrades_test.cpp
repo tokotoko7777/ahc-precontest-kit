@@ -317,6 +317,55 @@ void test_time_checks() {
   expect_invalid_argument([&] { annealing.set_check_interval(-1); });
 }
 
+void test_time_based_problem_runner() {
+  struct Problem {
+    struct State {
+      int value = 0;
+    };
+    struct Move {
+      int delta = 0;
+    };
+    using Score = int;
+
+    int proposed = 0;
+
+    std::optional<Move> propose_move(
+        const State& state, std::mt19937_64&, double progress) {
+      assert(state.value == proposed - proposed / 3);
+      assert(0.0 <= progress && progress <= 1.0);
+      ++proposed;
+      if (proposed % 3 == 0) return std::nullopt;
+      return Move{1};
+    }
+
+    Score evaluate_move(const State&, const Move& move) const {
+      return move.delta;
+    }
+
+    void apply_move(State& state, const Move& move) const {
+      state.value += move.delta;
+    }
+  };
+
+  Problem problem;
+  TimeBasedAnnealingRunner<Problem> runner(
+      problem, Problem::State{}, 0, 100000.0, 1.0, 1.0, 123, 4);
+  for (int i = 0; i < 6; ++i) assert(runner.step());
+  assert(runner.iterations() == 6);
+  assert(runner.valid_moves() == 4);
+  assert(runner.accepted_moves() == 4);
+  assert(runner.best_updates() == 4);
+  assert(runner.current_score() == 4);
+  assert(runner.best_score() == 4);
+  assert(runner.current_state().value == 4);
+  assert(runner.best_state().value == 4);
+
+  runner.annealing().start -= std::chrono::seconds(200);
+  while (runner.step()) {
+  }
+  assert(runner.annealing().is_over_now());
+}
+
 int main() {
   test_progress_based_temperature_settings();
   test_probability_helpers();
@@ -324,4 +373,5 @@ int main() {
   test_time_based_temperature_settings();
   test_time_based_probability_and_decisions();
   test_time_checks();
+  test_time_based_problem_runner();
 }

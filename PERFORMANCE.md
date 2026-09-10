@@ -84,6 +84,12 @@ AHCでは、同じ制限時間で評価できる候補数が増えること自�
 3. `-O2 -std=c++17` など提出時と近い条件で測る。
 4. 速くならない置き換えは戻す。
 
+探索方式そのものの強さは合成速度だけで決めず、その方式が実際に使われた問題の
+最終scoreで測ります。AHC001の焼きなまし、AHC015のMonte Carlo、AHC021の
+apply/revert木上ビーム、AHC032のAction先行ビームの測定方法と結果は
+[`REAL_PROBLEM_BENCHMARKS.md`](REAL_PROBLEM_BENCHMARKS.md)にまとめています。
+一括実行は`make benchmark-real-search`です。
+
 ビームサーチの標準ベンチマークは、リポジトリ直下で`make benchmark-search`を
 実行します。AHC032「Mod Stamp」と同じ9×9盤面、20スタンプ、81操作上限、
 mod 998244353の得点規則を使い、固定5 seedについて

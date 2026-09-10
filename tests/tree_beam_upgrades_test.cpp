@@ -189,6 +189,66 @@ void test_move_only_callbacks() {
   assert(beam.best_score() == 3);
 }
 
+void test_tree_problem_runner() {
+  struct Problem {
+    using State = FixedState;
+    using Move = FixedMove;
+    using Score = int;
+
+    std::array<Move, 2> moves{{{1, 0}, {2, 1}}};
+
+    const std::array<Move, 2>& generate_moves(const State&) const {
+      return moves;
+    }
+    void apply_move(State& state, Move& move) const {
+      apply_fixed(state, move);
+    }
+    void revert_move(State& state, const Move& move) const {
+      revert_fixed(state, move);
+    }
+    Score evaluate(const State& state) const { return state.value; }
+    int make_key(const State& state) const { return state.value % 2; }
+  };
+
+  Problem problem;
+  TreeBeamRunner<Problem> runner(problem, FixedState{}, 0, 2);
+  runner.reserve_nodes(20);
+  runner.reserve_candidates(4);
+  assert(runner.run(3) == 3);
+  assert(runner.best_score() == 6);
+  assert(runner.depth() == 3);
+  assert(runner.size() == 2);
+  assert(runner.restore() ==
+         std::vector<FixedMove>({{2, 1}, {2, 1}, {2, 1}}));
+  assert(runner.last_generated_count() == 4);
+  assert(runner.last_kept_count() == 2);
+
+  Problem keyed_problem;
+  TreeBeamRunner<Problem> keyed(keyed_problem, FixedState{}, 0, 2);
+  assert(keyed.run_with_key(2) == 2);
+  assert(keyed.last_unique_count() <= 2);
+
+  TreeBeamRunner<Problem> observed(problem, FixedState{}, 0, 2);
+  int observed_count = 0;
+  assert(observed.step_with_key_and_observe(
+      [&](int parent_rank, const FixedMove& move,
+          const FixedState& child, const int& score) {
+        ++observed_count;
+        assert(child.value == score);
+        assert(observed.restore_candidate(parent_rank, move) ==
+               std::vector<FixedMove>({move}));
+      }));
+  assert(observed_count == 2);
+
+  bool threw = false;
+  try {
+    keyed.run(-1);
+  } catch (const std::invalid_argument&) {
+    threw = true;
+  }
+  assert(threw);
+}
+
 struct UndoWritingMove {
   int next_value;
   int old_value = -1;
@@ -812,6 +872,7 @@ int main() {
   test_fixed_observer(true);
   test_tree_buffer_reuse();
   test_move_only_callbacks();
+  test_tree_problem_runner();
   test_tree_action_written_by_apply();
   test_cost_observer(false);
   test_cost_observer(true);
