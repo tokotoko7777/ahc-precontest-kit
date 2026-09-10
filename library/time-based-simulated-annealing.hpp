@@ -289,6 +289,7 @@ struct TimeBasedSimulatedAnnealing {
 //
 // 【使う人がmain.cpp側へ書く場所】
 // 次のTODOだけを自分の問題に合わせる。Runner本体は通常変更しない。
+// 空関数を配置済みの雛形: template/search/time-based-annealing.cpp
 //
 //   TODO: 【問題ごと】Stateへ現在解1個と差分更新用cacheを書く。
 //   using State = ...;

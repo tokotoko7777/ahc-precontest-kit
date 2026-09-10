@@ -21,6 +21,7 @@
 // 各コールバック自身は探索中に例外を投げない前提。
 // revert は、対応する apply の変更を完全に元へ戻すようにする。
 //
+// 空関数を配置済みの雛形: template/search/variable-cost-tree-beam.cpp
 // 使い方。TODOが付いた箇所だけ問題に合わせる:
 // TODO: 【問題ごと】1手の内容と、何世代進むかをMoveへ書く。
 // struct Move { int add; int advance; };

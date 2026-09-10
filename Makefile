@@ -3,6 +3,7 @@ CXXFLAGS ?= -std=c++17 -O2 -Wall -Wextra -pedantic
 HEADERS := $(wildcard library/*.hpp)
 PRACTICE_SOLVERS := $(wildcard practice/ahc*/main.cpp)
 SEARCH_EXAMPLES := $(wildcard examples/search/*.cpp)
+SEARCH_STARTERS := $(wildcard template/search/*.cpp)
 SCORE_BENCHMARKS := $(wildcard benchmarks/*_score_benchmark.cpp)
 UPGRADE_TESTS := $(wildcard tests/*_upgrades_test.cpp)
 SANITIZER_TESTS := tests/parts_test.cpp tests/search_engines_test.cpp $(UPGRADE_TESTS)
@@ -29,6 +30,10 @@ verify: verify-practice verify-copy verify-debug
 	for solver in $(SEARCH_EXAMPLES); do \
 		echo "checking $$solver"; \
 		$(CXX) $(CXXFLAGS) -I. -fsyntax-only $$solver || exit 1; \
+	done
+	for starter in $(SEARCH_STARTERS); do \
+		echo "checking $$starter"; \
+		$(CXX) $(CXXFLAGS) -I. -fsyntax-only $$starter || exit 1; \
 	done
 	for benchmark in $(SCORE_BENCHMARKS); do \
 		echo "checking $$benchmark"; \
