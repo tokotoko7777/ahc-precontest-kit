@@ -15,16 +15,20 @@
 // 状態が大きくコピーが重い時は、actionから順位を差分計算できるなら
 // action-beam-search.hpp、apply/revertを書けるならtree-beam-search.hppも検討する。
 //
-// 一番簡単な使い方:
+// 一番簡単な使い方。TODOが付いた3か所だけ問題に合わせる:
+// TODO: 【問題ごと】盤面、現在手数、score、必要なら操作履歴をStateへ書く。
 // SimpleBeamSearch<State, long long> beam(initial_state, 100);
 // for (int turn = 0; turn < turns; ++turn) {
 //   if (!beam.step(
+//           // TODO: 【問題ごと】stateから次の子Stateを全て作って返す。
 //           [](const State& state) { return state.next_states(); },
+//           // TODO: 【問題ごと】子Stateの順位値そのものを返す。
 //           [](const State& state) { return state.score; })) {
 //     break;
 //   }
 // }
 // State answer = beam.best();
+// この下のSimpleBeamSearch本体は通常編集しない。
 //
 // 一時 vector を作りたくない時は、子を emit で直接渡せる。
 // beam.step_each(

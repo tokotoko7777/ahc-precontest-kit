@@ -287,20 +287,29 @@ struct TimeBasedSimulatedAnnealing {
 
 // 問題依存部分をProblemへ集める、時間ベース焼きなましの薄いRunner。
 //
-// Problemに書くもの:
-//   using State = ...;  // 現在解1個。
-//   using Move = ...;   // 近傍1回分の小さい情報。
-//   using Score = ...;  // 大きいほど良い評価値。
+// 【使う人がmain.cpp側へ書く場所】
+// 次のTODOだけを自分の問題に合わせる。Runner本体は通常変更しない。
 //
+//   TODO: 【問題ごと】Stateへ現在解1個と差分更新用cacheを書く。
+//   using State = ...;
+//   TODO: 【問題ごと】Moveへ近傍1回分の小さい情報を書く。
+//   using Move = ...;
+//   TODO: 【問題ごと】Scoreを選ぶ。Runnerでは大きいほど良い値にする。
+//   using Score = ...;
+//
+//   TODO: 【問題ごと】次に試す近傍を1個作る。
 //   optional<Move> propose_move(const State&, mt19937_64&, double progress)
 //     -> 近傍を1個作る。作れない試行はnullopt。
+//   TODO: 【問題ごと】近傍による改善量を差分計算する。
 //   Score evaluate_move(const State&, const Move&)
 //     -> その手の改善量。正なら良化、負なら悪化。
+//   TODO: 【問題ごと】採用された近傍だけを現在解へ反映する。
 //   void apply_move(State&, const Move&)
 //     -> 採用済みの手だけをStateへ反映する。
 //
 // Runnerは時計、温度、採否、現在解、最良解、件数統計を担当する。
 // evaluate_moveはStateを書き換えない。この形なら不採用時のrevertは不要。
+// ↓↓↓ ここから下はライブラリ本体。通常は編集しない。↓↓↓
 template <class Problem>
 struct TimeBasedAnnealingRunner {
   using State = typename Problem::State;

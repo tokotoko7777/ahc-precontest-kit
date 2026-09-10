@@ -21,19 +21,27 @@
 // 各コールバック自身は探索中に例外を投げない前提。
 // revert は、対応する apply の変更を完全に元へ戻すようにする。
 //
-// 使い方:
+// 使い方。TODOが付いた箇所だけ問題に合わせる:
+// TODO: 【問題ごと】1手の内容と、何世代進むかをMoveへ書く。
 // struct Move { int add; int advance; };
+// TODO: 【問題ごと】現在状態と差分更新用cacheをStateへ書く。
 // struct State { int value = 0; };
 // CostTreeBeamSearch<State, Move, long long> beam(
 //     State{}, 0, 100, 50);  // 幅100、generation 50まで
 // while (beam.step(
+//     // TODO: 【問題ごと】現在状態から試す合法Moveを返す。
 //     [](const State&) { return vector<Move>{{1, 1}, {3, 2}}; },
+//     // TODO: 【問題ごと】Moveを差分適用する。
 //     [](State& s, Move m) { s.value += m.add; },
+//     // TODO: 【問題ごと】apply前と完全に同じ状態へ戻す。
 //     [](State& s, Move m) { s.value -= m.add; },
+//     // TODO: 【問題ごと】現在Stateの順位値そのものを返す。
 //     [](const State& s) { return (long long)s.value; },
+//     // TODO: 【問題ごと】このMoveが進める正の世代数を返す。
 //     [](const Move& m) { return m.advance; })) {
 // }
 // vector<Move> answer = beam.restore();
+// この下のCostTreeBeamSearch本体は通常編集しない。
 //
 // hash が同じ状態を1つにまとめる場合は step_with_key を使う。
 // Key は標準では uint64_t。string などを使う場合は第4テンプレート引数に指定する。

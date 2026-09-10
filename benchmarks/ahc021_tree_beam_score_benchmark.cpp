@@ -36,6 +36,7 @@ constexpr int CELL_COUNT = N * (N + 1) / 2;
 constexpr int MAX_OPERATIONS = 10000;
 
 struct PyramidProblem {
+  // TODO: 【問題ごと】1手とundoに必要な情報をMoveへ書く。
   struct Move {
     // path[0]に対象の小さい球がいる。隣へ順番にswapし、
     // path.back()を今回の確定マスにする。
@@ -43,6 +44,7 @@ struct PyramidProblem {
     int rank_cost = 0;
   };
 
+  // TODO: 【問題ごと】現在状態と、差分更新するscore・hash・cacheを書く。
   struct State {
     std::array<std::uint16_t, CELL_COUNT> value{};
     std::array<std::uint16_t, CELL_COUNT> position_of_value{};
@@ -53,8 +55,10 @@ struct PyramidProblem {
     std::uint64_t hash = 0;
   };
 
+  // TODO: 【問題ごと】候補順位の型を選ぶ。この例は小さい方が良い。
   using Score = long long;
 
+  // TODO: 【問題ごと】全Stateで共通の入力・隣接表・事前計算を置く。
   std::array<int, CELL_COUNT> row{};
   std::array<int, CELL_COUNT> column{};
   std::array<std::vector<int>, CELL_COUNT> adjacent;
@@ -99,6 +103,7 @@ struct PyramidProblem {
     return x ^ (x >> 31);
   }
 
+  // TODO: 【問題ごと】必ず合法な初期Stateを作る。
   State initial_state(const std::array<int, CELL_COUNT>& permutation) const {
     State state;
     for (int position = 0; position < CELL_COUNT; ++position) {
@@ -126,6 +131,7 @@ struct PyramidProblem {
     return CELL_COUNT;
   }
 
+  // TODO: 【問題ごと】現在Stateから試す合法Moveを全て返す。
   std::vector<Move> generate_moves(const State& state) const {
     if (state.next_value == CELL_COUNT) return {};
     const int start = state.position_of_value[state.next_value];
@@ -198,6 +204,7 @@ struct PyramidProblem {
         static_cast<std::uint16_t>(first);
   }
 
+  // TODO: 【問題ごと】盤面と全cacheをMove 1手分だけ差分更新する。
   void apply_move(State& state, Move& move) const {
     for (std::size_t i = 1; i < move.path.size(); ++i) {
       swap_vertices(state, move.path[i - 1], move.path[i]);
@@ -209,6 +216,7 @@ struct PyramidProblem {
     state.rank_cost += move.rank_cost;
   }
 
+  // TODO: 【問題ごと】apply直前と完全に同じStateへ戻す。
   void revert_move(State& state, const Move& move) const {
     const int target = move.path.back();
     state.rank_cost -= move.rank_cost;
@@ -220,7 +228,9 @@ struct PyramidProblem {
     }
   }
 
+  // TODO: 【問題ごと】現在Stateの順位値そのものを返す。差分値ではない。
   Score evaluate(const State& state) const { return state.rank_cost; }
+  // TODO: 【必要な問題だけ】同じ未来を持つ局面が同じになるkeyを返す。
   std::uint64_t make_key(const State& state) const { return state.hash; }
 
   int count_errors(const State& state) const {

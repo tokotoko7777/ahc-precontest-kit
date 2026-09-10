@@ -152,25 +152,32 @@ int rule_direction(int current_flavor, int next_flavor) {
 }
 
 struct CandyRolloutProblem {
+  // TODO: 【問題ごと】現在までに確定している情報をStateへ書く。
   struct State {
     Board board{};
     int turn = 0;  // このturnの飴は配置済み、傾ける前。
   };
+  // TODO: 【問題ごと】今選ぶ1手の型を書く。全候補ぶん持つので小さくする。
   using Action = int;
+  // TODO: 【問題ごと】自分で決められない未知の未来1本を表す型を書く。
   struct Scenario {
     std::array<std::uint8_t, CELL_COUNT> rank{};
     int length = 0;
   };
+  // TODO: 【問題ごと】1 rolloutの評価値の型を書く。
   using Score = int;
 
+  // TODO: 【問題ごと】共通入力・事前計算と、今選べるAction表を置く。
   const CandyCase& input;
   std::array<Action, 4> actions{{0, 1, 2, 3}};
 
+  // TODO: 【問題ごと】今比較する合法Actionを全て返す。
   const std::array<Action, 4>& generate_actions(const State&) const {
     return actions;
   }
 
-  // 未知なのは「次以降の飴が何番目の空cきマスへ来るか」だけ。
+  // TODO: 【問題ごと】自分では決められない未知情報だけをsampleする。
+  // 未知なのは「次以降の飴が何番目の空きマスへ来るか」だけ。
   Scenario generate_scenario(const State& state,
                              std::mt19937_64& engine) const {
     Scenario scenario;
@@ -183,6 +190,7 @@ struct CandyRolloutProblem {
     return scenario;
   }
 
+  // TODO: 【問題ごと】最初のAction後を終端まで進め、最終評価を返す。
   // 最初の1手だけactionを使い、以後は軽い固定方策で終局まで進める。
   // 返値は公式得点の分子。全actionで分母が同じなので順位は一致する。
   Score evaluate_action(const State& state,

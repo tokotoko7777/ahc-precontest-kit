@@ -37,16 +37,23 @@ std::vector<long double> common_scenario_average(
 
 // 問題依存部分をProblemへ集める、共通シナリオrolloutの薄いRunner。
 //
-// Problemに書くもの:
+// 【使う人がmain.cpp側へ書く場所】
+// 次のTODOだけを自分の問題に合わせる。Runner本体は通常変更しない。
+//
+//   TODO: 【問題ごと】現在情報、今の1手、未知の未来、評価値の型を書く。
 //   using State, Action, Scenario, Score
+//   TODO: 【問題ごと】今比較したい合法Actionを全て返す。
 //   generate_actions(const State&) -> 比較する最初のAction一覧。
+//   TODO: 【問題ごと】自分では決められない未知情報だけをsampleする。
 //   generate_scenario(const State&, mt19937_64&)
 //     -> 未知の未来を1本生成する。
+//   TODO: 【問題ごと】最初のAction後を終端まで進め、評価値を返す。
 //   evaluate_action(const State&, const Action&, const Scenario&)
 //     -> その最初のActionからシナリオを辿った評価値。
 //
 // Runnerは全Actionを同じScenario集合で比較し、平均が最良の1手を返す。
 // Stateの更新や出力は行わない。選んだActionの反映は呼び出し側が行う。
+// ↓↓↓ ここから下はライブラリ本体。通常は編集しない。↓↓↓
 template <class Problem>
 struct CommonScenarioRolloutRunner {
   using State = typename Problem::State;
