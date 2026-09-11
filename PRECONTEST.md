@@ -46,7 +46,9 @@ python3 tools/copy_part.py \
 ```
 
 問題固有の`main.cpp`まで結合することもできます。入力側と出力側は別ファイルに
-してください。
+してください。指定したパーツを読む`#include "library/xxx.hpp"`は、
+`../../library/xxx.hpp`のような相対パス表記も含めて、結合時に自動で除去されます。
+指定していないローカルincludeは残るため、パーツの指定漏れもコンパイル時に分かります。
 
 ```bash
 python3 tools/copy_part.py \

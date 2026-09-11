@@ -11,6 +11,7 @@
 | [`intro_heuristics_action_beam.cpp`](intro_heuristics_action_beam.cpp) | `ActionBeamRunner` | Introduction to Heuristics Contest A | 問題依存コードを1 structへ分離。State・Action・Scoreと3関数へ何を書き何を返すか、行ごとのコメント付き |
 | [`ahc021_tree_beam.cpp`](ahc021_tree_beam.cpp) | `TreeBeamSearch` | AHC021 | 交換の`apply / revert`と差分評価。ランダム13ケースを全て合法な完成状態まで解いた |
 | [`variable_cost_beam.cpp`](variable_cost_beam.cpp) | `CostTreeBeamSearch` | 締切付き宝集め | 1、2、3世代進む行動と再訪を扱う。200ランダムケースを厳密DPと照合した |
+| [`ahc038_variable_cost_beam.cpp`](ahc038_variable_cost_beam.cpp) | `CostTreeBeamSearch` | AHC038 | 「次の把持・解放」まで1手で世代を飛ばす。盤面bitsetと姿勢をapply/revertし、公式seed 0--99を全て合法に完了した |
 
 数値はライブラリの適用確認用で、AtCoder上の順位やスコアを主張するものでは
 ありません。乱数seedは固定ですが、壁時計で終了するAHC006例の反復回数と結果は
@@ -36,6 +37,7 @@ g++ -std=c++17 -O2 -Wall -Wextra -pedantic examples/search/intro_heuristics_simp
 g++ -std=c++17 -O2 -Wall -Wextra -pedantic examples/search/intro_heuristics_action_beam.cpp -o /tmp/action_beam
 g++ -std=c++17 -O2 -Wall -Wextra -pedantic examples/search/ahc021_tree_beam.cpp -o /tmp/ahc021_beam
 g++ -std=c++17 -O2 -Wall -Wextra -pedantic examples/search/variable_cost_beam.cpp -o /tmp/cost_beam
+g++ -std=c++17 -O2 -Wall -Wextra -pedantic examples/search/ahc038_variable_cost_beam.cpp -o /tmp/ahc038_beam
 ```
 
 世代飛ばし版には小さい厳密DPとの自己テストも同じファイルに入っています。
@@ -56,7 +58,18 @@ g++ -std=c++17 -O2 -Wall -Wextra -pedantic \
 ```
 
 実際に提出する時は、そのヘッダの中身をこの行の位置へ丸ごと貼り、`#include`の
-1行を削除します。それ以外の補助ファイルや生成処理は必要ありません。
+1行を削除します。それ以外の補助ファイルや生成処理は必要ありません。公開済みcommit
+から自動で1ファイル化する場合は、`copy_part.py`がこの相対includeも除去します。
+
+```sh
+python3 tools/copy_part.py --ref <公開済みSHA> \
+  --main examples/search/ahc038_variable_cost_beam.cpp \
+  library/cost-tree-beam-search.hpp -o submission.cpp
+```
 
 各例は仕組みを見通せることを優先しています。問題に合わせて最初に変える場所は、
 焼きなましなら近傍と温度、ビームなら`evaluate`と幅です。
+
+AHC038例は、特に触る場所へ`TODO(AHC038)`を付けています。`State`、`Move`、
+候補生成、差分適用・復元、評価関数、腕形状、ビーム幅の順に読めます。幅だけを
+比較する時は`-DAHC038_BEAM_WIDTH=1`のようにコンパイル時指定できます。
