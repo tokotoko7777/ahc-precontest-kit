@@ -1,9 +1,9 @@
 # 実問題スコアベンチマーク
 
 探索ライブラリは、合成データの速度だけでなく、その方式が実際に強かったAHCの
-得点規則で確認します。入力は公式仕様と同じ分布から固定seedで独自生成しており、
-公式test caseではありません。そのため、公開得点との比較は強さの目安であって、
-順位の再現ではありません。
+得点規則で確認します。AHC001/015/021/032は公式仕様と同じ分布から固定seedで
+独自生成した入力、AHC038は公式ツール同梱のseed 0--99です。公開順位の得点は
+別入力の相対評価を含むため、順位の再現ではありません。
 
 | 方式 | 実問題 | 実行コマンド | 比較するもの |
 |---|---|---|---|
@@ -11,6 +11,7 @@
 | 共通シナリオMonte Carlo | AHC015 Halloween Candy | `make benchmark-monte-carlo` | rollout数による最終公式score |
 | apply/revert木上ビーム | AHC021 Pyramid Sorting | `make benchmark-tree-beam` | 幅による操作数と最終公式score |
 | Action先行ビーム | AHC032 Mod Stamp | `make benchmark-search` | 幅による最終公式score |
+| 世代飛ばし木上ビーム | AHC038 Tree Robot Arm | 下記公式ツール用script | 幅による公式操作ターン数 |
 
 4本を続けて実行する場合は`make benchmark-real-search`です。ケース数、制限時間、
 幅、sample数は各実行ファイルの引数で変更できます。
@@ -83,12 +84,57 @@ AHC032は`ActionBeamRunner`で、全候補のStateを作る前に軽いActionと
 395,715,164,556へ改善しました。詳細な順位評価、操作上限検査、公開得点との比較は
 [`PERFORMANCE.md`](PERFORMANCE.md)にまとめています。
 
+## AHC038: 世代飛ばしapply/revertビーム
+
+[`ahc038_variable_cost_beam.cpp`](examples/search/ahc038_variable_cost_beam.cpp)
+は、次に対象とする指・マス・向きを1個の`Move`にします。根の移動と指の回転を
+同時に進めるため、1手の消費ターンは候補ごとに異なります。
+
+- `State`: 根、各指の向き、保持bit、残る供給・需要マスのbitset
+- `generate_moves`: 各指から上位2候補、全体から上位16候補
+- `apply_move`: 対象マスまでの複数命令を作り、通過中も他の指で拾う・置く
+- `revert_move`: 命令を逆順に`P -> 回転 -> 根移動`と戻す
+- `evaluate`: 未実行の`P`数を最優先し、保持数と根位置で同点を分ける
+- `make_key`: 差分Zobrist hashで同じ到着ターン・同じ局面を1個にまとめる
+
+公式ツール同梱seed 0--99、公式visualizerで全解を再生した結果です。scoreは完成時の
+操作ターン数なので小さいほど良い値です。
+
+| 方法 | 平均score | 合計 | 既存星型貪欲との勝敗 |
+|---|---:|---:|---:|
+| 既存星型貪欲 | 313.95 | 31,395 | - |
+| 新候補生成の貪欲 | 320.42 | 32,042 | 41勝59敗 |
+| ビーム幅1 | 250.10 | 25,010 | 97勝3敗 |
+| ビーム幅3 | 237.72 | 23,772 | 99勝1敗 |
+| ビーム幅6 | 234.75 | 23,475 | 100勝0敗 |
+| ビーム幅7 | **234.43** | **23,443** | **99勝1敗** |
+| ビーム幅8 | 239.67 | 23,967 | 98勝2敗 |
+
+幅7は既存貪欲から平均ターン数を約25.3%削減しました。幅を広げれば単調に良くなる
+とは限りません。同じ2.6秒上限では、幅24は探索の深い完了状態へ到達しにくく、
+先頭10ケース平均297.30でした。この問題では「1世代の候補数」だけでなく、制限時間
+内に完成解まで届く探索速度も評価対象です。重複除去を入れる前の幅3は244.78、
+導入後は237.72で、同じ候補へ探索量を重ねない効果も実得点で確認しました。
+
+公式zipを展開し、Rust visualizerを一度buildした`tools`ディレクトリを渡すと再現
+できます。未buildならscriptが`cargo build -r --bin vis`を実行します。
+
+```sh
+benchmarks/ahc038_official_score_benchmark.sh /path/to/ahc038/tools 100
+```
+
+コンテスト1位のnikajさんは、複数の腕設計、到達姿勢の前計算、手先候補制限、
+bitset、状態hashを組み合わせた探索です。この例にもbitsetと候補制限は入っていますが、
+腕は固定星型で、姿勢前計算と重複除去も未導入です。したがって上位解との残差は
+ライブラリの上位N個選択より、主にこの`TODO(AHC038)`側にあります。
+
 ## 正しさの確認
 
 各ベンチマークは探索中の差分値をそのまま信用せず、完成解を別経路で再生します。
 AHC001は長方形の境界・要求点・非重複と全score、AHC015は100ターンと公式連結成分
 score、AHC021は全交換の合法性・完成盤面・公式score、AHC032は操作数・盤面・
-差分scoreを検査します。
+差分scoreを検査します。AHC038は探索Stateとは別の盤面シミュレータと公式Rust
+visualizerの両方で、全命令・最終盤面・操作ターン数を検査します。
 
 ## 参考資料
 
@@ -101,4 +147,5 @@ score、AHC021は全交換の合法性・完成盤面・公式score、AHC032は�
 - [AHC021 1位相当解法の記録](https://amentorimaru.hatenablog.com/entry/2024/11/30/013751)
 - [短期AHCで勝つためのテクニック](https://speakerdeck.com/shun_pi/duan-qi-ahcdesheng-tutamenotekunituku)
 - [AHC032 Mod Stamp](https://atcoder.jp/contests/ahc032/tasks/ahc032_a)
-
+- [AHC038 Tree Robot Arm](https://atcoder.jp/contests/ahc038/tasks/ahc038_a)
+- [AHC038公式ツール](https://img.atcoder.jp/ahc038/GhBuR36w.zip)
