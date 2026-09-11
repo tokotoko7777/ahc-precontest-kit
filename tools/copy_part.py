@@ -18,6 +18,10 @@ from urllib.parse import quote
 DEFAULT_REPOSITORY_URL = "https://github.com/tokotoko7777/ahc-precontest-kit"
 FULL_COMMIT_PATTERN = re.compile(r"[0-9a-f]{40}")
 BUNDLE_FORMAT_VERSION = 1
+LOCAL_INCLUDE_PATTERN = re.compile(
+    rb'(?m)^[ \t]*#[ \t]*include[ \t]*"([^"\r\n]+)"'
+    rb'[ \t]*(?://[^\r\n]*)?\r?\n?'
+)
 
 
 @dataclass(frozen=True)
@@ -171,7 +175,25 @@ def load_parts_from_bundle(
   return commit, parts
 
 
+def strip_selected_part_includes(
+    main_source: bytes, selected_paths: Iterable[str]
+) -> bytes:
+  """Remove quoted includes for parts that were already copied above main."""
+  selected = {path.encode("utf-8") for path in selected_paths}
+
+  def replace_include(match: re.Match[bytes]) -> bytes:
+    raw_path = match.group(1).replace(b"\\", b"/")
+    pieces = [piece for piece in raw_path.split(b"/") if piece not in (b"", b".")]
+    while pieces and pieces[0] == b"..":
+      pieces.pop(0)
+    normalized = b"/".join(pieces)
+    return b"" if normalized in selected else match.group(0)
+
+  return LOCAL_INCLUDE_PATTERN.sub(replace_include, main_source)
+
+
 def render_parts(parts: Iterable[FrozenPart], main_source: Optional[bytes] = None) -> bytes:
+  parts = tuple(parts)
   output = bytearray()
   for part in parts:
     output.extend(f"// BEGIN ahc-precontest-kit: {part.path}\n".encode())
@@ -182,6 +204,9 @@ def render_parts(parts: Iterable[FrozenPart], main_source: Optional[bytes] = Non
       output.extend(b"\n")
     output.extend(f"// END ahc-precontest-kit: {part.path}\n\n".encode())
   if main_source is not None:
+    main_source = strip_selected_part_includes(
+        main_source, (part.path for part in parts)
+    )
     output.extend(main_source)
     if main_source and not main_source.endswith(b"\n"):
       output.extend(b"\n")
