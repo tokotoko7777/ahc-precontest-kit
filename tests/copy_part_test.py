@@ -80,9 +80,17 @@ def test_git_copy_and_fixed_urls(temp: Path) -> None:
         f"https://github.com/example/kit/blob/{commit}/{part.path}"
     )
 
-  main_source = b"int main() { return FirstPart{}.value + SecondPart{}.value - 3; }\n"
+  main_source = (
+      b'#include "../../library/first.hpp"\n'
+      b'# include "library/second.hpp" // bundled above\n'
+      b'#include "../library/not-selected.hpp"\n'
+      b"int main() { return FirstPart{}.value + SecondPart{}.value - 3; }\n"
+  )
   rendered = copy_part.render_parts(parts, main_source)
-  assert rendered.endswith(main_source)
+  assert b'#include "../../library/first.hpp"' not in rendered
+  assert b'# include "library/second.hpp"' not in rendered
+  assert b'#include "../library/not-selected.hpp"' in rendered
+  assert b"int main()" in rendered
   assert rendered.count(b"// Source:") == 2
   assert rendered.count(commit.encode()) == 2
   for part in parts:
@@ -189,8 +197,18 @@ def test_rejected_inputs() -> None:
       lambda: copy_part.normalize_part_paths(
           ["library/a.hpp", "library/a.hpp"]
       ),
-      "more than once",
+    "more than once",
   )
+
+  main_source = (
+      b'#include "./library/a.hpp"\r\n'
+      b'#include "..\\..\\library\\b.hpp"\n'
+      b'#include <library/a.hpp>\n'
+  )
+  stripped = copy_part.strip_selected_part_includes(
+      main_source, ["library/a.hpp", "library/b.hpp"]
+  )
+  assert stripped == b'#include <library/a.hpp>\n'
 
 
 def main() -> None:
