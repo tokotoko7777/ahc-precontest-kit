@@ -34,6 +34,7 @@
 | Action先行ビーム | Introduction to Heuristics Contest A | [`intro_heuristics_action_beam.cpp`](examples/search/intro_heuristics_action_beam.cpp) |
 | 木上ビーム | AHC021の山崩し | [`ahc021_tree_beam.cpp`](examples/search/ahc021_tree_beam.cpp) |
 | 世代飛ばし木上ビーム | 移動時間1〜3の締切付き宝集め | [`variable_cost_beam.cpp`](examples/search/variable_cost_beam.cpp) |
+| Action先行ビーム＋行DP | AHC071の壁構築 | [`ahc071_action_beam.cpp`](examples/search/ahc071_action_beam.cpp) |
 
 どれも探索ヘッダを1個だけ読み込む、入力から出力まで揃った例です。
 提出時は使用したヘッダの中身を`main.cpp`の先頭へコピーし、`#include`の1行を
@@ -88,6 +89,27 @@ TimeBasedSimulatedAnnealing sa(
 既定は指数冷却です。`sa.use_linear_schedule()`で線形冷却、
 `sa.set_cooling_power(2.0)`で高温の時間を長くできます。重い処理へ入る直前など、
 間引きを無視して現在時刻を確認したい時は`sa.is_over_now()`を使います。
+
+### 重い差分計算を採用閾値で途中終了する
+
+`draw_acceptance_threshold()`は、その試行が採用されるために必要な最小改善量を
+先に乱数で決めます。差分を部分和で計算できる時は、残りを最良に見積もっても
+閾値を超えないと分かった時点で打ち切れます。
+
+```cpp
+double threshold = sa.draw_acceptance_threshold();
+optional<long long> improvement =
+    calculate_delta_until_threshold(state, move, threshold);
+if (improvement && sa.accept_with_threshold(*improvement, threshold)) {
+  apply(state, move);
+}
+```
+
+`TimeBasedAnnealingRunner`ではProblemに
+`evaluate_move_with_threshold(state, move, threshold)`を書き、
+`run_with_threshold()`を呼びます。採用不能と証明できた時だけ`nullopt`、それ以外は
+正確な改善量を返します。良化手を含め毎試行乱数を1個使うため通常の`accept()`とは
+乱数列が変わりますが、各手の採用確率は同じです。
 
 ### 焼きなましで人が書く箇所を分ける
 
@@ -267,6 +289,18 @@ MyState answer = beam.best();
 生成順に候補が改善し続ける場合は中間選抜が増えるため、
 `set_batched_selection(false)`の「最後に`nth_element`を1回」も同じ入力で測れます。
 結果は同じなので、速い方を選びます。
+
+順位計算自体が重い時は、Problemに
+`evaluate_action_with_threshold(state, action, threshold)`を書き、
+`step_with_threshold()`または`run_with_threshold()`を使います。戻り値は
+`optional<Score>`です。最初のN件がそろうまで`threshold`は`nullptr`、その後は現在の
+採用境界を指します。候補が境界を厳密に超えないと証明できた時だけ`nullopt`を返し、
+不明なら最後まで計算して正確なScoreを返します。これは近似枝刈りではないため、
+正しく上界・下界を書けば通常の`step()`と同じ上位N件になります。
+
+現在は動的閾値と`make_key`の重複除去を同時には使いません。重複除去が重要なら
+`run_with_key()`を選び、AHC071例のように完成済み解の費用を固定閾値として
+`generate_actions`側でも枝刈りします。
 
 同一状態を消す時は、次状態を作らず計算できるhashを
 Problemの`make_key`に書き、`step_with_key()`または`run_with_key()`を使います。

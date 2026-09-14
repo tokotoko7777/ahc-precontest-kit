@@ -5,6 +5,7 @@
 #include <functional>
 #include <limits>
 #include <numeric>
+#include <optional>
 #include <stdexcept>
 #include <type_traits>
 #include <unordered_map>
@@ -102,6 +103,24 @@ struct ActionBeamSearch {
             Apply&& apply) {
     NoObserver observer;
     return step_impl<false>(expand, evaluate_action, apply, observer);
+  }
+
+  // 重い順位計算を、現在の上位beam_width件の境界で途中終了できる版。
+  // evaluate_action_with_threshold(parent, action, threshold) は
+  // optional<Score>を返す。threshold==nullptrなら境界はまだ未確定なので、
+  // 必ず正確なScoreを返す。非nullなら、候補が境界を厳密に超えないと証明できた
+  // 時だけnulloptを返してよい。最大化/最小化は構築時の指定に従う。
+  //
+  // nulloptは近似枝刈りではない。判定できない時は最後まで計算してScoreを返せば、
+  // 通常のstepと同じ結果になる。同点は先に生成された候補を優先するため、後発候補は
+  // 境界と同点でも枝刈りしてよい。keyによる重複除去とは併用しない。
+  template <class Expand, class EvaluateActionWithThreshold, class Apply>
+  bool step_with_threshold(
+      Expand&& expand,
+      EvaluateActionWithThreshold&& evaluate_action_with_threshold,
+      Apply&& apply) {
+    return step_with_threshold_impl(
+        expand, evaluate_action_with_threshold, apply);
   }
 
   // on_generated(parent_rank, parent, action, rank_score)を全候補へ
@@ -236,6 +255,9 @@ struct ActionBeamSearch {
   std::size_t last_buffered_peak_count() const {
     return last_buffered_peak_count_;
   }
+  std::size_t last_threshold_pruned_count() const {
+    return last_threshold_pruned_count_;
+  }
 
   // 既定は2*width件ごとに縮める。候補が生成順にずっと改善する場合は
   // 中間選抜が増えるため、falseにして最後のnth_element 1回と実測比較できる。
@@ -318,6 +340,7 @@ struct ActionBeamSearch {
   std::size_t last_unique_count_ = 0;
   std::size_t last_kept_count_ = 0;
   std::size_t last_buffered_peak_count_ = 0;
+  std::size_t last_threshold_pruned_count_ = 0;
 
   std::size_t default_candidate_reserve() const {
     const std::size_t width = static_cast<std::size_t>(beam_width_);
@@ -330,6 +353,7 @@ struct ActionBeamSearch {
     last_unique_count_ = 0;
     last_kept_count_ = 0;
     last_buffered_peak_count_ = 0;
+    last_threshold_pruned_count_ = 0;
   }
 
   void begin_step() {
@@ -417,6 +441,48 @@ struct ActionBeamSearch {
         ++last_generated_count_;
         add_unkeyed_candidate(
             Candidate{parent, std::move(action), std::move(score), order++});
+      }
+    }
+    last_unique_count_ = last_generated_count_;
+    return finish_step(apply);
+  }
+
+  template <class Expand, class EvaluateActionWithThreshold, class Apply>
+  bool step_with_threshold_impl(
+      Expand& expand,
+      EvaluateActionWithThreshold& evaluate_action_with_threshold,
+      Apply& apply) {
+    begin_step();
+    const std::size_t width = static_cast<std::size_t>(beam_width_);
+    std::size_t order = 0;
+    for (std::size_t parent = 0; parent < beam_.size(); ++parent) {
+      auto&& actions = expand(static_cast<const State&>(beam_[parent]));
+      for (auto&& expanded_action : actions) {
+        Action action = std::move(expanded_action);
+        const Score* threshold = nullptr;
+        if (batched_selection_ && cutoff_ready_) {
+          threshold = &candidates_[width - 1].score;
+        }
+
+        ++last_generated_count_;
+        auto score = evaluate_action_with_threshold(
+            static_cast<const State&>(beam_[parent]),
+            static_cast<const Action&>(action), threshold);
+        const std::size_t candidate_order = order++;
+        if (!score.has_value()) {
+          ++last_threshold_pruned_count_;
+          continue;
+        }
+        add_unkeyed_candidate(Candidate{
+            parent, std::move(action), std::move(*score), candidate_order});
+
+        // 最初のN件がそろった時点で境界を作る。以後の重い評価はこの境界を
+        // 利用できる。古い境界は真の境界以下(最小化なら以上)なので安全。
+        if (batched_selection_ && !cutoff_ready_ &&
+            candidates_.size() >= width) {
+          keep_best_candidates(width);
+          cutoff_ready_ = true;
+        }
       }
     }
     last_unique_count_ = last_generated_count_;
@@ -666,6 +732,8 @@ struct ActionBeamSearch {
 //     -> 親からコピー済みのStateを、Action適用後の子Stateへ変更する。
 //
 // 任意:
+//   evaluate_action_with_threshold(const State&, const Action&, const Score*)
+//     -> 重い評価を境界で安全に中断するstep_with_threshold用。optional<Score>。
 //   make_key(const State&, const Action&)
 //     -> Action適用後の同一局面を表す値。step_with_key用。
 //   make_bucket(const State&, const Action&)
@@ -697,6 +765,25 @@ struct ActionBeamRunner {
         },
         [&](const State& state, const Action& action) {
           return problem_.evaluate_action(state, action);
+        },
+        [&](State& state, Action& action) {
+          problem_.apply_action(state, action);
+        });
+  }
+
+  // Problem::evaluate_action_with_thresholdはoptional<Score>を返す。
+  // thresholdが非nullなら現在の採用境界。超えられないと証明できた時だけ
+  // nulloptを返す。分からない時は正確なScoreを返せばよい。
+  bool step_with_threshold() {
+    return beam_.step_with_threshold(
+        [&](const State& state) -> decltype(auto) {
+          return problem_.generate_actions(state);
+        },
+        [&](const State& state,
+            const Action& action,
+            const Score* threshold) {
+          return problem_.evaluate_action_with_threshold(
+              state, action, threshold);
         },
         [&](State& state, Action& action) {
           problem_.apply_action(state, action);
@@ -764,6 +851,15 @@ struct ActionBeamRunner {
     return advanced;
   }
 
+  int run_with_threshold(int turns) {
+    if (turns < 0) {
+      throw std::invalid_argument("turns must be non-negative");
+    }
+    int advanced = 0;
+    while (advanced < turns && step_with_threshold()) ++advanced;
+    return advanced;
+  }
+
   int run_with_key(int turns) {
     if (turns < 0) {
       throw std::invalid_argument("turns must be non-negative");
@@ -818,6 +914,9 @@ struct ActionBeamRunner {
   }
   std::size_t last_buffered_peak_count() const {
     return beam_.last_buffered_peak_count();
+  }
+  std::size_t last_threshold_pruned_count() const {
+    return beam_.last_threshold_pruned_count();
   }
 
  private:

@@ -271,6 +271,23 @@ struct TimeBasedSimulatedAnnealing {
     return static_cast<double>(engine() >> 11) * inverse;
   }
 
+  // この試行が採用されるために必要な最小improvementを先に返す。
+  // improvement > thresholdなら採用。差分評価が重い時は、この閾値を
+  // 評価関数へ渡し、超えないと証明できた時点で計算を打ち切れる。
+  // 良化手を含む全試行で乱数を1個消費するためaccept()と乱数列は異なるが、
+  // 各手の採用確率は同じ。
+  double draw_acceptance_threshold() {
+    synchronize_temperature_settings();
+    return cached_temperature_value * std::log(random_01());
+  }
+
+  template <class Score>
+  bool accept_with_threshold(Score improvement, double threshold) const {
+    const double value = static_cast<double>(improvement);
+    if (std::isnan(value) || std::isnan(threshold)) return false;
+    return value > threshold;
+  }
+
   // improvement は「変更後がどれだけ良くなるか」。
   // 最大化: new_score - current_score
   // 最小化: current_cost - new_cost
@@ -304,6 +321,10 @@ struct TimeBasedSimulatedAnnealing {
 //   TODO: 【問題ごと】近傍による改善量を差分計算する。
 //   Score evaluate_move(const State&, const Move&)
 //     -> その手の改善量。正なら良化、負なら悪化。
+//   TODO: 【任意】閾値で差分計算を途中終了する。
+//   optional<Score> evaluate_move_with_threshold(
+//       const State&, const Move&, double acceptance_threshold)
+//     -> 閾値を超えないと証明できた時だけnullopt。その他は正確な改善量。
 //   TODO: 【問題ごと】採用された近傍だけを現在解へ反映する。
 //   void apply_move(State&, const Move&)
 //     -> 採用済みの手だけをStateへ反映する。
@@ -363,8 +384,49 @@ struct TimeBasedAnnealingRunner {
     return true;
   }
 
+  // 差分評価が重く、途中で採用不能と証明できる問題向け。
+  // Problem::evaluate_move_with_thresholdは、improvementがthresholdを
+  // 超えないと証明できた時だけnulloptを返す。分からない場合は最後まで
+  // 計算し、正確なimprovementを返せば通常の焼きなましと同じ分布になる。
+  bool step_with_threshold() {
+    if (annealing_.is_over()) return false;
+    ++iterations_;
+    std::optional<Move> move = problem_.propose_move(
+        static_cast<const State&>(current_state_),
+        move_engine_,
+        annealing_.cached_progress());
+    if (!move.has_value()) return true;
+
+    ++valid_moves_;
+    const double threshold = annealing_.draw_acceptance_threshold();
+    std::optional<Score> improvement =
+        problem_.evaluate_move_with_threshold(
+            static_cast<const State&>(current_state_), *move, threshold);
+    if (!improvement.has_value()) {
+      ++threshold_pruned_moves_;
+      return true;
+    }
+    if (!annealing_.accept_with_threshold(*improvement, threshold)) return true;
+
+    problem_.apply_move(current_state_, *move);
+    current_score_ += *improvement;
+    ++accepted_moves_;
+    if (best_score_ < current_score_) {
+      best_score_ = current_score_;
+      best_state_ = current_state_;
+      ++best_updates_;
+    }
+    return true;
+  }
+
   std::uint64_t run() {
     while (step()) {
+    }
+    return iterations_;
+  }
+
+  std::uint64_t run_with_threshold() {
+    while (step_with_threshold()) {
     }
     return iterations_;
   }
@@ -377,6 +439,9 @@ struct TimeBasedAnnealingRunner {
   std::uint64_t valid_moves() const { return valid_moves_; }
   std::uint64_t accepted_moves() const { return accepted_moves_; }
   std::uint64_t best_updates() const { return best_updates_; }
+  std::uint64_t threshold_pruned_moves() const {
+    return threshold_pruned_moves_;
+  }
 
   TimeBasedSimulatedAnnealing& annealing() { return annealing_; }
   const TimeBasedSimulatedAnnealing& annealing() const { return annealing_; }
@@ -393,4 +458,5 @@ struct TimeBasedAnnealingRunner {
   std::uint64_t valid_moves_ = 0;
   std::uint64_t accepted_moves_ = 0;
   std::uint64_t best_updates_ = 0;
+  std::uint64_t threshold_pruned_moves_ = 0;
 };
