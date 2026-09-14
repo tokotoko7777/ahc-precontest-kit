@@ -20,12 +20,12 @@ struct BatchedTimer {
   double last_elapsed_ms = 0.0;
   std::chrono::steady_clock::time_point start;
 
-  BatchedTimer(double time_limit_ms, int check_interval)
-      : time_limit_ms(time_limit_ms),
-        check_interval(check_interval),
+  BatchedTimer(double time_limit_ms_value, int check_interval_value)
+      : time_limit_ms(time_limit_ms_value),
+        check_interval(check_interval_value),
         start(std::chrono::steady_clock::now()) {
-    assert(time_limit_ms > 0.0);
-    assert(check_interval > 0);
+    assert(time_limit_ms_value > 0.0);
+    assert(check_interval_value > 0);
   }
 
   void reset() {
