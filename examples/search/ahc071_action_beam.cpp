@@ -5,6 +5,10 @@ using namespace std;
 #include "../../library/action-beam-search.hpp"
 #include "../../library/simulated-annealing.hpp"
 
+// Pre-contest public solver source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/examples/search/ahc071_action_beam.cpp
+// Official problem: https://atcoder.jp/contests/ahc071/tasks/ahc071_a
+
 // AHC071「Wall Making」用の実例。
 // 上の段に置いた各レンガは、中心1マスだけが下の段に支えられていればよい。
 // したがって上から下へ作る時、次の段へ渡す情報は「直上段の中心bitset」だけ。
@@ -113,7 +117,8 @@ struct Solver {
         if (p + length > W || p + length <= first) continue;
         if (!((allowed >> (p + type)) & 1)) continue;
         const float value =
-            costs[type] + weight[p + type] + dp[p + length];
+            static_cast<float>(costs[type]) +
+            weight[p + type] + dp[p + length];
         if (value < dp[p]) {
           dp[p] = value;
           take_type[p] = static_cast<signed char>(type);
@@ -201,7 +206,9 @@ struct Solver {
         const int end = p + (skip ? 1 : 2 * type + 1);
         const RowDpEntry& tail = dp[end][rank];
         return RowDpEntry{
-            (skip ? 0 : costs[type] + weight[p + type]) + tail.value,
+            (skip ? 0.0f
+                  : static_cast<float>(costs[type]) + weight[p + type]) +
+                tail.value,
             tail.centers |
                 (skip ? Mask(0) : Mask(1) << (p + type)),
             (skip ? 0 : costs[type]) + tail.cost,
@@ -431,7 +438,7 @@ struct Solver {
                                below_weight[y],
                                allowed);
       }
-      return Score{action.next_cost + scale * future,
+      return Score{static_cast<float>(action.next_cost) + scale * future,
                    action.next_cost,
                    action.row.centers};
     }
@@ -616,15 +623,18 @@ struct Solver {
         vector<Row> trial = current;
         const int max_height = min(H, max_rebuild_height);
         const int min_height = min(max_height, min_rebuild_height);
-        const int height =
-            min_height + random_engine() % (max_height - min_height + 1);
-        const int lo = random_engine() % (H - height + 1);
+        const int height = min_height + static_cast<int>(
+            random_engine() %
+            static_cast<unsigned int>(max_height - min_height + 1));
+        const int lo = static_cast<int>(
+            random_engine() % static_cast<unsigned int>(H - height + 1));
         const float scale =
             0.7f + static_cast<float>(random_engine() % 1001) / 1000;
 
         if (random_engine() % 4 == 0) {
           // 1行だけ別配置にして、区間ビームとは違う谷へ移る。
-          const int y = random_engine() % H;
+          const int y = static_cast<int>(
+              random_engine() % static_cast<unsigned int>(H));
           array<float, MAX_W> random_weight{};
           for (int x = 0; x < W; ++x) {
             random_weight[x] =

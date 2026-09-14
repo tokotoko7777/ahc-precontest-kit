@@ -303,7 +303,7 @@ GitHub 上ではファイルを開き、右上のコピーアイコン、また�
 
 ## 過去AHCでの実戦例
 
-AHC001〜AHC069を順次追加しています。全問題の状態と次の作業は
+AHC001〜AHC069に加え、新しい問題も順次追加しています。全問題の状態と次の作業は
 [`practice/PROGRESS.md`](practice/PROGRESS.md) で管理します。
 
 | 問題 | 主に使うパーツ |
@@ -377,6 +377,7 @@ AHC001〜AHC069を順次追加しています。全問題の状態と次の作�
 | [`practice/ahc067`](practice/ahc067/) | 橋の木、10ビットカウンタ、状態付きBFS |
 | [`practice/ahc068`](practice/ahc068/) | 境界peel、長方形swap、正確な操作再生 |
 | [`practice/ahc069`](practice/ahc069/) | compact配置、受理価格、限定的な再配置 |
+| [`practice/ahc071`](practice/ahc071/) | 行DP、Actionビーム、費用閾値枝刈り、区間LNS |
 
 各フォルダの `main.cpp` はローカルヘッダを参照しない、提出可能な単一ファイルです。
 
