@@ -1,5 +1,7 @@
 #include <cassert>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/floyd-warshall.hpp
 
 // distance[i][j] を、全頂点間の最短距離へ更新する。
 // 負の辺も使えるが、到達可能な負閉路がある場合は通常の最短距離にならない。

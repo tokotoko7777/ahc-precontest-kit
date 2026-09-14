@@ -3,6 +3,8 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/rolling-hash.hpp
 
 // 64bit整数の自然なオーバーフローを使う Rolling Hash。
 // 部分列 [left, right) のhashを O(1)、LCPを O(log N) で求める。

@@ -2,6 +2,8 @@
 #include <type_traits>
 #include <utility>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/segment-tree.hpp
 
 // 1点を変更し、区間の和・最小値・最大値などを求める Segment Tree。
 // operation は実際のラムダ式の型で保持するため、std::function の間接呼び出しがない。

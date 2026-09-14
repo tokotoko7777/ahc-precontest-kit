@@ -1,4 +1,6 @@
 #include <utility>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/best-keeper.hpp
 
 // 今までで一番良い解を保存する。
 // 使い方:

@@ -2,6 +2,8 @@
 #include <cassert>
 #include <utility>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/top-k.hpp
 
 // 良い候補を上位 K 個だけ残す。1回の追加は O(K)。
 // 毎回全体を sort しないので、小さな K で何度も追加する用途に向く。

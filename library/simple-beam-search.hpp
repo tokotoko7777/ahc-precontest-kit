@@ -9,6 +9,8 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/simple-beam-search.hpp
 
 // 状態を丸ごと持つ、分かりやすさ優先のビームサーチ。
 // State が小さい時や、まずビームサーチを試したい時に向いている。

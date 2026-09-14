@@ -1,5 +1,7 @@
 #include <algorithm>
 #include <cassert>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/axis-aligned-rectangle.hpp
 
 // 軸に平行な半開長方形 [left, right) × [bottom, top)。
 // Coordinate は int、long long などを選べる。

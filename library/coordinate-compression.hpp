@@ -2,6 +2,8 @@
 #include <cassert>
 #include <utility>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/coordinate-compression.hpp
 
 // 座標圧縮。int、long long、string など、比較できる型なら使える。
 // 使い方:

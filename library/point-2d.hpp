@@ -1,5 +1,7 @@
 #include <cassert>
 #include <cmath>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/point-2d.hpp
 
 // 2次元座標の基本演算。整数座標は Point2D<long long> にすると溢れにくい。
 template <class Coordinate>

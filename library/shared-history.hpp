@@ -2,6 +2,8 @@
 #include <cassert>
 #include <utility>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/shared-history.hpp
 
 // 操作列の共通部分を親番号で共有する。
 // root() は「まだ操作がない状態」を表す。

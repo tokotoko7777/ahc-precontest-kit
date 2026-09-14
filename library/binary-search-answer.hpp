@@ -1,5 +1,7 @@
 #include <cassert>
 #include <utility>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/binary-search-answer.hpp
 
 // predicateが false...false,true...true の時、[false_side,true_side]の最初のtrueを返す。
 // predicate(false_side)==false、predicate(true_side)==trueが必要。

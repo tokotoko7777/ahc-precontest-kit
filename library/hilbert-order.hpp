@@ -1,5 +1,7 @@
 #include <cassert>
 #include <cstdint>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/hilbert-order.hpp
 
 // 2次元の点を、近い点どうしが近い番号になりやすいHilbert順へ変換する。
 // x, y は 0 <= x,y < 2^bits、bits は1以上31以下。

@@ -2,6 +2,8 @@
 #include <limits>
 #include <utility>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/functional-graph.hpp
 
 // 各頂点から出る辺がちょうど1本のグラフを、O(N log steps) で前計算する。
 // FunctionalGraph graph(next);

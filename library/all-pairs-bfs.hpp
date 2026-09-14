@@ -2,6 +2,8 @@
 #include <limits>
 #include <type_traits>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/all-pairs-bfs.hpp
 
 // 重みなしグラフの全頂点間最短距離を、各頂点からのBFSで求める。
 // Distanceをuint16_tなどにすると、大きい距離表のメモリを減らせる。

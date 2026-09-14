@@ -1,6 +1,8 @@
 #include <algorithm>
 #include <cassert>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/range-add-range-minimum.hpp
 
 // 区間加算と区間最小値をどちらも O(log N) で行う。
 // 使い方:

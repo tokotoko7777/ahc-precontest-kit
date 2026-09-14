@@ -3,6 +3,8 @@
 #include <limits>
 #include <type_traits>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/binary-trie.hpp
 
 // 非負整数の多重集合。追加・削除・最小/最大XOR要素を O(BitCount) で行う。
 template <class Unsigned,

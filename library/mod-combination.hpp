@@ -1,6 +1,8 @@
 #include <cassert>
 #include <cstdint>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/mod-combination.hpp
 
 // 素数MODで nCk、nPk を O(1) で取得する。事前計算は O(max_n)。
 // 0 <= n < MOD で使う。

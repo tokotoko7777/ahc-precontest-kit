@@ -2,6 +2,8 @@
 #include <cassert>
 #include <utility>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/prime-table.hpp
 
 // [0, limit] の素数判定と最小素因数を O(limit) で前計算する線形篩。
 struct PrimeTable {

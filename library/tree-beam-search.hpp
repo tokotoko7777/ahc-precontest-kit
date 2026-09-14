@@ -10,6 +10,8 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/tree-beam-search.hpp
 
 // 状態全体をコピーせず、apply / revert で状態を移動するビームサーチ。
 // 全ての行動で世代がちょうど1進む問題に使う。

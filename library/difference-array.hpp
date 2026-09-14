@@ -1,6 +1,8 @@
 #include <algorithm>
 #include <cassert>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/difference-array.hpp
 
 // 区間 [left, right) への加算を O(1) で記録し、最後に O(N) で全要素を作る。
 // 途中の区間和を答える用途ではなく、更新を全部先に処理できる時に使う。

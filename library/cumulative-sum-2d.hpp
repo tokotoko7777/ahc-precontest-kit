@@ -1,5 +1,7 @@
 #include <cassert>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/cumulative-sum-2d.hpp
 
 // 2次元累積和。上・左を含み、下・右を含まない長方形の合計を返す。
 // 使い方:

@@ -2,6 +2,8 @@
 #include <cassert>
 #include <cstddef>
 #include <utility>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/fixed-vector.hpp
 
 // 最大要素数がコンパイル時に決まる、allocationなしの簡単な配列。
 // T はデフォルト構築できる型にする。

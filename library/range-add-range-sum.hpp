@@ -1,5 +1,7 @@
 #include <cassert>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/range-add-range-sum.hpp
 
 // 区間加算と区間和を、どちらも O(log N) で処理する専用Lazy Segment Tree。
 // 使い方:

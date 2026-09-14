@@ -1,6 +1,8 @@
 #include <cassert>
 #include <cmath>
 #include <type_traits>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/integer-square-root.hpp
 
 // valueの平方根を整数へ切り下げる。浮動小数で概算した後、整数演算で必ず補正する。
 // 使い方: long long r = floor_integer_square_root(1000000000000LL);

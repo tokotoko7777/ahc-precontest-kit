@@ -2,6 +2,8 @@
 #include <limits>
 #include <type_traits>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/hungarian.hpp
 
 // 正方形のcost[row][column]に対する、合計費用最小の1対1割り当て。
 // 戻り値answer[row]は、そのrowへ割り当てたcolumn番号。

@@ -4,6 +4,8 @@
 #include <string>
 #include <utility>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/grid-bfs.hpp
 
 struct GridBfsResult {
   int height;

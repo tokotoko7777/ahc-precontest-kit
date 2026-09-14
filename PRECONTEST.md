@@ -34,6 +34,11 @@ https://github.com/tokotoko7777/ahc-precontest-kit/blob/<40桁のSHA>/library/ti
 手動なら、GitHubまたは保存済みbundleで`.hpp`を開き、ファイル全体とその固定URLを
 自分の`main.cpp`へコピーします。これが正式かつ最小の使い方です。
 
+各`library/*.hpp`には、手動コピーでも出典が欠けないよう、標準`#include`群の直後に
+`blob/main/library/...`の公開URLを記載済みです。このURLもコードと一緒にコピーされます。
+ただし`main`は将来動くため、コンテストで使う版との完全一致を明確にするには、以下の
+`copy_part.py --ref <SHA>`で追加されるcommit固定URLを使うのが最も確実です。
+
 複数パーツへURLを自動で付ける場合は、公開済みcommitを明示します。
 
 ```bash

@@ -2,6 +2,8 @@
 #include <type_traits>
 #include <utility>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/sparse-table.hpp
 
 // 変更されない配列の区間min・max・gcdなどを O(1) で求める。
 // operation(x, x) == x を満たす演算専用。区間和には使えない。

@@ -2,6 +2,8 @@
 #include <cassert>
 #include <numeric>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/probability-move-dp.hpp
 
 // 「確率move_probabilityで指定先へ進み、失敗すると同じ状態に残る」を1手進める。
 // goalを指定すると、そこへ初めて入った確率を返し、以後の分布から取り除く。
