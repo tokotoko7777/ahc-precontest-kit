@@ -33,6 +33,7 @@
 | 時間焼きなましRunner | AHC006の配達経路 | [`ahc006_sa.cpp`](examples/search/ahc006_sa.cpp) |
 | apply/revert木上ビーム | AHC011のスライドパズル | [`ahc011_tree_beam.cpp`](examples/search/ahc011_tree_beam.cpp) |
 | 共通未来Monte Carlo Runner | AHC015の飴配置 | [`ahc015_common_rollout.cpp`](examples/search/ahc015_common_rollout.cpp) |
+| 決定的rollout Runner | AHC026の箱積み替え | [`ahc026_deterministic_rollout.cpp`](examples/search/ahc026_deterministic_rollout.cpp) |
 | 通常ビーム | Introduction to Heuristics Contest A | [`intro_heuristics_simple_beam.cpp`](examples/search/intro_heuristics_simple_beam.cpp) |
 | Action先行ビーム | Introduction to Heuristics Contest A | [`intro_heuristics_action_beam.cpp`](examples/search/intro_heuristics_action_beam.cpp) |
 | 木上ビームRunner | AHC021の山崩し | [`ahc021_tree_beam.cpp`](examples/search/ahc021_tree_beam.cpp) |
@@ -451,6 +452,50 @@ AHC015の飴配置を終端までrolloutする実例は
 [`ahc015_monte_carlo_score_benchmark.cpp`](benchmarks/ahc015_monte_carlo_score_benchmark.cpp)です。
 sample数だけを増やしても、未来の自分の行動が弱ければ評価も弱いままです。
 未知情報のsample、未来のルール方策、1 rolloutの軽さを問題ごとに設計します。
+
+## 決定的rollout
+
+未来が乱数や追加入力に左右されず、現在状態と方策パラメータから全て決まるなら、
+ダミーの`Scenario`を作らず`DeterministicRolloutRunner<Problem>`を使います。
+候補を同じ軽い方策で終端まで進め、最良候補の最初の決定だけを実状態へ反映します。
+
+```cpp
+struct Problem {
+  using State = MyState;       // TODO: 現在の実状態。
+  using Action = MyAction;     // TODO: 最初の1手や方策パラメータ。
+  using Score = long long;     // TODO: 仮実行の評価値。
+
+  auto generate_actions(const State& state) const {
+    // TODO: 今比較する合法候補を全て返す。
+    return legal_actions(state);
+  }
+
+  Score evaluate_action(const State& state, const Action& action) const {
+    // TODO: コピーだけを変更し、終端または指定深さまで仮実行する。
+    State simulation = state;
+    apply(simulation, action);
+    play_to_end_with_rule_policy(simulation);
+    return official_score(simulation);
+  }
+};
+
+Problem problem;
+// 小さいcostほど良い問題なのでmaximize=false。
+DeterministicRolloutRunner<Problem> rollout(problem, false);
+rollout.reserve(max_action_count);
+MyAction action = rollout.choose_action(state);
+apply_real_state(state, action);
+```
+
+| 人が問題に合わせて書く | ライブラリが担当する |
+|---|---|
+| `State`、`Action`、`Score` | Action列と評価値bufferの再利用 |
+| 候補生成と仮実行方策 | 全候補の評価呼び出し |
+| 選択後の実状態更新 | 最大・最小の最良Action選択 |
+
+AHC026の箱積み替えを全候補幅で完走させる実例は
+[`ahc026_deterministic_rollout.cpp`](examples/search/ahc026_deterministic_rollout.cpp)です。
+候補数×完走時間が重い場合は、Action候補を問題側で絞るか先読み深さを短くします。
 
 ## 世代が飛ぶCostTreeBeamRunner
 

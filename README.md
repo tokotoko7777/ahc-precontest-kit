@@ -39,9 +39,9 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 最小例と安全な使い方をまとめています。
 それぞれを単体で実際の問題へ使った完全な `main.cpp` は
 [`examples/search/`](examples/search/README.md) にあります。
-AHC002・006・011・015・021・032は、問題固有処理を1個の`Problem`へ集めたRunner形式で、
+AHC002・006・011・015・021・026・032は、問題固有処理を1個の`Problem`へ集めたRunner形式で、
 destroy/repair焼きなまし・経路焼きなまし・共通未来Monte Carlo・木上ビーム・
-Actionビームを比較できます。
+決定的rollout・Actionビームを比較できます。
 探索ヘッダ内で`TODO:`を検索すると、`State`、候補生成、差分評価、状態更新など、
 自分の`main.cpp`側へ何を書くかを順番に確認できます。`TODO:`の付いていない探索
 エンジン本体は、通常は変更しません。
@@ -89,7 +89,7 @@ terminalも`step_and_observe`で生成直後に保存します。
 `ActionBeamSearch`のobserverは、全候補のStateコピーを避けるため
 `parent + action`を渡します。他の3ビームは生成済みchild Stateを渡します。
 問題依存コードを明確に分けたい場合は各`Runner<Problem>`を使います。
-焼きなまし、Action先行ビーム、apply/revert木上ビーム、Monte Carlo rolloutで、
+焼きなまし、Action先行ビーム、apply/revert木上ビーム、2種類のrolloutで、
 人が書く型・候補生成・評価・更新を1個の`Problem` structへまとめ、時計・採否・
 上位N件選抜・共通未来sampleなどはライブラリ側へ隠せます。
 
@@ -135,6 +135,7 @@ Problemへ渡します。超えないと証明できた候補だけ`nullopt`で�
 | [`tree-beam-search.hpp`](library/tree-beam-search.hpp) | 1手1世代のapply / revert型ビームサーチ。問題分離Runner付き |
 | [`cost-tree-beam-search.hpp`](library/cost-tree-beam-search.hpp) | 1手の進み幅が異なるapply / revert型ビームサーチ |
 | [`common-scenario-average.hpp`](library/common-scenario-average.hpp) | 全候補を同じ未来sampleで比較するrollout。問題分離Runner付き |
+| [`deterministic-rollout.hpp`](library/deterministic-rollout.hpp) | 全候補を決定的方策で仮実行して比較するrollout。問題分離Runner付き |
 
 ビームサーチを初めて使う場合は `simple-beam-search.hpp` から始めてください。
 Stateが大きくてもActionから次の順位を計算できるなら`action-beam-search.hpp`、
