@@ -2,6 +2,8 @@
 #include <cstdint>
 #include <random>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/zobrist-hash.hpp
 
 // 配列状態を差分更新できる64bit hashにする。
 // 各場所の値は 0 以上 value_kinds 未満の整数で表す。

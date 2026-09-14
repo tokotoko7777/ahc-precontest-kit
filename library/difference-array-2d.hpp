@@ -1,6 +1,8 @@
 #include <cassert>
 #include <cstddef>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/difference-array-2d.hpp
 
 // 矩形加算をすべて記録し、最後に O(HW) で各マスの値を作る2次元いもす法。
 // DifferenceArray2D<long long> values(height, width);

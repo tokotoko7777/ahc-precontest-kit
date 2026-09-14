@@ -2,6 +2,8 @@
 #include <cassert>
 #include <utility>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/rollback-dsu.hpp
 
 // 過去の状態へ戻せる Union-Find。leader では経路圧縮をしない。
 // 使い方:

@@ -1,6 +1,8 @@
 #include <cassert>
 #include <utility>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/rollback-array.hpp
 
 // 一部を書き換えて試し、採用しなければ元へ戻すための配列。
 // 使い方:

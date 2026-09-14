@@ -1,5 +1,7 @@
 #include <cassert>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/dense-int-set.hpp
 
 // 0以上universe_size未満の整数集合。追加・削除・検索・clearが平均O(1)。
 // 使い方:

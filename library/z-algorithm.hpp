@@ -1,5 +1,7 @@
 #include <algorithm>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/z-algorithm.hpp
 
 // z[i] = sequence[0...] と sequence[i...] の最長共通接頭辞の長さ。
 // string、vector<int> など、== で比較できる列に O(N) で使える。

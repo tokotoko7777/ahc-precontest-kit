@@ -1,5 +1,7 @@
 #include <cassert>
 #include <utility>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/floor-sum.hpp
 
 // sum_{i=0}^{n-1} floor((a*i+b)/modulus) を O(log modulus) で求める。
 // n>=0, modulus>0。a,bは負でもよい。答えと中間の乗算はlong longに収まること。

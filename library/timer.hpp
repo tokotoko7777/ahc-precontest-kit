@@ -1,4 +1,6 @@
 #include <chrono>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/timer.hpp
 
 // 使い方:
 // Timer timer;

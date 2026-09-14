@@ -1,6 +1,8 @@
 #include <cassert>
 #include <type_traits>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/farthest-point-sampling.hpp
 
 // 互いに離れた代表をgreedyに選ぶ。distance(a, b)は整数でも小数でもよい。
 // 計算量は O(item_count * sample_count)、追加メモリは O(item_count)。

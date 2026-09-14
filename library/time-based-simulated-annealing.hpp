@@ -6,6 +6,8 @@
 #include <random>
 #include <stdexcept>
 #include <utility>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/time-based-simulated-annealing.hpp
 
 // タイマーを内蔵した焼きなまし。これ1ファイルだけで使える。
 // 使い方:

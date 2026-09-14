@@ -1,5 +1,7 @@
 #include <cassert>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/range-assign-range-sum.hpp
 
 // 区間代入と区間和をどちらも O(log N) で行う遅延セグメント木。
 // RangeAssignRangeSum<long long> sum(initial_values);

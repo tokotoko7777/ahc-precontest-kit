@@ -3,6 +3,8 @@
 #include <limits>
 #include <utility>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/max-flow.hpp
 
 // Dinic法による最大流。整数容量で使う。
 // 使い方:

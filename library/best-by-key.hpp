@@ -2,6 +2,8 @@
 #include <utility>
 #include <unordered_map>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/best-by-key.hpp
 
 // 同じキーの候補が複数ある時、一番良いものだけ残す。
 // Key は int、long long、string など unordered_map で使える型。

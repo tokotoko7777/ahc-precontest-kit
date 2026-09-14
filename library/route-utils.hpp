@@ -1,5 +1,7 @@
 #include <cassert>
 #include <type_traits>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/route-utils.hpp
 
 // 経路の長さと、挿入・削除・区間反転の差分を計算する。
 // Route は vector<int>、vector<pair<int, int>> など自由に選べる。

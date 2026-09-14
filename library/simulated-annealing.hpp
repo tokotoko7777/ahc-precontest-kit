@@ -3,6 +3,8 @@
 #include <cstdint>
 #include <random>
 #include <stdexcept>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/simulated-annealing.hpp
 
 // 進捗率を自分で渡す焼きなまし。
 // 使い方:

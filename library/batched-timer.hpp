@@ -1,6 +1,8 @@
 #include <algorithm>
 #include <cassert>
 #include <chrono>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/batched-timer.hpp
 
 // 時計を見る回数を減らすタイマー。1反復がとても軽い探索向け。
 // 最初の呼び出しと、その後 check_interval 回ごとに時計を見る。

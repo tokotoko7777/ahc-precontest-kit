@@ -1,4 +1,6 @@
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/prefix-function.hpp
 
 // result[i] = sequence[0..i]の、全体とは異なる最長の接頭辞=接尾辞の長さ。
 // string、vector<int>など == で比較できる列に使える。

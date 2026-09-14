@@ -1,6 +1,8 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/schedule.hpp
 
 // progress は 0.0 から 1.0。
 // 使い方:

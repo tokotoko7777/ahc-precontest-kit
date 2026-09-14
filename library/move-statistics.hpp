@@ -1,3 +1,6 @@
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/move-statistics.hpp
+
 // 近傍ごとの試行・採用・改善回数を数える。
 // vector<MoveStatistics> statistics(number_of_move_types); のように使える。
 //

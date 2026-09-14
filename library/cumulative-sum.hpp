@@ -1,5 +1,7 @@
 #include <cassert>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/cumulative-sum.hpp
 
 // 1次元累積和。int、long long、double などを選べる。
 // 使い方:

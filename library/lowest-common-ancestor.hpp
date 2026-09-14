@@ -1,6 +1,8 @@
 #include <algorithm>
 #include <cassert>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/lowest-common-ancestor.hpp
 
 // 根付き木のLCA、頂点間距離、パス上のk歩先を O(log N) で求める。
 // 構築は O(N log N)。再帰を使わない。

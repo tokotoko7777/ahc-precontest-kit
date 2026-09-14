@@ -2,6 +2,8 @@
 #include <chrono>
 #include <type_traits>
 #include <utility>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/multi-start.hpp
 
 // 初期解を何個も作り、一番良いものを返す。
 // generate() が State、evaluate(state) が Score を返すようにする。

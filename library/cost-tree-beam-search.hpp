@@ -11,6 +11,8 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/cost-tree-beam-search.hpp
 
 // 1手で複数世代進める場合に使う、状態をコピーしないビームサーチ。
 // 同じ generation に到着する候補ごとに、上位 beam_width 個を残す。

@@ -2,6 +2,8 @@
 #include <cassert>
 #include <limits>
 #include <type_traits>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/xor-basis.hpp
 
 // XORの線形基底。追加した値の任意の部分集合XORを表す。
 template <class Unsigned,

@@ -1,5 +1,7 @@
 #include <algorithm>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/convex-hull.hpp
 
 // x, yメンバを持つ整数座標Pointの凸包。O(N log N)。
 // 返り値は辞書順最小点から反時計回り。先頭点の重複はない。

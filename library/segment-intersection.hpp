@@ -1,4 +1,6 @@
 #include <algorithm>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/segment-intersection.hpp
 
 // x, yメンバを持つ整数座標Point用。pが閉線分[a,b]上にあるか。
 template <class Point>

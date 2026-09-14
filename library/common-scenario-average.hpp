@@ -5,6 +5,8 @@
 #include <stdexcept>
 #include <utility>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/common-scenario-average.hpp
 
 // 全ての候補を「同じ未来シナリオ集合」で評価し、候補ごとの平均値を返す。
 // 候補ごとに別乱数を使うより、候補差と偶然差を区別しやすい。

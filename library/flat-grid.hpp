@@ -3,6 +3,8 @@
 #include <cstddef>
 #include <utility>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/flat-grid.hpp
 
 // 2次元データを1本の vector に置き、行方向へ連続アクセスできる配列。
 // vector<vector<T>> より動的確保が少なく、全マス走査でキャッシュに載りやすい。

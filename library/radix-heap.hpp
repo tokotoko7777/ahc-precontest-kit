@@ -5,6 +5,8 @@
 #include <cstdint>
 #include <utility>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/radix-heap.hpp
 
 // 取り出すキーが単調非減少になる場合の高速な優先度付きキュー。
 // Dijkstra の「距離」のような 0 以上の整数キーに使える。

@@ -1,6 +1,8 @@
 #include <cassert>
 #include <functional>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/sliding-window-minimum.hpp
 
 // 各連続区間の最小値または最大値の位置を、全体 O(N) で求める。
 template <class T, class Better>

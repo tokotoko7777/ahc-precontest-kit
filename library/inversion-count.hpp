@@ -1,6 +1,8 @@
 #include <algorithm>
 #include <cstddef>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/inversion-count.hpp
 
 // i < j かつ values[i] > values[j] となる組の個数。O(N log N)。
 // long long answer = inversion_count(values);

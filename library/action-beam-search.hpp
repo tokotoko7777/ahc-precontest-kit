@@ -11,6 +11,8 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/action-beam-search.hpp
 
 // 全候補の State を作らず、軽い Action だけを先に上位N個へ絞るビームサーチ。
 // State のコピーは各世代で最大 beam_width 回だけ行う。

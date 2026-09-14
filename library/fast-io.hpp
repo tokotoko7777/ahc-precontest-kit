@@ -3,6 +3,8 @@
 #include <string>
 #include <string_view>
 #include <type_traits>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/fast-io.hpp
 
 // fread を使う整数・文字列入力。入力が非常に大きい問題でだけ使う。
 // 使い方:

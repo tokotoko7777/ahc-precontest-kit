@@ -1,4 +1,6 @@
 #include <algorithm>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/sequence-overlap.hpp
 
 // 1つ目の末尾と2つ目の先頭が一致する最大長を返す。O(min(N,M)^2)。
 // stringだけでなくvector<int>などにも使える。

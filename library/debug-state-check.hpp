@@ -5,6 +5,8 @@
 #include <stdexcept>
 #include <string>
 #include <utility>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/debug-state-check.hpp
 
 // 差分更新やapply/revertを、独立に全再計算した値と照合するdebug用補助。
 // 1回のrequireは比較自体を除いてO(1)、保持メモリはメッセージ分だけ。

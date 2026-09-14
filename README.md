@@ -48,6 +48,8 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 
 コンテスト前に公開版を固定し、commit固定URL付きでコピーする方法と
 オフラインbundleの作り方は [`PRECONTEST.md`](PRECONTEST.md) にあります。
+全`library/*.hpp`にも、手動コピー時に出典を落とさないための公開URLを
+標準`#include`群の直後へ記載しています。
 自作した差分評価や`apply/revert`を全再計算と照合する例は
 [`examples/debug/`](examples/debug/README.md) にあります。
 

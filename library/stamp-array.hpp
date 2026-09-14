@@ -3,6 +3,8 @@
 #include <limits>
 #include <utility>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/stamp-array.hpp
 
 // clear() がほぼ O(1) の配列。BFS の訪問配列などを何度も使う時に便利。
 // 使い方:

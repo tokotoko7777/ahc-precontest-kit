@@ -1,6 +1,8 @@
 #include <algorithm>
 #include <cassert>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/weighted-dsu.hpp
 
 // potential[b] - potential[a] = difference という制約を管理するUnion-Find。
 template <class Weight>

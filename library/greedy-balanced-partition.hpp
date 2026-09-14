@@ -5,6 +5,8 @@
 #include <queue>
 #include <utility>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/greedy-balanced-partition.hpp
 
 // 大きい値から順に、現在の合計が最小のグループへ入れる。
 // 全要素が0以上の時に、グループ合計を手軽に揃えるためのgreedy。

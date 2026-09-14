@@ -4,6 +4,8 @@
 #include <queue>
 #include <utility>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/dijkstra.hpp
 
 // 重み付きグラフの辺を追加する。graph[from] には {行き先, コスト} が入る。
 template <class Cost>

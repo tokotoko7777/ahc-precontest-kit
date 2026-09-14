@@ -1,6 +1,8 @@
 #include <algorithm>
 #include <cassert>
 #include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/two-sat.hpp
 
 // 各変数がtrue/falseのどちらかで、各条件が「AまたはB」の形になる問題を解く。
 // 使い方:
