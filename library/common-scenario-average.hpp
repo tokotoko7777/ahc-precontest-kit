@@ -55,9 +55,18 @@ std::vector<long double> common_scenario_average(
 //     -> その最初のActionからシナリオを辿った評価値。
 //
 // Runnerは全Actionを同じScenario集合で比較し、平均が最良の1手を返す。
+// 省略可能: 第2テンプレート引数は乱数器、第3引数は平均計算の型。
+// 既存解の乱数列・丸めを保つ例: Runner<Problem, MyRandom, double>。
+// MyRandomはuint64_tのseedから構築でき、generate_scenarioで使えればよい。
+// 通常は既定のmt19937_64 / long doubleのままでよい。
+// choose_action(state, samples, better)なら同点処理も指定できる。
+// better(action, average, best_action, best_average) -> bool:
+//   TODO: 前2引数の候補を後2引数の暫定最良より優先する時だけtrueを返す。
+//   呼び出し順はgenerate_actions順。既定では完全同点なら先の候補を保つ。
 // Stateの更新や出力は行わない。選んだActionの反映は呼び出し側が行う。
 // ↓↓↓ ここから下はライブラリ本体。通常は編集しない。↓↓↓
-template <class Problem>
+template <class Problem, class Engine = std::mt19937_64,
+          class Average = long double>
 struct CommonScenarioRolloutRunner {
   using State = typename Problem::State;
   using Action = typename Problem::Action;
@@ -70,6 +79,14 @@ struct CommonScenarioRolloutRunner {
       : problem_(problem), engine_(seed), maximize_(maximize) {}
 
   Action choose_action(const State& state, int sample_count) {
+    return choose_action(state, sample_count,
+        [this](const Action&, Average score, const Action&, Average best) {
+          return maximize_ ? best < score : score < best;
+        });
+  }
+
+  template <class Better>
+  Action choose_action(const State& state, int sample_count, Better better) {
     if (sample_count <= 0) {
       throw std::invalid_argument("sample_count must be positive");
     }
@@ -87,21 +104,19 @@ struct CommonScenarioRolloutRunner {
       scenarios_.push_back(problem_.generate_scenario(state, engine_));
     }
 
-    average_scores_.assign(actions_.size(), 0.0L);
+    average_scores_.assign(actions_.size(), Average{});
     for (std::size_t action = 0; action < actions_.size(); ++action) {
       for (const Scenario& scenario : scenarios_) {
-        average_scores_[action] += static_cast<long double>(
+        average_scores_[action] += static_cast<Average>(
             problem_.evaluate_action(state, actions_[action], scenario));
       }
-      average_scores_[action] /= static_cast<long double>(sample_count);
+      average_scores_[action] /= static_cast<Average>(sample_count);
     }
 
     std::size_t best = 0;
     for (std::size_t action = 1; action < actions_.size(); ++action) {
-      const bool better = maximize_
-                              ? average_scores_[best] < average_scores_[action]
-                              : average_scores_[action] < average_scores_[best];
-      if (better) best = action;
+      if (better(actions_[action], average_scores_[action],
+                 actions_[best], average_scores_[best])) best = action;
     }
     return actions_[best];
   }
@@ -117,16 +132,16 @@ struct CommonScenarioRolloutRunner {
 
   const std::vector<Action>& last_actions() const { return actions_; }
   const std::vector<Scenario>& last_scenarios() const { return scenarios_; }
-  const std::vector<long double>& last_average_scores() const {
+  const std::vector<Average>& last_average_scores() const {
     return average_scores_;
   }
-  std::mt19937_64& engine() { return engine_; }
+  Engine& engine() { return engine_; }
 
  private:
   Problem& problem_;
-  std::mt19937_64 engine_;
+  Engine engine_;
   bool maximize_;
   std::vector<Action> actions_;
   std::vector<Scenario> scenarios_;
-  std::vector<long double> average_scores_;
+  std::vector<Average> average_scores_;
 };

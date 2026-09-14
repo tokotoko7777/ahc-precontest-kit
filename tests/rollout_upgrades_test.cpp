@@ -1,5 +1,6 @@
 #include <array>
 #include <cassert>
+#include <cmath>
 #include <cstdint>
 #include <random>
 #include <stdexcept>
@@ -66,6 +67,49 @@ void test_common_scenario_runner() {
   assert(threw);
 }
 
+void test_custom_engine_precision_and_ties() {
+  struct Counter {
+    std::uint64_t value;
+    explicit Counter(std::uint64_t seed) : value(seed) {}
+    int next() { return static_cast<int>(value++); }
+  };
+  struct CustomProblem {
+    using State = int;
+    using Action = int;
+    using Scenario = int;
+    using Score = double;
+    std::vector<int> actions{5, 3, 1};
+    int calls = 0;
+    const std::vector<int>& generate_actions(int) const { return actions; }
+    int generate_scenario(int, Counter& random) { return random.next(); }
+    double evaluate_action(int, int action, int scenario) {
+      ++calls;
+      return scenario + action * 1e-14;
+    }
+  } problem;
+  CommonScenarioRolloutRunner<CustomProblem, Counter, double> runner(problem, 7);
+  const auto smaller_on_ties = [](int action, double score, int best, double value) {
+    return score > value + 1e-12 ||
+           (std::abs(score - value) <= 1e-12 && action < best);
+  };
+  assert(runner.choose_action(0, 3, smaller_on_ties) == 1);
+  assert((runner.last_scenarios() == std::vector<int>{7, 8, 9}));
+  assert(problem.calls == 9);
+  assert(runner.engine().value == 10);
+  const std::vector<double>& averages = runner.last_average_scores();
+  assert(averages.size() == 3);
+  assert(runner.choose_action(0, 1) == 5);
+  assert((runner.last_scenarios() == std::vector<int>{10}));
+  problem.actions.clear();
+  bool threw = false;
+  try { runner.choose_action(0, 2); }
+  catch (const std::runtime_error&) { threw = true; }
+  assert(threw);
+}
+
 }  // namespace
 
-int main() { test_common_scenario_runner(); }
+int main() {
+  test_common_scenario_runner();
+  test_custom_engine_precision_and_ties();
+}

@@ -24,6 +24,23 @@ target/release/tester /path/to/solver < in/0000.txt > out.txt
 
 対話問題なので、`main.cpp` を入力ファイルへ直接リダイレクトして実行するのではなく、必ず `tester` から起動します。AtCoder へは `main.cpp` だけを提出できます。
 
+## フォーマットの編集箇所
+
+`main.cpp`は`CommonScenarioRolloutRunner`を展開済みです。共通処理の
+`BEGIN LIBRARY`〜`END LIBRARY`は通常変更せず、`TODO(AHC061)`の付いた
+`RolloutProblem`と、それが呼ぶ盤面・相手モデル処理を編集します。
+ヘッダ分離版は[`ahc061_common_rollout.cpp`](../../examples/search/ahc061_common_rollout.cpp)です。
+
+- `State`: 現在盤面と、候補比較中は不変の合法手・事後分布など。
+- `generate_actions`: 比較する最初の1手の一覧を返す。
+- `generate_scenario`: 相手の固定パラメータと各手の乱数を1組返す。
+- `evaluate_action`: 指定された1手を最初に選んで3手進めた盤面の評価を返す。
+- `choose_move`の比較関数: 評価差1e-12以内のときの同点処理を書く。
+
+乱数列・平均計算・候補比較はRunner側です。旧版と同じSplitMix64、`double`加算、
+同点規則を指定しています。Runnerは100ターンを通して保持し、seedを毎手戻しません。
+仮実行では学習せず、粒子の学習は公式testerから本物の手を観測したときだけ行います。
+
 ## 何をしているか
 
 このゲームでは相手の `wa, wb, wc, wd, epsilon` が隠されています。ただし、相手が実際に選んだマスは毎ターン分かります。そこで次の順に手を決めます。
@@ -44,7 +61,8 @@ target/release/tester /path/to/solver < in/0000.txt > out.txt
 - `predict_moves`: 相手の各マスへの移動確率を計算
 - `observe_move`: 観測した手で相手モデルを更新
 - `simulate_turn`: 公式ルールどおりに1ターン進める
-- `choose_move`: 候補制限と3手ロールアウト
+- `choose_move`: 候補制限と共通Runnerの呼び出し
+- `RolloutProblem::evaluate_action`: 3手ロールアウトの盤面処理
 
 ## 合法 baseline
 
@@ -65,9 +83,20 @@ g++ -std=c++17 -O2 -pipe -DSIMPLE_BASELINE main.cpp -o baseline
 - レベル2以上への攻撃が失敗したときは、レベルだけを1下げ、駒を元の位置へ戻します。
 - 固定乱数を使うため、同じ入力なら同じ行動になります。
 
-計算量の中心は、おおよそ `候補18 × シナリオ40 × 先読み3 × プレイヤー数 × 100マス` です。盤面が常に10×10なので、動的確保や巨大な状態を必要としません。
+計算量の中心は、おおよそ `候補18 × シナリオ40 × 先読み3 × プレイヤー数 × 100マス` です。盤面は固定長配列で、合法手列挙などの一時領域にはvectorを使います。
 
 ## 検証結果
+
+2026-09-14のフォーマット化では、公式seed 0〜99を移植前・Runner例・ヘッダ展開済み
+`main.cpp`の3種類で再測定しました。全100ケースで出力とscoreが完全一致し、
+全て合法に完走しました。合計16,837,735点、平均168,377.35点で、今回の変更による
+得点上昇は主張しません。平均壁時計は旧版0.337秒、Runner例0.337秒でした。
+単一ファイルの最大壁時計は1.103秒でしたが、これは手元の単回測定です。
+seed 0はASan/UBSanでもエラーなく完走しました（リーク検査のみ無効）。
+
+生データ: [`ahc061-rollout-20260914.csv`](../../benchmarks/results/ahc061-rollout-20260914.csv)。
+再実行コマンドは[`実問題ベンチマーク`](../../REAL_PROBLEM_BENCHMARKS.md#ahc058061-既存rolloutのフォーマット化)
+にあります。以下は移植前の解法を作ったときの記録です。
 
 2026-08-31 に、公式配布の `in/0000.txt` から `in/0099.txt` と公式 `tester` で測定しました。数値は各ケースの絶対スコアです。
 

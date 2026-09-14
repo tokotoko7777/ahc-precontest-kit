@@ -11,6 +11,8 @@
 | [`ahc011_tree_beam.cpp`](ahc011_tree_beam.cpp) | `TreeBeamRunner` | AHC011 | 最大4手をFixedVectorで列挙。盤面1個をapply/revertし、差分hash、同一局面除去、全候補からの最良解復元を使用 |
 | [`ahc015_common_rollout.cpp`](ahc015_common_rollout.cpp) | `CommonScenarioRolloutRunner` | AHC015 | 4方向を同じ未来配置で比較。盤面操作・Scenario・rollout評価と共通乱数処理の境界を明示 |
 | [`ahc026_deterministic_rollout.cpp`](ahc026_deterministic_rollout.cpp) | `DeterministicRolloutRunner` | AHC026 | 全先読み幅を最後まで同じ貪欲で仮実行。山操作・候補幅・完走評価と最小値選択の境界を明示 |
+| [`ahc058_deterministic_rollout.cpp`](ahc058_deterministic_rollout.cpp) | `DeterministicRolloutRunner` | AHC058 | 固定長状態を3手先読み。合法手・投資・生産式はProblemへ、候補比較はRunnerへ分離 |
+| [`ahc061_common_rollout.cpp`](ahc061_common_rollout.cpp) | `CommonScenarioRolloutRunner` | AHC061 | 相手の粒子推定と衝突simulationを問題側へ分離。独自乱数・double加算・近似同点を保存 |
 | [`intro_heuristics_simple_beam.cpp`](intro_heuristics_simple_beam.cpp) | `SimpleBeamSearch` | Introduction to Heuristics Contest A | 365日入力を最後まで構築し、出力日数・番号範囲・得点計算を確認した |
 | [`intro_heuristics_action_beam.cpp`](intro_heuristics_action_beam.cpp) | `ActionBeamRunner` | Introduction to Heuristics Contest A | 問題依存コードを1 structへ分離。State・Action・Scoreと3関数へ何を書き何を返すか、行ごとのコメント付き |
 | [`ahc021_tree_beam.cpp`](ahc021_tree_beam.cpp) | `TreeBeamRunner` | AHC021 | `PyramidProblem`へ候補生成・`apply/revert`・差分評価・hashを分離。履歴木と上位選抜はRunner側 |
@@ -29,6 +31,11 @@ AHC011は全スライドと木サイズ、AHC021は操作再生後の差分score
 箱移動と消費energy、AHC032は盤面と
 最終scoreも全再計算と照合します。
 これは入出力と実装整合性の確認であり、公式seedの得点比較ではありません。
+
+AHC058・061は[`rollout_official_benchmark.py`](../../benchmarks/rollout_official_benchmark.py)
+で移植前・Runner例・`practice`の単一ファイルを公式ツールに通します。
+AHC061は対話問題なので、公式`tester`が必須です。AHC058の閉形式の生産量は
+独立した1ターンずつの再生ともCIで照合します。
 
 ビーム幅による問題本来の得点差は、`make benchmark-search`でAHC032
 「Mod Stamp」相当の固定5ケースを解いて確認できます。これは公式入力ではなく、
