@@ -129,6 +129,7 @@ Problemへ渡します。超えないと証明できた候補だけ`nullopt`で�
 |---|---|
 | [`simulated-annealing.hpp`](library/simulated-annealing.hpp) | 外部から進捗率を渡す焼きなまし |
 | [`time-based-simulated-annealing.hpp`](library/time-based-simulated-annealing.hpp) | タイマー内蔵の焼きなまし。問題分離Runner付き |
+| [`prefix-replay.hpp`](library/prefix-replay.hpp) | 行動列の変更部分からだけ再計算。仮評価と採用を分けるcheckpoint cache |
 | [`multi-start.hpp`](library/multi-start.hpp) | 回数または時間指定の多点スタート |
 | [`simple-beam-search.hpp`](library/simple-beam-search.hpp) | 状態をコピーする初心者向けビームサーチ |
 | [`action-beam-search.hpp`](library/action-beam-search.hpp) | Actionを先に上位N件へ絞るビーム。問題依存部分をまとめるRunner付き |
@@ -339,7 +340,7 @@ AHC001〜AHC069に加え、新しい問題も順次追加しています。全�
 | [`practice/ahc029`](practice/ahc029/) | 全カード×案件評価、投資・購入閾値、対話fallback |
 | [`practice/ahc030`](practice/ahc030/) | 油田配置仮説bitset、情報量query、確定セル掘削 |
 | [`practice/ahc031`](practice/ahc031/) | 共通帯DP、guillotine配置、壁区間の対称差 |
-| [`practice/ahc032`](practice/ahc032/) | 可換stamp列挙、beam、全候補座標降下 |
+| [`practice/ahc032`](practice/ahc032/) | Action先行ビーム幅6,000、可換stamp列挙、確定セル評価。旧practice比で公式100ケース平均約7.67%改善 |
 | [`practice/ahc033`](practice/ahc033/) | 入口退避buffer、搬出順制御、安全な単一大型crane |
 | [`practice/ahc034`](practice/ahc034/) | 循環蛇行路、積載量分割、区間操作SA |
 | [`practice/ahc035`](practice/ahc035/) | 交配期待値、成分極値保存、盤面swap SA |
@@ -365,7 +366,7 @@ AHC001〜AHC069に加え、新しい問題も順次追加しています。全�
 | [`practice/ahc055`](practice/ahc055/) | 依存順序、攻撃先のO(1)差分焼きなまし |
 | [`practice/ahc056`](practice/ahc056/) | BFS経路、時刻を色×状態へ平方根分割 |
 | [`practice/ahc057`](practice/ahc057/) | 容量付き時空間cluster、時刻別MST、群間swap |
-| [`practice/ahc058`](practice/ahc058/) | 決定的rollout Runner、固定長状態、二項係数による将来生産量 |
+| [`practice/ahc058`](practice/ahc058/) | 先読み初期解＋購入順序SA、prefix cache、待機区間の一括更新。公式100ケースで平均約6.24%改善 |
 | [`practice/ahc059`](practice/ahc059/) | 完全入れ子列、2状態DP、境界差分探索 |
 | [`practice/ahc060`](practice/ahc060/) | 色固定化、非逆走BFS、未登録文字列の最短配送 |
 | [`practice/ahc061`](practice/ahc061/) | 共通シナリオRunner、粒子推定、3手rollout、独自乱数・同点処理 |

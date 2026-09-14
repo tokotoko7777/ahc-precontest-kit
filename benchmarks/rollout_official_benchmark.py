@@ -46,7 +46,7 @@ def official_score(task, tool, executable, input_path, work, label):
         _, stderr = run(command, stdin=source, stdout=output,
                         stderr=subprocess.PIPE, text=True, cwd=work)
     elapsed = time.perf_counter() - started
-    if task == "058":
+    if task in ("032", "058"):
         stdout, stderr = run([str(tool), str(input_path), str(output_path)],
                              stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                              text=True, cwd=work)
@@ -66,6 +66,7 @@ def main():
     parser.add_argument("--inputs", type=Path, required=True)
     parser.add_argument("--tool", type=Path, required=True, help="058: vis; 061: tester")
     parser.add_argument("--reference-ref", default=BASE)
+    parser.add_argument("--standalone-ref", help="freeze practice at this commit; AHC058 defaults to the pre-SA migration commit")
     parser.add_argument("--cases", type=int, default=10)
     parser.add_argument("--output", type=Path, required=True, help="new CSV (never overwritten)")
     args = parser.parse_args()
@@ -89,9 +90,18 @@ def main():
         old_source = work / "reference.cpp"
         old_source.write_bytes(subprocess.check_output(
             ["git", "show", f"{reference_sha}:practice/ahc{args.task}/main.cpp"], cwd=ROOT))
+        standalone = ROOT / f"practice/ahc{args.task}/main.cpp"
+        standalone_ref = args.standalone_ref
+        if args.task == "058" and standalone_ref is None:
+            # practice now uses annealing. Keep this migration/equality check historical.
+            standalone_ref = "f56782586166350002812bf499ec6ac7b9ce96b0"
+        if standalone_ref is not None:
+            standalone = work / "standalone.cpp"
+            standalone.write_bytes(subprocess.check_output(
+                ["git", "show", f"{standalone_ref}:practice/ahc{args.task}/main.cpp"], cwd=ROOT))
         sources = {"reference": old_source,
                    "formatted": ROOT / "examples/search" / EXAMPLES[args.task],
-                   "standalone": ROOT / f"practice/ahc{args.task}/main.cpp"}
+                   "standalone": standalone}
         executables = {}
         for label, source in sources.items():
             executable = work / label

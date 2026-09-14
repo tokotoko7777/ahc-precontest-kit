@@ -22,8 +22,14 @@ constexpr uint32_t MODULO = 998244353U;
 constexpr long long RANK_SCALE = 4900;
 
 #ifndef AHC032_BEAM_WIDTH
-#define AHC032_BEAM_WIDTH 1000
+#define AHC032_BEAM_WIDTH 6000
 #endif
+#ifndef AHC032_END_COMBOS
+#define AHC032_END_COMBOS 0
+#endif
+static_assert(AHC032_END_COMBOS >= 0);
+// 5～7枚合成＋最後の7手予約は実験用。開発10ケースで既存配分より悪化した
+// ため既定では無効。-DAHC032_END_COMBOS=4096で比較できる。
 
 struct ModStampProblem {
   struct Placement {
@@ -49,7 +55,7 @@ struct ModStampProblem {
 
   struct Combo {
     array<uint32_t, STAMP_SIZE * STAMP_SIZE> add{};
-    array<uint8_t, 4> stamp_ids{};
+    array<uint8_t, 7> stamp_ids{};
     uint8_t count = 0;
   };
 
@@ -57,7 +63,7 @@ struct ModStampProblem {
   array<array<uint32_t, STAMP_SIZE * STAMP_SIZE>, STAMP_COUNT> stamps{};
   array<Placement, PLACEMENT_COUNT> placements{};
   vector<Combo> combinations;
-  array<vector<Action>, 5> allowed_actions;
+  array<vector<Action>, 8> allowed_actions;
 
   void read_input() {
     int n, m, k;
@@ -69,6 +75,13 @@ struct ModStampProblem {
     for (auto& stamp : stamps) {
       for (uint32_t& value : stamp) cin >> value;
     }
+    prepare();
+  }
+
+  // 入力配列を直接用意するテスト・ベンチマークも、同じ前計算を使う。
+  void prepare() {
+    combinations.clear();
+    for (auto& actions : allowed_actions) actions.clear();
     build_placements();
     build_combinations();
   }
@@ -193,7 +206,7 @@ struct ModStampProblem {
     return result;
   }
 
-  void add_combination(const array<int, 4>& ids, int count) {
+  void add_combination(const array<int, 7>& ids, int count) {
     Combo combo;
     combo.count = static_cast<uint8_t>(count);
     for (int i = 0; i < count; ++i) {
@@ -206,7 +219,7 @@ struct ModStampProblem {
   }
 
   void enumerate_combinations(
-      int count, int depth, int minimum_stamp, array<int, 4>& ids) {
+      int count, int depth, int minimum_stamp, array<int, 7>& ids) {
     if (depth == count) {
       add_combination(ids, count);
       return;
@@ -218,15 +231,39 @@ struct ModStampProblem {
   }
 
   void build_combinations() {
-    array<int, 4> ids{};
+    array<int, 7> ids{};
     for (int count = 0; count <= 4; ++count) {
       enumerate_combinations(count, 0, 0, ids);
+    }
+    // TODO(AHC032): 最後の3x3だけ、5/6/7押しの候補も試す。
+    // (8,8)は最後の(6,6)への配置以外では変わらない。そこで、その1マスが
+    // 高くなる合成を各枚数で上位K個残す。これは速度のための近似選抜。
+    // 0～4押しも全て残す。最後の7押し用に、build_placementsで手数を予約する。
+    // 参考: https://img.atcoder.jp/ahc032/editorial.pdf (スタンプの合成)
+    if (AHC032_END_COMBOS > 0) {
+      for (int count = 5; count <= 7; ++count) {
+        const size_t begin = combinations.size();
+        enumerate_combinations(count, 0, 0, ids);
+        const auto better = [&](const Combo& a, const Combo& b) {
+          const auto av = add_mod(initial_board.back(), a.add.back());
+          const auto bv = add_mod(initial_board.back(), b.add.back());
+          if (av != bv) return av > bv;
+          return a.stamp_ids < b.stamp_ids;
+        };
+        const size_t keep = min(static_cast<size_t>(AHC032_END_COMBOS),
+                                combinations.size() - begin);
+        auto first = combinations.begin() + static_cast<ptrdiff_t>(begin);
+        auto last = first + static_cast<ptrdiff_t>(keep);
+        if (last != combinations.end()) nth_element(first, last, combinations.end(), better);
+        sort(first, last, better);
+        combinations.resize(begin + keep);
+      }
     }
     if (combinations.size() > numeric_limits<Action>::max()) {
       throw runtime_error("too many combinations for uint16_t Action");
     }
     for (int id = 0; id < static_cast<int>(combinations.size()); ++id) {
-      for (int limit = combinations[id].count; limit <= 4; ++limit) {
+      for (int limit = combinations[id].count; limit <= 7; ++limit) {
         allowed_actions[limit].push_back(static_cast<Action>(id));
       }
     }
@@ -241,18 +278,23 @@ struct ModStampProblem {
       int maximum = 2;
       int budget_increase_twice = 3;
       if (bottom && right) {
-        maximum = 4;
+        maximum = AHC032_END_COMBOS > 0 ? 7 : 4;
         budget_increase_twice = 6;
       } else if (bottom || right) {
         maximum = 3;
         budget_increase_twice = 4;
       }
       cumulative_twice += budget_increase_twice;
+      // TODO(AHC032): 最後に7手残す。候補だけ増やしても、以前の配分では
+      // 残り3～4手の親ばかりになり、5～7押し候補を実際には試せない。
+      const int limit = AHC032_END_COMBOS > 0 && !(bottom && right)
+          ? min((cumulative_twice + 1) / 2, OPERATION_LIMIT - 7)
+          : (cumulative_twice + 1) / 2;
       placements[position++] = {
           static_cast<uint8_t>(row),
           static_cast<uint8_t>(column),
           static_cast<uint8_t>(maximum),
-          static_cast<uint8_t>((cumulative_twice + 1) / 2)};
+          static_cast<uint8_t>(limit)};
     };
 
     // 未処理領域の上辺、左辺の順で1層ずつ確定する。
@@ -306,4 +348,5 @@ int main() {
   }
   problem.validate(beam.best());
   print_answer(problem, beam.best());
+  return 0;
 }

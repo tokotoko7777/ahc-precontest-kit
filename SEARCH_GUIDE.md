@@ -184,6 +184,17 @@ MyState answer = runner.best_state();
 AHC001の長方形配置をこの境界で解き、同じ近傍の山登りと比較する実例は
 [`ahc001_annealing_score_benchmark.cpp`](benchmarks/ahc001_annealing_score_benchmark.cpp)です。
 
+### 行動列の途中から再計算する焼きなまし
+
+購入順序やスケジュールのように、1箇所の変更が後続のsimulationへ影響する場合は
+`PrefixReplay`を使えます。人が書くのは途中状態・行動・1行動の反映・最終評価・近傍で、
+共通区間のcheckpoint保存と候補採用までのcache分離をライブラリへ任せます。
+乱数を使う遷移では、その乱数状態も途中状態か行動へ含めてください。
+
+空の関数を置いた雛形は[`prefix-replay-annealing.cpp`](template/search/prefix-replay-annealing.cpp)、
+短期AHCでの完全な例は[`AHC058`](practice/ahc058/README.md)です。
+cacheをSAのStateへ入れると最良解保存まで重くなるので、例ではProblemへ分離しています。
+
 ## SimpleBeamSearchの最小形
 
 `expand(state)`は子状態の`vector`、`rank_score(state)`はビーム内の

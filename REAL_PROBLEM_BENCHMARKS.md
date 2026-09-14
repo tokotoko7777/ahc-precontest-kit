@@ -2,7 +2,7 @@
 
 探索ライブラリは、合成データの速度だけでなく、その方式が実際に強かったAHCの
 得点規則で確認します。AHC001/015/021/032は公式仕様と同じ分布から固定seedで
-独自生成した入力、AHC002は公式配布入力、AHC011/026/038/058/061は公式ツールの入力です。公開順位の得点は
+独自生成した回帰入力です。これとは別にAHC002/011/026/032/038/058/061の公式配布入力も使います。公開順位の得点は
 別入力の相対評価を含むため、順位の再現ではありません。
 
 | 方式 | 実問題 | 実行コマンド | 比較するもの |
@@ -16,6 +16,7 @@
 | Action先行ビーム | AHC032 Mod Stamp | `make benchmark-search` | 幅による最終公式score |
 | 世代飛ばし木上ビーム | AHC038 Tree Robot Arm | 下記公式ツール用script | 幅による公式操作ターン数 |
 | 決定的rollout | AHC058 Apple Incremental Game | `rollout_official_benchmark.py --task 058` | 3手先読みの移植前後・単一ファイルの公式score |
+| 購入順序SA＋途中再生 | AHC058 Apple Incremental Game | `ahc058_annealing_benchmark.py` | 旧先読み解とSA強化版の公式score |
 | 共通シナリオMonte Carlo | AHC061 Multi-Player Territory Game | `rollout_official_benchmark.py --task 061` | 対話testerによる移植前後・単一ファイルの公式score |
 | Action先行ビーム＋区間LNS | AHC071 Wall Making | 下記公式入力用script | 参考`main3.cpp`との公式score |
 
@@ -152,7 +153,7 @@ python3 benchmarks/ahc026_official_benchmark.py \
 1回ずつの壁時計測定なので小さな速度差は一般化しません。少なくとも、候補列と得点bufferを
 Runnerへ分け、`location`を仮実行へコピーする構成で品質と速度を失っていないことを確認しました。
 
-## AHC058・061: 既存rolloutのフォーマット化
+## AHC058・061: 既存rolloutのフォーマット化（2026-09-14時点）
 
 AHC058は`DeterministicRolloutRunner`、AHC061は`CommonScenarioRolloutRunner`へ
 候補比較を分離しました。`examples/search`にヘッダ分離版、`practice/ahc058/main.cpp`と
@@ -194,7 +195,63 @@ Runner自身が相手モデルを推測するわけではありません。AHC05
 AHC058の後半は他の検証も並行したため、壁時計から小さな高速化率は主張しません。
 両例のseed 0はASan/UBSanでも検出0件でした（リーク検査のみ無効）。
 
+## AHC058: 購入順序SA＋差分再生（2026-09-15）
+
+短期4時間問題で、`TimeBasedAnnealingRunner`と新しい`PrefixReplay`を組み合わせました。
+初期解は従来の3手先読み。人が書く部分は購入列・近傍・1購入の実行・最終score・
+出力で、採否と時間管理はSA、途中状態の保存と仮cacheの確定はPrefixReplayの担当です。
+資金不足の待機区間も閉形式と二分探索でまとめて進めます。
+
+| 同じ公式入力 | 従来平均 | 新SA平均 | 勝/分/敗 |
+|---|---:|---:|---:|
+| seed 0〜9 | 5,192,506.70 | 5,481,894.70 | 10/0/0 |
+| 設定固定後のseed 10〜99 | 5,166,728.44 | 5,492,770.44 | 90/0/0 |
+| 全100ケース | 5,169,306.27 | **5,491,682.87** | **100/0/0** |
+
+全体平均は約6.24%増、新版合計549,168,287点。全出力を公式visで採点し、
+最長壁時計は1.852秒でした（設定は初期解構築込み1,850ms）。時間ベースなので
+再測定で反復数と得点が変わります。公式順位・提出環境での時間保証は主張しません。
+測定は各1回で、重いビルド・他solverは並行していません。
+
+```sh
+python3 benchmarks/ahc058_annealing_benchmark.py \
+  --inputs /path/to/ahc058/tools/in --tool /path/to/ahc058/tools/target/release/vis \
+  --cases 100 --output build/ahc058-prefix.csv
+```
+
+生データは[`開発10ケース`](benchmarks/results/ahc058-prefix-dev-10.csv)と
+[`追加90ケース`](benchmarks/results/ahc058-prefix-holdout-90.csv)。旧rollout移植比較用scriptは
+AHC058の単一ファイルだけ旧commitへ固定しているので、上のSA比較とは区別してください。
+[公式解説](https://img.atcoder.jp/ahc058/editorial.pdf)の購入順序SA・構築法との組合せを
+参考にしました。強いビームで初期解を作る方法や段階的な購入先絞り込みは未実装です。
+
 ## AHC032: Action先行ビーム
+
+2026-09-15には公式配布seed 0〜9を旧practice・旧Runner例・幅6,000の新版で比較しました。
+平均scoreは順に73,487,381,446.50、78,996,169,390.50、79,159,150,255.20。
+新版は旧practiceへ10勝、旧Runnerへ9勝1分でした。旧practice比は約7.72%増です。
+最長壁時計は新版1.115秒。生データは
+[`ahc032-width6000-dev-10.csv`](benchmarks/results/ahc032-width6000-dev-10.csv)です。
+
+設定固定後の公式seed 10〜99も全出力が合法でした。全100ケースの平均scoreは
+旧practice 73,494,359,900.33、旧Runner 78,973,301,951.56、新版 **79,132,304,281.58**。
+旧practiceへ100勝、旧Runnerへ85勝5分10敗で、平均はそれぞれ約7.67%・約0.20%増です。
+幅拡大で悪化する10ケースも隠さず記録しています。追加測定の最長壁時計は1.394秒でした。
+生データは[`追加90ケース`](benchmarks/results/ahc032-width6000-holdout-90.csv)。
+
+```sh
+python3 benchmarks/ahc032_official_benchmark.py \
+  --inputs /path/to/ahc032/tools/in --tool /path/to/ahc032/tools/target/release/vis \
+  --cases 100 --output build/ahc032-official.csv
+```
+
+問題実装の重複をなくし、下の独自生成ベンチマークも`examples/search`の実装を直接使う
+ようにしました。`practice`には同じコードをヘッダ展開して置き、一致をCIで検査します。
+[公式解説](https://img.atcoder.jp/ahc032/editorial.pdf)を参考にした終盤7枚の候補追加も
+試しましたが、手数予約込みの開発10ケースでは幅1,000従来版へ10敗でした。
+この実験は既定で無効です。詳しい編集箇所・結果は[`practice/ahc032`](practice/ahc032/README.md)。
+
+### 独自生成の回帰ベンチマーク
 
 AHC032は`ActionBeamRunner`で、全候補のStateを作る前に軽いActionと差分順位値を
 上位N件へ絞ります。固定5ケースでは幅1のscore合計382,455,918,414から、幅10,000の
