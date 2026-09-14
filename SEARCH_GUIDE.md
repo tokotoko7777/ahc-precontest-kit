@@ -31,6 +31,7 @@
 |---|---|---|
 | 時間焼きなましRunner | AHC002の経路destroy/repair | [`ahc002_destroy_repair_sa.cpp`](examples/search/ahc002_destroy_repair_sa.cpp) |
 | 時間焼きなましRunner | AHC006の配達経路 | [`ahc006_sa.cpp`](examples/search/ahc006_sa.cpp) |
+| apply/revert木上ビーム | AHC011のスライドパズル | [`ahc011_tree_beam.cpp`](examples/search/ahc011_tree_beam.cpp) |
 | 共通未来Monte Carlo Runner | AHC015の飴配置 | [`ahc015_common_rollout.cpp`](examples/search/ahc015_common_rollout.cpp) |
 | 通常ビーム | Introduction to Heuristics Contest A | [`intro_heuristics_simple_beam.cpp`](examples/search/intro_heuristics_simple_beam.cpp) |
 | Action先行ビーム | Introduction to Heuristics Contest A | [`intro_heuristics_action_beam.cpp`](examples/search/intro_heuristics_action_beam.cpp) |
