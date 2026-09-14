@@ -39,7 +39,7 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 最小例と安全な使い方をまとめています。
 それぞれを単体で実際の問題へ使った完全な `main.cpp` は
 [`examples/search/`](examples/search/README.md) にあります。
-AHC002・006・015・021・032は、問題固有処理を1個の`Problem`へ集めたRunner形式で、
+AHC002・006・011・015・021・032は、問題固有処理を1個の`Problem`へ集めたRunner形式で、
 destroy/repair焼きなまし・経路焼きなまし・共通未来Monte Carlo・木上ビーム・
 Actionビームを比較できます。
 探索ヘッダ内で`TODO:`を検索すると、`State`、候補生成、差分評価、状態更新など、

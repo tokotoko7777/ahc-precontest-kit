@@ -2,13 +2,14 @@
 
 探索ライブラリは、合成データの速度だけでなく、その方式が実際に強かったAHCの
 得点規則で確認します。AHC001/015/021/032は公式仕様と同じ分布から固定seedで
-独自生成した入力、AHC002/038は公式ツール同梱のseed 0--99です。公開順位の得点は
+独自生成した入力、AHC002は公式配布入力、AHC011/038は公式ツールの入力です。公開順位の得点は
 別入力の相対評価を含むため、順位の再現ではありません。
 
 | 方式 | 実問題 | 実行コマンド | 比較するもの |
 |---|---|---|---|
 | 時間焼きなまし | AHC001 Advertisement | `make benchmark-sa` | 同じ差分近傍の山登りと焼きなまし |
 | destroy/repair焼きなまし | AHC002 Walking on Tiles | 下記公式入力用script | 既存直書き版とRunner版の公式score |
+| apply/revert木上ビーム | AHC011 Sliding Tree Puzzle | 下記入力用script | 既存直書き版とRunner版の公式score |
 | 共通シナリオMonte Carlo | AHC015 Halloween Candy | `make benchmark-monte-carlo` | rollout数による最終公式score |
 | apply/revert木上ビーム | AHC021 Pyramid Sorting | `make benchmark-tree-beam` | 幅による操作数と最終公式score |
 | Action先行ビーム | AHC032 Mod Stamp | `make benchmark-search` | 幅による最終公式score |
@@ -63,6 +64,26 @@ Runner版で人が書くのは、経路とcache、末尾または内部区間の
 
 約22.4%の改善でした。TERRYさんの参加記から換算した参考平均は約991,270,000です。
 残る差には、破壊近傍、高温、多点スタートなど問題固有の工夫が含まれます。
+
+## AHC011: apply/revert木上ビーム
+
+[`ahc011_tree_beam.cpp`](examples/search/ahc011_tree_beam.cpp)では、盤面全体を
+候補ごとに保存せず、`TreeBeamRunner`が共有履歴木をDFSしながらStateを1個だけ
+`apply/revert`します。最大4方向は`FixedVector`で返すため、展開ごとのheap確保も
+ありません。問題側に残るのはスライド、木評価、差分hash、局面key、終端判定です。
+
+公式generatorで作った`0000.txt`形式の入力ディレクトリを渡すと、既存版とRunner版を
+同じ入力で比較し、scriptが全スライド、最大木、公式scoreを独立に検査します。
+
+```sh
+python3 benchmarks/ahc011_official_benchmark.py \
+  --inputs /path/to/ahc011/in --cases 10
+```
+
+公式サンプルでの手元確認では、両方とも最大木33、471,429点でした。Runner版は
+約2.51秒・65 MiB、既存版は約2.70秒・158 MiBでした。1ケースだけの速度・品質なので
+一般化はできませんが、フォーマット化後も同じ公式scoreへ到達し、共有Stateによる
+メモリ削減が実際に働くことを確認する回帰点として記録しています。
 
 ## AHC015: 共通シナリオMonte Carlo
 
@@ -168,6 +189,7 @@ visualizerの両方で、全命令・最終盤面・操作ターン数を検査�
 - [AHC001 Advertisement](https://atcoder.jp/contests/ahc001/tasks/ahc001_a)
 - [AHC001参加記（TERRYのブログ）](https://blog.terry-u16.net/entry/ahc001)
 - [AHC002 Walking on Tiles](https://atcoder.jp/contests/ahc002/tasks/ahc002_a)
+- [AHC011 Sliding Tree Puzzle](https://atcoder.jp/contests/ahc011/tasks/ahc011_a)
 - [AHC015 Halloween Candy](https://atcoder.jp/contests/ahc015/tasks/ahc015_a)
 - [AHC015 4位解法](https://eijirou-kyopro.hatenablog.com/entry/2022/11/03/172820)
 - [AHC015 1位相当解法](https://qiita.com/thun-c/items/8e7ae0249f1907854763)
