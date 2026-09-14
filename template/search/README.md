@@ -17,6 +17,7 @@
 | [`tree-beam.cpp`](tree-beam.cpp) | apply/revert木上ビーム | `generate_moves`、`apply_move`、`revert_move`、`evaluate` |
 | [`variable-cost-tree-beam.cpp`](variable-cost-tree-beam.cpp) | 世代飛ばし木上ビーム | 上記に加えて`get_advance` |
 | [`monte-carlo-rollout.cpp`](monte-carlo-rollout.cpp) | 共通シナリオMonte Carlo | `generate_scenario`、`evaluate_action`、`apply_real_action` |
+| [`deterministic-rollout.cpp`](deterministic-rollout.cpp) | 決定的な完走・先読み評価 | `generate_actions`、`evaluate_action`、`apply_real_action` |
 
 `TODO: 【重複除去する場合だけ】`のように書かれた項目は任意です。まずhashなしで
 動かし、同一局面が多いと確認できてから追加できます。
@@ -25,4 +26,4 @@
 状態遷移関数を視覚的に分離する
 [thun-cさんの差分更新ビームサーチライブラリ](https://qiita.com/thun-c/items/a29c80f7ba54b271a6c7)
 の考え方を参考にしています。このkitでは同じ見た目を焼きなまし、通常ビーム、
-Action差分ビーム、2種類の木上ビーム、Monte Carloへ揃えています。
+Action差分ビーム、2種類の木上ビーム、Monte Carlo、決定的rolloutへ揃えています。
