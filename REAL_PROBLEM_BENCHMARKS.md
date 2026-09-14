@@ -2,7 +2,7 @@
 
 探索ライブラリは、合成データの速度だけでなく、その方式が実際に強かったAHCの
 得点規則で確認します。AHC001/015/021/032は公式仕様と同じ分布から固定seedで
-独自生成した入力、AHC002は公式配布入力、AHC011/038は公式ツールの入力です。公開順位の得点は
+独自生成した入力、AHC002は公式配布入力、AHC011/026/038は公式ツールの入力です。公開順位の得点は
 別入力の相対評価を含むため、順位の再現ではありません。
 
 | 方式 | 実問題 | 実行コマンド | 比較するもの |
@@ -12,6 +12,7 @@
 | apply/revert木上ビーム | AHC011 Sliding Tree Puzzle | 下記入力用script | 既存直書き版とRunner版の公式score |
 | 共通シナリオMonte Carlo | AHC015 Halloween Candy | `make benchmark-monte-carlo` | rollout数による最終公式score |
 | apply/revert木上ビーム | AHC021 Pyramid Sorting | `make benchmark-tree-beam` | 幅による操作数と最終公式score |
+| 決定的rollout | AHC026 Stack of Boxes | 下記公式入力用script | 既存直書き版とRunner版の公式score |
 | Action先行ビーム | AHC032 Mod Stamp | `make benchmark-search` | 幅による最終公式score |
 | 世代飛ばし木上ビーム | AHC038 Tree Robot Arm | 下記公式ツール用script | 幅による公式操作ターン数 |
 
@@ -125,6 +126,29 @@ sample数を増やした10ケースの確認では、16 sampleの平均615,652�
 幅40は平均約0.25秒/ケースでした。初期上位解として紹介されている平均89,510.6を
 参考値として上回りましたが、入力が異なるため順位相当とは断定しません。
 
+## AHC026: 決定的rollout
+
+[`ahc026_deterministic_rollout.cpp`](examples/search/ahc026_deterministic_rollout.cpp)
+では、近い番号の箱を大きな塊から分離する範囲を`Action`にしています。全ての範囲を
+最後まで同じ貪欲で仮実行し、消費energyが最小のActionだけを実Stateへ1段反映します。
+未知情報がないためScenarioや乱数は不要です。
+
+```sh
+python3 benchmarks/ahc026_official_benchmark.py \
+  --inputs /path/to/ahc026/tools/in --cases 10
+```
+
+公式ツールseed 0--9で既存直書き版と比較した手元測定です。両版とも全ケース合法で、
+全seedの出力操作・energy・scoreが一致しました。
+
+| 実装 | 平均score | 合計 | 平均実行時間 |
+|---|---:|---:|---:|
+| 既存の直書き版 | 9,334.00 | 93,340 | 317.2 ms |
+| Runner形式版 | 9,334.00 | 93,340 | 308.1 ms |
+
+1回ずつの壁時計測定なので小さな速度差は一般化しません。少なくとも、候補列と得点bufferを
+Runnerへ分け、`location`を仮実行へコピーする構成で品質と速度を失っていないことを確認しました。
+
 ## AHC032: Action先行ビーム
 
 AHC032は`ActionBeamRunner`で、全候補のStateを作る前に軽いActionと差分順位値を
@@ -180,7 +204,8 @@ bitset、状態hashを組み合わせた探索です。この例にもbitsetと�
 
 各ベンチマークは探索中の差分値をそのまま信用せず、完成解を別経路で再生します。
 AHC001は長方形の境界・要求点・非重複と全score、AHC015は100ターンと公式連結成分
-score、AHC021は全交換の合法性・完成盤面・公式score、AHC032は操作数・盤面・
+score、AHC021は全交換の合法性・完成盤面・公式score、AHC026は全箱操作・energy・
+公式score、AHC032は操作数・盤面・
 差分scoreを検査します。AHC038は探索Stateとは別の盤面シミュレータと公式Rust
 visualizerの両方で、全命令・最終盤面・操作ターン数を検査します。
 
@@ -196,6 +221,7 @@ visualizerの両方で、全命令・最終盤面・操作ターン数を検査�
 - [AHC021 Pyramid Sorting](https://atcoder.jp/contests/ahc021/tasks/ahc021_a)
 - [AHC021 1位相当解法の記録](https://amentorimaru.hatenablog.com/entry/2024/11/30/013751)
 - [短期AHCで勝つためのテクニック](https://speakerdeck.com/shun_pi/duan-qi-ahcdesheng-tutamenotekunituku)
+- [AHC026 Stack of Boxes](https://atcoder.jp/contests/ahc026/tasks/ahc026_a)
 - [AHC032 Mod Stamp](https://atcoder.jp/contests/ahc032/tasks/ahc032_a)
 - [AHC038 Tree Robot Arm](https://atcoder.jp/contests/ahc038/tasks/ahc038_a)
 - [AHC038公式ツール](https://img.atcoder.jp/ahc038/GhBuR36w.zip)
