@@ -2,7 +2,7 @@
 
 探索ライブラリは、合成データの速度だけでなく、その方式が実際に強かったAHCの
 得点規則で確認します。AHC001/015/021/032は公式仕様と同じ分布から固定seedで
-独自生成した入力、AHC002は公式配布入力、AHC011/026/038は公式ツールの入力です。公開順位の得点は
+独自生成した入力、AHC002は公式配布入力、AHC011/026/038/058/061は公式ツールの入力です。公開順位の得点は
 別入力の相対評価を含むため、順位の再現ではありません。
 
 | 方式 | 実問題 | 実行コマンド | 比較するもの |
@@ -15,6 +15,8 @@
 | 決定的rollout | AHC026 Stack of Boxes | 下記公式入力用script | 既存直書き版とRunner版の公式score |
 | Action先行ビーム | AHC032 Mod Stamp | `make benchmark-search` | 幅による最終公式score |
 | 世代飛ばし木上ビーム | AHC038 Tree Robot Arm | 下記公式ツール用script | 幅による公式操作ターン数 |
+| 決定的rollout | AHC058 Apple Incremental Game | `rollout_official_benchmark.py --task 058` | 3手先読みの移植前後・単一ファイルの公式score |
+| 共通シナリオMonte Carlo | AHC061 Multi-Player Territory Game | `rollout_official_benchmark.py --task 061` | 対話testerによる移植前後・単一ファイルの公式score |
 | Action先行ビーム＋区間LNS | AHC071 Wall Making | 下記公式入力用script | 参考`main3.cpp`との公式score |
 
 4本を続けて実行する場合は`make benchmark-real-search`です。ケース数、制限時間、
@@ -150,6 +152,48 @@ python3 benchmarks/ahc026_official_benchmark.py \
 1回ずつの壁時計測定なので小さな速度差は一般化しません。少なくとも、候補列と得点bufferを
 Runnerへ分け、`location`を仮実行へコピーする構成で品質と速度を失っていないことを確認しました。
 
+## AHC058・061: 既存rolloutのフォーマット化
+
+AHC058は`DeterministicRolloutRunner`、AHC061は`CommonScenarioRolloutRunner`へ
+候補比較を分離しました。`examples/search`にヘッダ分離版、`practice/ahc058/main.cpp`と
+`practice/ahc061/main.cpp`にヘッダ展開済みの提出用1ファイルを置いています。
+どちらも`TODO(AHC...)`から問題側の編集箇所をたどれます。
+
+```sh
+python3 benchmarks/rollout_official_benchmark.py --task 058 \
+  --inputs /path/to/ahc058/tools/in --tool /path/to/ahc058/tools/target/release/vis \
+  --cases 100 --output build/ahc058-rollout.csv
+python3 benchmarks/rollout_official_benchmark.py --task 061 \
+  --inputs /path/to/ahc061/in --tool /path/to/ahc061/target/release/tester \
+  --cases 100 --output build/ahc061-rollout.csv
+```
+
+比較元の既定は移植前コミット`48e905a1b61eb70051d9fb7af18d34e13390cb69`です。
+`--reference-ref`で変更できます。現行`practice`を旧版として比較してしまうことを避け、
+コミットから取り出した旧版・Runner例・提出用1ファイルを同じ入力で順番に実行します。
+主指標は公式の絶対scoreの平均・合計、補助指標は勝分敗と壁時計です。
+CSVにはseedごとのscore、時間、入力・出力・ソースのSHA-256を残します。
+既存CSVは上書きしません。公式ツールがないCIで独自の値を公式scoreとして代用しません。
+
+AHC061は相手のモデルと将来乱数を共有し、旧版のSplitMix64、`double`加算順、
+1e-12以内の同点処理を保ちます。盤面操作と粒子学習は問題依存であり、
+Runner自身が相手モデルを推測するわけではありません。AHC058は状態を固定長配列に
+してコピー時の動的確保をなくしました。探索深さ・候補数を増やす変更ではありません。
+
+2026-09-14、公式配布seed 0〜99・各版`g++ -O2 -DNDEBUG`での結果です。
+
+| 問題 | 移植前の平均score | Runner例の平均score | 単一ファイルの平均score | 勝/分/敗 |
+|---|---:|---:|---:|---|
+| AHC058 | 5,169,306.27 | 5,169,306.27 | 5,169,306.27 | 0/100/0 |
+| AHC061 | 168,377.35 | 168,377.35 | 168,377.35 | 0/100/0 |
+
+2問とも全100ケースで出力とscoreが完全一致し、公式ツールで合法に完走しました。
+得点向上ではなく、既存の探索力を保った問題依存部分の分離を確認した結果です。
+合計scoreはAHC058が516,930,627、AHC061が16,837,735でした。
+生データは[`benchmarks/results/`](benchmarks/results/README.md)に保存しています。
+AHC058の後半は他の検証も並行したため、壁時計から小さな高速化率は主張しません。
+両例のseed 0はASan/UBSanでも検出0件でした（リーク検査のみ無効）。
+
 ## AHC032: Action先行ビーム
 
 AHC032は`ActionBeamRunner`で、全候補のStateを作る前に軽いActionと差分順位値を
@@ -254,4 +298,7 @@ visualizerの両方で、全命令・最終盤面・操作ターン数を検査�
 - [AHC032 Mod Stamp](https://atcoder.jp/contests/ahc032/tasks/ahc032_a)
 - [AHC038 Tree Robot Arm](https://atcoder.jp/contests/ahc038/tasks/ahc038_a)
 - [AHC038公式ツール](https://img.atcoder.jp/ahc038/GhBuR36w.zip)
+- [AHC058 Apple Incremental Game](https://atcoder.jp/contests/ahc058/tasks/ahc058_a)
+- [AHC058公式ツール](https://img.atcoder.jp/ahc058/UpvAVdx6.zip)
+- [AHC061 Multi-Player Territory Game](https://atcoder.jp/contests/ahc061/tasks/ahc061_a)
 - [AHC071 Wall Making](https://atcoder.jp/contests/ahc071/tasks/ahc071_a)

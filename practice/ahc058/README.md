@@ -6,6 +6,25 @@
 別ファイルを `#include` する必要はありません。乱数や時間打ち切りも使わないため、同じ
 入力には常に同じ答えを出します。
 
+## フォーマットの編集箇所
+
+`main.cpp`は`DeterministicRolloutRunner`を展開済みです。`BEGIN LIBRARY`から
+`END LIBRARY`までは共通処理なので通常は編集せず、`TODO(AHC058)`以降の
+`Problem`を編集します。ヘッダ分離版は
+[`ahc058_deterministic_rollout.cpp`](../../examples/search/ahc058_deterministic_rollout.cpp)です。
+
+| 編集するもの | 書く内容・返す値 |
+|---|---|
+| `State / Action / Score` | 機械数・power・りんご・残り時間 / 最初の1手 / `__int128`の将来値 |
+| `generate_actions` | 現在資金で可能な強化と待機の一覧 |
+| `advance` | 指定した1手を反映し、公式の順番で生産を1ターン進める |
+| `second_actions` | 2手目をどの候補に絞るか |
+| `evaluate_action` | 指定した最初の1手から先読みした、最終りんご数の見積り |
+
+候補の比較・同点時の選択・評価値bufferの再利用はRunnerが担当します。
+状態は固定長配列なので、先読み時の状態コピーで動的メモリ確保を行いません。
+これは使い方と実装コストの更新で、探索深さを増やす変更ではありません。
+
 ## 問題を短く言うと
 
 - IDが10種類、Levelが4種類ある。
@@ -93,6 +112,16 @@ g++ -std=c++17 -O2 -DNDEBUG -DROLLOUT_DEPTH=2 main.cpp -o main
 通常提出では既定の3手先読みを使います。
 
 ## 手元測定
+
+2026-09-14のフォーマット化では、公式配布seed 0〜99を移植前・Runner例・
+ヘッダ展開済み`main.cpp`の3種類で再測定しました。全100ケースで出力とscoreが
+完全一致し、全て合法でした。3種類とも合計516,930,627点、平均5,169,306.27点です。
+探索深さや候補数は変えておらず、今回の変更による得点上昇は主張しません。
+seed 0はASan/UBSanでも検出0件でした（リーク検査のみ無効）。
+
+生データ: [`ahc058-rollout-20260914.csv`](../../benchmarks/results/ahc058-rollout-20260914.csv)。
+再実行コマンドは[`実問題ベンチマーク`](../../REAL_PROBLEM_BENCHMARKS.md#ahc058061-既存rolloutのフォーマット化)
+にあります。以下は移植前の測定記録です。
 
 正しいAHC058公式ローカルツール、`g++ -O2` を使用しました。既定の3手先読みの結果です。
 
