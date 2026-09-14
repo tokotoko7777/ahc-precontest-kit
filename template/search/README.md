@@ -12,6 +12,7 @@
 | ファイル | 方式 | 主に埋める関数 |
 |---|---|---|
 | [`time-based-annealing.cpp`](time-based-annealing.cpp) | 時間焼きなまし | `propose_move`、`evaluate_move`、`apply_move` |
+| [`prefix-replay-annealing.cpp`](prefix-replay-annealing.cpp) | 行動列の途中から再生する焼きなまし | `advance`、`evaluate_end`、`propose_move`。仮cacheの確定まで配置済み |
 | [`simple-beam.cpp`](simple-beam.cpp) | 通常ビーム | `expand`、`evaluate` |
 | [`action-beam.cpp`](action-beam.cpp) | Action差分ビーム | `generate_actions`、`evaluate_action`、`apply_action` |
 | [`tree-beam.cpp`](tree-beam.cpp) | apply/revert木上ビーム | `generate_moves`、`apply_move`、`revert_move`、`evaluate` |

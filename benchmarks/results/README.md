@@ -1,5 +1,27 @@
 # 公式スコア比較の生データ
 
+## 購入順序SAの追加（2026-09-15）
+
+`ahc058-prefix-dev-10.csv`と`ahc058-prefix-holdout-90.csv`は
+`ahc058_annealing_benchmark.py`の新旧比較です。最初の10ケース確認後、
+設定を固定して残り90ケースを測定しました。`reference`は旧practice、
+`prefix_sa`は新しいSA例です。全100ケースで改善、平均約6.24%増でした。
+時間ベースなので再実行時にスコアは変動します。採点中に重いビルド・他solverは並行していません。
+
+## AHC032の公式スコア比較（2026-09-15）
+
+`ahc032-width6000-dev-10.csv`と`ahc032-width6000-holdout-90.csv`は旧practice、
+旧幅1,000のRunner、新幅6,000のRunnerの同一公式seed比較です。最初の10ケースを
+確認して設定を固定し、残り90ケースを採点しました。主指標はscoreで、秒数は補助値です。
+全100ケースで旧practiceへ100勝、旧Runnerへ85勝5分10敗。平均は約7.67%・約0.20%増です。
+`ahc032-end7-no-reserve-dev-10.csv`と`ahc032-end7-reserved-dev-10.csv`は開発中の
+幅1,000・5/6/7枚を各4,096候補追加した実験の記録で、採用版の結果ではありません。
+前者は手数配分を据え置き、後者は最後に7手を予約しています。
+後者は現在のコードでも`AHC032_BEAM_WIDTH=1000`と`AHC032_END_COMBOS=4096`で
+再現できます。悪化した案を、既定の強化版としては採用していません。
+
+## 旧rolloutの移植比較（2026-09-14）
+
 `rollout_official_benchmark.py`によるAHC058・061の公式配布seed 0〜99の測定です。
 1つのseedにつき`reference`（移植前）、`formatted`（Runner例）、
 `standalone`（ヘッダ展開済みpractice）の3行があります。

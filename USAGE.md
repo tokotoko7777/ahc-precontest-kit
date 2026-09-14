@@ -97,6 +97,34 @@ double temperature =
 既定は指数冷却です。必要なら`use_linear_schedule()`で線形冷却、
 `set_cooling_power(2.0)`で高温の時間を長くできます。
 
+## 行動列を途中からだけ再生する
+
+`prefix-replay.hpp`は、購入順序・経路・スケジュールなどの行動列を少し変更して
+評価するときに使います。`State`へ再生途中の情報、`Action`へ1行動を書きます。
+
+```cpp
+struct Simulation { long long value = 0; };
+PrefixReplay<Simulation, int> replay(Simulation{}, 16);
+auto step = [](Simulation& state, int action) { state.value += action; };
+vector<int> current{1, 2, 3};
+replay.evaluate(current, step);
+replay.commit();
+vector<int> candidate{1, 2, 4};
+const auto& end = replay.evaluate(candidate, step);
+if (end.value > replay.current_end().value) replay.commit();
+// 不採用なら何もしなくてよい。次のevaluateは現在の採用済み列から再生する。
+```
+
+この短い加算例自体にcacheは不要ですが、`step`が重いsimulationなら共通区間の
+再実行を減らせます。checkpointの間隔より列が短い場合は全再生になります。
+採否・温度は別の焼きなましRunnerが担当し、cacheは採用時だけ確定します。
+挿入・削除・可変長にも対応します。外部の入力・規則は固定し、乱数が必要なら
+乱数状態もSimulationかActionへ含めます。
+
+空の関数と返り値の説明を置いた雛形は
+[`prefix-replay-annealing.cpp`](template/search/prefix-replay-annealing.cpp)、
+実問題例は[`AHC058`](practice/ahc058/README.md)です。
+
 ## 進捗率を外から渡す焼きなまし
 
 探索全体で1個の `Timer` を共有したい時や、複数フェーズに分けたい時はこちらを
