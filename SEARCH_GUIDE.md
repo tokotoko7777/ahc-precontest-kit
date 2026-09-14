@@ -445,26 +445,44 @@ AHC015の飴配置を終端までrolloutする実例は
 sample数だけを増やしても、未来の自分の行動が弱ければ評価も弱いままです。
 未知情報のsample、未来のルール方策、1 rolloutの軽さを問題ごとに設計します。
 
-## 世代が飛ぶCostTreeBeamSearch
+## 世代が飛ぶCostTreeBeamRunner
 
 1行動の消費手数が異なる場合は、同じ到着世代の候補だけを比較します。
 `get_advance(move)`は正の整数を返します。
 
 ```cpp
-CostTreeBeamSearch<State, Move, long long> beam(
-    initial_state, rank_score(initial_state), 200, max_generation);
+struct Problem {
+  using State = MyState;       // TODO: 探索中に必要な状態。
+  using Move = MyMove;         // TODO: 1行動。advanceもここへ持たせる。
+  using Score = long long;     // TODO: evaluateが返す順位値の型。
 
-while (beam.step(
-    expand, apply, revert, rank_score,
-    [](const Move& move) { return move.advance; })) {
-}
+  auto generate_moves(const State& state);       // TODO: 合法手を返す。
+  void apply_move(State& state, Move& move);      // TODO: 1手進める。
+  void revert_move(State& state, const Move& move); // TODO: 完全に戻す。
+  Score evaluate(const State& state);             // TODO: 順位値を返す。
+  int get_advance(const Move& move);               // TODO: 正の消費手数。
+  uint64_t make_key(const State& state);           // TODO: 重複除去用。
+};
+
+Problem problem;
+CostTreeBeamRunner<Problem> beam(
+    problem, initial_state, problem.evaluate(initial_state),
+    200, max_generation);
+beam.run_with_key();  // 重複除去しない場合はrun()。
 
 vector<Move> answer = beam.restore();
 ```
 
+| 人が問題に合わせて書く | ライブラリが担当する |
+|---|---|
+| `State`、軽い`Move`、`Score` | 到着世代別の候補bufferと探索ループ |
+| 候補生成、評価、正の消費手数 | 各世代の上位N件選抜 |
+| 1手の`apply / revert` | 状態を1個だけ持つDFSと共有履歴木 |
+| 必要なら局面key、terminal判定 | 重複除去、経路復元、候補observer |
+
 `advance <= 0`は不正です。`max_generation`を超える行動は自動で候補から外れます。
 `step()`は、候補が存在する最小の到着世代へ進みます。
-時間が減ったら`beam.set_beam_width(smaller_width)`で、現在層と予約済みの
+時間が減ったら`beam.set_width(smaller_width)`で、現在層と予約済みの
 未来層をまとめて縮められます。後から幅を広げても、既に落とした候補は戻りません。
 
 ## 順位評価と最終目的を分ける

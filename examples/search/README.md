@@ -12,8 +12,8 @@
 | [`intro_heuristics_action_beam.cpp`](intro_heuristics_action_beam.cpp) | `ActionBeamRunner` | Introduction to Heuristics Contest A | 問題依存コードを1 structへ分離。State・Action・Scoreと3関数へ何を書き何を返すか、行ごとのコメント付き |
 | [`ahc021_tree_beam.cpp`](ahc021_tree_beam.cpp) | `TreeBeamRunner` | AHC021 | `PyramidProblem`へ候補生成・`apply/revert`・差分評価・hashを分離。履歴木と上位選抜はRunner側 |
 | [`ahc032_action_beam.cpp`](ahc032_action_beam.cpp) | `ActionBeamRunner` | AHC032 | 3×3スタンプ多重集合を2-byte Action化。採用候補だけ盤面をコピーし、49位置を順に確定 |
-| [`variable_cost_beam.cpp`](variable_cost_beam.cpp) | `CostTreeBeamSearch` | 締切付き宝集め | 1、2、3世代進む行動と再訪を扱う。200ランダムケースを厳密DPと照合した |
-| [`ahc038_variable_cost_beam.cpp`](ahc038_variable_cost_beam.cpp) | `CostTreeBeamSearch` | AHC038 | 「次の把持・解放」まで1手で世代を飛ばす。盤面bitsetと姿勢をapply/revertし、公式seed 0--99を全て合法に完了した |
+| [`variable_cost_beam.cpp`](variable_cost_beam.cpp) | `CostTreeBeamRunner` | 締切付き宝集め | Problem型へ可変長行動を分離。1、2、3世代進む行動と再訪を扱い、200ランダムケースを厳密DPと照合した |
+| [`ahc038_variable_cost_beam.cpp`](ahc038_variable_cost_beam.cpp) | `CostTreeBeamRunner` | AHC038 | 「次の把持・解放」まで1手で世代を飛ばす。問題側は候補・apply/revert・評価・進行量・keyだけを書き、公式seed 0--99を全て合法に完了した |
 | [`ahc071_action_beam.cpp`](ahc071_action_beam.cpp) | `ActionBeamRunner` | AHC071 | 上段から必要な支持位置を渡す行DP。全体構築と区間再構築を同じProblem型で行い、同じ次段条件をkeyでまとめる |
 
 数値はライブラリの適用確認用で、AtCoder上の順位やスコアを主張するものでは
