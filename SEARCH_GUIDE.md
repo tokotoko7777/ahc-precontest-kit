@@ -29,6 +29,7 @@
 
 | 探索コア | 問題例 | 完全な`main.cpp` |
 |---|---|---|
+| 時間焼きなましRunner | AHC002の経路destroy/repair | [`ahc002_destroy_repair_sa.cpp`](examples/search/ahc002_destroy_repair_sa.cpp) |
 | 時間焼きなましRunner | AHC006の配達経路 | [`ahc006_sa.cpp`](examples/search/ahc006_sa.cpp) |
 | 共通未来Monte Carlo Runner | AHC015の飴配置 | [`ahc015_common_rollout.cpp`](examples/search/ahc015_common_rollout.cpp) |
 | 通常ビーム | Introduction to Heuristics Contest A | [`intro_heuristics_simple_beam.cpp`](examples/search/intro_heuristics_simple_beam.cpp) |
@@ -149,7 +150,7 @@ struct Problem {
   }
 
   // TODO: 【問題ごと】採用済みmoveを反映し、全cacheを更新する。
-  void apply_move(State& state, const Move& move) {
+  void apply_move(State& state, Move& move) {
     apply(state, move);
   }
 };
@@ -166,12 +167,17 @@ runner.run();
 MyState answer = runner.best_state();
 ```
 
+`Move`に可変長の再構築結果を持たせた時は、`apply_move`でそのbufferを`State`へ
+`move`できます。現在解が大きく悪化した時は`runner.restart_from_best()`で、時計、
+温度、乱数列を止めずに保存済み最良解から再開できます。AHC002の実例では、
+経路区間のdestroy/repairとこの再開機能を組み合わせています。
+
 | 人が問題に合わせて書く | ライブラリが担当する |
 |---|---|
 | `State`、`Move`、初期解 | 時計と温度schedule |
 | `propose_move` | 乱数engineと採否判定 |
 | `evaluate_move`の差分 | 現在score、最良scoreの更新 |
-| `apply_move` | 現在解、最良解、反復件数の保存 |
+| `apply_move` | 現在解、最良解、反復・再開件数の保存 |
 
 AHC001の長方形配置をこの境界で解き、同じ近傍の山登りと比較する実例は
 [`ahc001_annealing_score_benchmark.cpp`](benchmarks/ahc001_annealing_score_benchmark.cpp)です。

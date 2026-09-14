@@ -46,8 +46,9 @@ struct Problem {
     return evaluate_move(state, move);
   }
 
-  void apply_move(State&, const Move&) const {
+  void apply_move(State&, Move&) const {
     // TODO: 採用されたMoveだけをStateへ反映する。cacheも忘れず更新する。
+    // Moveにvector等で次状態を作った場合は、ここでmoveしてよい。
   }
 };
 
