@@ -428,6 +428,49 @@ void test_time_based_threshold_runner() {
   assert(runner.current_score() == 0.0);
 }
 
+void test_time_based_runner_restart_from_best() {
+  struct Problem {
+    struct State {
+      int value = 0;
+    };
+    struct Move {
+      int improvement = 0;
+    };
+    using Score = int;
+
+    int proposed = 0;
+
+    std::optional<Move> propose_move(
+        const State&, std::mt19937_64&, double) {
+      ++proposed;
+      return Move{proposed == 1 ? 10 : -1};
+    }
+
+    Score evaluate_move(const State&, const Move& move) const {
+      return move.improvement;
+    }
+
+    void apply_move(State& state, Move& move) const {
+      state.value += move.improvement;
+    }
+  };
+
+  Problem problem;
+  TimeBasedAnnealingRunner<Problem> runner(
+      problem, Problem::State{}, 0, 100000.0, 1e300, 1e300, 17, 1);
+  assert(runner.step());
+  assert(runner.current_score() == 10);
+  assert(runner.best_score() == 10);
+  assert(runner.step());
+  assert(runner.current_score() == 9);
+  assert(runner.best_score() == 10);
+
+  runner.restart_from_best();
+  assert(runner.current_score() == 10);
+  assert(runner.current_state().value == 10);
+  assert(runner.restarts() == 1);
+}
+
 int main() {
   test_progress_based_temperature_settings();
   test_probability_helpers();
@@ -438,4 +481,5 @@ int main() {
   test_time_checks();
   test_time_based_problem_runner();
   test_time_based_threshold_runner();
+  test_time_based_runner_restart_from_best();
 }

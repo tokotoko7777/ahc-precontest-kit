@@ -6,6 +6,7 @@
 
 | ファイル | 使う探索 | 題材 | 確認したこと |
 |---|---|---|---|
+| [`ahc002_destroy_repair_sa.cpp`](ahc002_destroy_repair_sa.cpp) | `TimeBasedAnnealingRunner` | AHC002 | 可変長経路の末尾再構築と区間DFS修復をProblemへ分離。採用時のbuffer移動と最良解からの再開を使用 |
 | [`ahc006_sa.cpp`](ahc006_sa.cpp) | `TimeBasedAnnealingRunner` | AHC006 | `DeliveryProblem`へState・Move・近傍・差分・反映を分離。固定長Routeで毎試行のvector確保を避ける |
 | [`ahc015_common_rollout.cpp`](ahc015_common_rollout.cpp) | `CommonScenarioRolloutRunner` | AHC015 | 4方向を同じ未来配置で比較。盤面操作・Scenario・rollout評価と共通乱数処理の境界を明示 |
 | [`intro_heuristics_simple_beam.cpp`](intro_heuristics_simple_beam.cpp) | `SimpleBeamSearch` | Introduction to Heuristics Contest A | 365日入力を最後まで構築し、出力日数・番号範囲・得点計算を確認した |
@@ -20,8 +21,8 @@
 ありません。乱数seedは固定ですが、壁時計で終了するAHC006例の反復回数と結果は
 実行負荷によって多少変わります。
 
-AHC006・015・021・032のRunner形式4本は、決定的な生成入力を使った短時間
-スモークテストで、出力行数・値域・操作数を確認しています。AHC006は経路、
+AHC002・006・015・021・032のRunner形式5本は、決定的な生成入力を使った短時間
+スモークテストで、出力行数・値域・操作数を確認しています。AHC002・006は経路、
 AHC021は操作再生後の差分score、AHC032は盤面と最終scoreも全再計算と照合します。
 これは入出力と実装整合性の確認であり、公式seedの得点比較ではありません。
 
@@ -40,6 +41,7 @@ AHC021は操作再生後の差分score、AHC032は盤面と最終scoreも全再�
 リポジトリのルートで実行します。
 
 ```sh
+g++ -std=c++17 -O2 -Wall -Wextra -pedantic examples/search/ahc002_destroy_repair_sa.cpp -o /tmp/ahc002_sa
 g++ -std=c++17 -O2 -Wall -Wextra -pedantic examples/search/ahc006_sa.cpp -o /tmp/ahc006_sa
 g++ -std=c++17 -O2 -Wall -Wextra -pedantic examples/search/ahc015_common_rollout.cpp -o /tmp/ahc015_rollout
 g++ -std=c++17 -O2 -Wall -Wextra -pedantic examples/search/intro_heuristics_simple_beam.cpp -o /tmp/intro_beam
@@ -84,6 +86,14 @@ python3 tools/copy_part.py --ref <公開済みSHA> \
 AHC038例は、特に触る場所へ`TODO(AHC038)`を付けています。`State`、`Move`、
 候補生成、差分適用・復元、評価関数、腕形状、ビーム幅の順に読めます。幅だけを
 比較する時は`-DAHC038_BEAM_WIDTH=1`のようにコンパイル時指定できます。
+
+AHC002の公式配布入力がある場合は、既存版との合法性・score比較を複数seedで
+再現できます。Runner版だけは厳格警告もエラーとしてコンパイルします。
+
+```sh
+python3 benchmarks/ahc002_official_benchmark.py \
+  --inputs /path/to/ahc002/in --cases 10
+```
 
 AHC071例も同様に`TODO(AHC071)`を検索できます。1行の最小費用DP、その上位候補列挙、
 将来費用、`State / Action / Score`、候補生成、評価、反映、同一状態key、完成済み解を

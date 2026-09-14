@@ -328,8 +328,8 @@ struct TimeBasedSimulatedAnnealing {
 //       const State&, const Move&, double acceptance_threshold)
 //     -> 閾値を超えないと証明できた時だけnullopt。その他は正確な改善量。
 //   TODO: 【問題ごと】採用された近傍だけを現在解へ反映する。
-//   void apply_move(State&, const Move&)
-//     -> 採用済みの手だけをStateへ反映する。
+//   void apply_move(State&, Move&)
+//     -> 採用済みの手だけをStateへ反映する。Move内のvector等はmoveしてよい。
 //
 // Runnerは時計、温度、採否、現在解、最良解、件数統計を担当する。
 // evaluate_moveはStateを書き換えない。この形なら不採用時のrevertは不要。
@@ -433,6 +433,14 @@ struct TimeBasedAnnealingRunner {
     return iterations_;
   }
 
+  // 現在解が深く悪化した時、保存済みの最良解から探索を再開する。
+  // 温度、時計、乱数列、試行件数はそのまま継続する。
+  void restart_from_best() {
+    current_state_ = best_state_;
+    current_score_ = best_score_;
+    ++restarts_;
+  }
+
   const State& current_state() const { return current_state_; }
   const State& best_state() const { return best_state_; }
   const Score& current_score() const { return current_score_; }
@@ -441,6 +449,7 @@ struct TimeBasedAnnealingRunner {
   std::uint64_t valid_moves() const { return valid_moves_; }
   std::uint64_t accepted_moves() const { return accepted_moves_; }
   std::uint64_t best_updates() const { return best_updates_; }
+  std::uint64_t restarts() const { return restarts_; }
   std::uint64_t threshold_pruned_moves() const {
     return threshold_pruned_moves_;
   }
@@ -460,5 +469,6 @@ struct TimeBasedAnnealingRunner {
   std::uint64_t valid_moves_ = 0;
   std::uint64_t accepted_moves_ = 0;
   std::uint64_t best_updates_ = 0;
+  std::uint64_t restarts_ = 0;
   std::uint64_t threshold_pruned_moves_ = 0;
 };

@@ -2,12 +2,13 @@
 
 探索ライブラリは、合成データの速度だけでなく、その方式が実際に強かったAHCの
 得点規則で確認します。AHC001/015/021/032は公式仕様と同じ分布から固定seedで
-独自生成した入力、AHC038は公式ツール同梱のseed 0--99です。公開順位の得点は
+独自生成した入力、AHC002/038は公式ツール同梱のseed 0--99です。公開順位の得点は
 別入力の相対評価を含むため、順位の再現ではありません。
 
 | 方式 | 実問題 | 実行コマンド | 比較するもの |
 |---|---|---|---|
 | 時間焼きなまし | AHC001 Advertisement | `make benchmark-sa` | 同じ差分近傍の山登りと焼きなまし |
+| destroy/repair焼きなまし | AHC002 Walking on Tiles | 下記公式入力用script | 既存直書き版とRunner版の公式score |
 | 共通シナリオMonte Carlo | AHC015 Halloween Candy | `make benchmark-monte-carlo` | rollout数による最終公式score |
 | apply/revert木上ビーム | AHC021 Pyramid Sorting | `make benchmark-tree-beam` | 幅による操作数と最終公式score |
 | Action先行ビーム | AHC032 Mod Stamp | `make benchmark-search` | 幅による最終公式score |
@@ -15,6 +16,32 @@
 
 4本を続けて実行する場合は`make benchmark-real-search`です。ケース数、制限時間、
 幅、sample数は各実行ファイルの引数で変更できます。
+
+## AHC002: destroy/repair焼きなまし
+
+公式配布入力を展開した`in`ディレクトリを渡すと、既存の直書き版と
+`TimeBasedAnnealingRunner`版を同じseedで実行します。script自身が全移動を再生し、
+盤外移動と同一tileの再訪を検査してから公式scoreを計算します。
+
+```sh
+python3 benchmarks/ahc002_official_benchmark.py \
+  --inputs /path/to/ahc002/in --cases 10
+```
+
+Runner版で人が書くのは、経路とcache、末尾または内部区間のdestroy/repair、
+得点差、採用時の反映です。時計、温度、採否、best保存、bestからの再開は
+ライブラリ側に分離しています。
+
+公式配布seed 0--9を各1.87秒で実行した今回の手元測定です。
+
+| 実装 | 平均score | 合計 | Runner版から見た勝敗 |
+|---|---:|---:|---:|
+| 既存の直書き版 | 56,674.10 | 566,741 | - |
+| Runner形式版 | **57,302.30** | **573,023** | 6勝0分4敗 |
+
+壁時計で停止するため再実行時の反復数とscoreは変動します。この比較から言えるのは、
+フォーマット化したsolverが同じ実問題・同じ時間で合法に完走し、この10ケースでは
+探索力を大きく失っていないことまでです。
 
 ## AHC001: 時間焼きなまし
 
@@ -140,6 +167,7 @@ visualizerの両方で、全命令・最終盤面・操作ターン数を検査�
 
 - [AHC001 Advertisement](https://atcoder.jp/contests/ahc001/tasks/ahc001_a)
 - [AHC001参加記（TERRYのブログ）](https://blog.terry-u16.net/entry/ahc001)
+- [AHC002 Walking on Tiles](https://atcoder.jp/contests/ahc002/tasks/ahc002_a)
 - [AHC015 Halloween Candy](https://atcoder.jp/contests/ahc015/tasks/ahc015_a)
 - [AHC015 4位解法](https://eijirou-kyopro.hatenablog.com/entry/2022/11/03/172820)
 - [AHC015 1位相当解法](https://qiita.com/thun-c/items/8e7ae0249f1907854763)
