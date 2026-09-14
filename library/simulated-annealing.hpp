@@ -217,6 +217,25 @@ struct SimulatedAnnealing {
     return static_cast<double>(engine() >> 11) * inverse;
   }
 
+  // この試行が採用されるために必要な最小improvementを先に乱数で決める。
+  // 戻り値は必ず0以下で、通常のacceptと同じ条件は
+  //   improvement > draw_acceptance_threshold()
+  // になる。重い差分計算へこの値を渡すと、「ここから計算しても閾値を
+  // 超えない」と分かった時点で安全に打ち切れる。
+  // このAPIは良化手を含む全試行で乱数を1個消費するため、accept()と乱数列は
+  // 一致しないが、各手の採用確率は同じ。
+  double draw_acceptance_threshold() {
+    synchronize_temperature_settings();
+    return cached_temperature_value * std::log(random_01());
+  }
+
+  template <class Score>
+  bool accept_with_threshold(Score improvement, double threshold) const {
+    const double value = static_cast<double>(improvement);
+    if (std::isnan(value) || std::isnan(threshold)) return false;
+    return value > threshold;
+  }
+
   // improvement は「変更後がどれだけ良くなるか」。
   // 最大化: new_score - current_score
   // 最小化: current_cost - new_cost

@@ -12,6 +12,7 @@
 | [`ahc021_tree_beam.cpp`](ahc021_tree_beam.cpp) | `TreeBeamSearch` | AHC021 | 交換の`apply / revert`と差分評価。ランダム13ケースを全て合法な完成状態まで解いた |
 | [`variable_cost_beam.cpp`](variable_cost_beam.cpp) | `CostTreeBeamSearch` | 締切付き宝集め | 1、2、3世代進む行動と再訪を扱う。200ランダムケースを厳密DPと照合した |
 | [`ahc038_variable_cost_beam.cpp`](ahc038_variable_cost_beam.cpp) | `CostTreeBeamSearch` | AHC038 | 「次の把持・解放」まで1手で世代を飛ばす。盤面bitsetと姿勢をapply/revertし、公式seed 0--99を全て合法に完了した |
+| [`ahc071_action_beam.cpp`](ahc071_action_beam.cpp) | `ActionBeamRunner` | AHC071 | 上段から必要な支持位置を渡す行DP。全体構築と区間再構築を同じProblem型で行い、同じ次段条件をkeyでまとめる |
 
 数値はライブラリの適用確認用で、AtCoder上の順位やスコアを主張するものでは
 ありません。乱数seedは固定ですが、壁時計で終了するAHC006例の反復回数と結果は
@@ -38,6 +39,7 @@ g++ -std=c++17 -O2 -Wall -Wextra -pedantic examples/search/intro_heuristics_acti
 g++ -std=c++17 -O2 -Wall -Wextra -pedantic examples/search/ahc021_tree_beam.cpp -o /tmp/ahc021_beam
 g++ -std=c++17 -O2 -Wall -Wextra -pedantic examples/search/variable_cost_beam.cpp -o /tmp/cost_beam
 g++ -std=c++17 -O2 -Wall -Wextra -pedantic examples/search/ahc038_variable_cost_beam.cpp -o /tmp/ahc038_beam
+g++ -std=c++17 -O2 -Wall -Wextra -pedantic examples/search/ahc071_action_beam.cpp -o /tmp/ahc071_beam
 ```
 
 世代飛ばし版には小さい厳密DPとの自己テストも同じファイルに入っています。
@@ -73,3 +75,16 @@ python3 tools/copy_part.py --ref <公開済みSHA> \
 AHC038例は、特に触る場所へ`TODO(AHC038)`を付けています。`State`、`Move`、
 候補生成、差分適用・復元、評価関数、腕形状、ビーム幅の順に読めます。幅だけを
 比較する時は`-DAHC038_BEAM_WIDTH=1`のようにコンパイル時指定できます。
+
+AHC071例も同様に`TODO(AHC071)`を検索できます。1行の最小費用DP、その上位候補列挙、
+将来費用、`State / Action / Score`、候補生成、評価、反映、同一状態key、完成済み解を
+使う費用閾値の順です。公式入力とvisualizerがある場合は、次で別solverとも同一seedを
+比較できます。
+
+```sh
+python3 benchmarks/ahc071_official_benchmark.py \
+  --tools /path/to/AHC071 --reference /path/to/AHC071/main3.cpp --cases 10
+```
+
+Rust toolchainを使えない環境では`--ported-score`を付けると、公式`src/lib.rs`の
+合法性検査とscore式を移植したPython版で採点します。

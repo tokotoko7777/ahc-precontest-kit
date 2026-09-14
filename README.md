@@ -88,6 +88,12 @@ terminalも`step_and_observe`で生成直後に保存します。
 人が書く型・候補生成・評価・更新を1個の`Problem` structへまとめ、時計・採否・
 上位N件選抜・共通未来sampleなどはライブラリ側へ隠せます。
 
+重い評価を部分計算できる場合、Actionビームの`run_with_threshold()`は現在の上位N件の
+境界を、焼きなましの`run_with_threshold()`はその試行の採用に必要な最小改善量を
+Problemへ渡します。超えないと証明できた候補だけ`nullopt`で落とせるため、探索分布を
+変えずに枝刈りできます。書く関数と注意点は[`SEARCH_GUIDE.md`](SEARCH_GUIDE.md)に
+まとめています。
+
 `SimpleBeamSearch`は通常の`step`に加え、一時コンテナを作らない`step_each`、
 生成数・重複除去後の数・採用数を調べるカウンタを持ちます。木上2種類も
 幅で落ちる候補をobserverで回収でき、探索途中で幅を縮められます。

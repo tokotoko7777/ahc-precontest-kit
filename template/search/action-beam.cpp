@@ -34,6 +34,20 @@ struct Problem {
     return 0;
   }
 
+  optional<Score> evaluate_action_with_threshold(
+      const State& state,
+      const Action& action,
+      const Score* threshold) const {
+    // TODO: 【任意・高速化】重い順位計算を少しずつ行う。
+    // threshold==nullptr の間は上位N件の境界が未確定なので、必ず正確な
+    // Scoreを返す。非nullなら、最大化では「残りを全部足しても
+    // *thresholdを超えない」と証明できた時だけnulloptを返してよい。
+    // 最小化なら大小を逆に考える。証明できなければ正確なScoreを返す。
+    // 下の実装は枝刈りしない安全な初期形。まずこれで動かしてよい。
+    (void)threshold;
+    return evaluate_action(state, action);
+  }
+
   void apply_action(State&, Action&) const {
     // TODO: 採用されたActionだけを、コピー済みStateへ反映する。
   }
@@ -67,6 +81,7 @@ int main() {
   Problem::State initial = problem.make_initial_state();
   ActionBeamRunner<Problem> beam(
       problem, initial, problem.initial_score(initial), BEAM_WIDTH);
-  beam.run(MAX_TURN);
+  // evaluate_actionが十分軽いならbeam.run(MAX_TURN)でもよい。
+  beam.run_with_threshold(MAX_TURN);
   print_answer(problem, beam.best());
 }

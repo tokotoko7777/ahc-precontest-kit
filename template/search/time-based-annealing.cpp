@@ -34,6 +34,18 @@ struct Problem {
     return 0;
   }
 
+  optional<Score> evaluate_move_with_threshold(
+      const State& state,
+      const Move& move,
+      double acceptance_threshold) const {
+    // TODO: 【任意・高速化】改善量を部分ごとに計算する。
+    // 「残りを最良に見積もっても improvement > acceptance_threshold に
+    // ならない」と証明できた時だけnulloptを返す。そうでなければ最後まで
+    // 計算して正確な改善量を返す。下は枝刈りしない安全な初期形。
+    (void)acceptance_threshold;
+    return evaluate_move(state, move);
+  }
+
   void apply_move(State&, const Move&) const {
     // TODO: 採用されたMoveだけをStateへ反映する。cacheも忘れず更新する。
   }
@@ -72,6 +84,7 @@ int main() {
       1900.0,       // TODO: 制限時間[ms]
       1000.0, 1.0,  // TODO: 開始温度、終了温度
       123, 64);     // TODO: seed、時計を見る間隔
-  runner.run();
+  // evaluate_moveが十分軽いならrunner.run()でもよい。
+  runner.run_with_threshold();
   print_answer(problem, runner.best_state());
 }

@@ -59,6 +59,15 @@ struct SeparatedProblem {
     return state.value + action.delta;
   }
 
+  std::optional<Score> evaluate_action_with_threshold(
+      const State& state,
+      const Action& action,
+      const Score* threshold) const {
+    const Score score = evaluate_action(state, action);
+    if (threshold != nullptr && score <= *threshold) return std::nullopt;
+    return score;
+  }
+
   void apply_action(State& state, Action& action) {
     ++apply_count;
     state.value += action.delta;
@@ -104,6 +113,10 @@ void test_problem_library_boundary_runner() {
   assert(runner.states()[0].value == 4);
   assert(runner.states()[1].value == 3);
 
+  runner.reset(SeparatedProblem::State{}, 0);
+  assert(runner.run_with_threshold(1) == 1);
+  assert(runner.best().value == 4);
+
   bool threw = false;
   try {
     runner.run(-1);
@@ -111,6 +124,53 @@ void test_problem_library_boundary_runner() {
     threw = true;
   }
   assert(threw);
+}
+
+void test_threshold_pruning_keeps_exact_top_n() {
+  ActionBeamSearch<State, Move, int> normal(State{}, 0, 7);
+  ActionBeamSearch<State, Move, int> pruned(State{}, 0, 7);
+  const auto expand = [](const State&) {
+    std::vector<Move> actions;
+    for (int score = 100; score >= 0; --score) {
+      actions.push_back(Move{score, score});
+    }
+    return actions;
+  };
+  const auto evaluate = [](const State&, const Move& move) {
+    return move.delta;
+  };
+  const auto apply = [](State& state, Move& move) {
+    state.value = move.delta;
+    state.path.push_back(move.id);
+  };
+
+  assert(normal.step(expand, evaluate, apply));
+  int calls_without_threshold = 0;
+  int calls_with_threshold = 0;
+  assert(pruned.step_with_threshold(
+      expand,
+      [&](const State&, const Move& move, const int* threshold)
+          -> std::optional<int> {
+        if (threshold == nullptr) {
+          ++calls_without_threshold;
+        } else {
+          ++calls_with_threshold;
+          if (move.delta <= *threshold) return std::nullopt;
+        }
+        return move.delta;
+      },
+      apply));
+
+  assert(calls_without_threshold == 7);
+  assert(calls_with_threshold == 94);
+  assert(pruned.last_generated_count() == 101);
+  assert(pruned.last_threshold_pruned_count() == 94);
+  assert(pruned.states().size() == normal.states().size());
+  assert(pruned.scores() == normal.scores());
+  for (std::size_t i = 0; i < normal.states().size(); ++i) {
+    assert(pruned.states()[i].value == normal.states()[i].value);
+    assert(pruned.states()[i].path == normal.states()[i].path);
+  }
 }
 
 void test_materializes_only_top_n() {
@@ -450,6 +510,7 @@ void test_reset_width_and_empty_step() {
 
 int main() {
   test_problem_library_boundary_runner();
+  test_threshold_pruning_keeps_exact_top_n();
   test_materializes_only_top_n();
   test_full_buffer_selection_has_same_result();
   test_observer_sees_candidates_before_cutoff();

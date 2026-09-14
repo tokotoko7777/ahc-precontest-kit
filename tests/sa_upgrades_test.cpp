@@ -175,6 +175,31 @@ void test_probability_helpers() {
   });
 }
 
+void test_acceptance_threshold_helpers() {
+  constexpr std::uint64_t seed = 2468;
+  SimulatedAnnealing annealing(10.0, 10.0, seed);
+  std::mt19937_64 reference(seed);
+  const double expected = 10.0 * std::log(reference_random_01(reference));
+  const double threshold = annealing.draw_acceptance_threshold();
+  assert(almost_equal(threshold, expected));
+  assert(annealing.engine == reference);
+  assert(annealing.accept_with_threshold(threshold + 1e-9, threshold));
+  assert(!annealing.accept_with_threshold(threshold, threshold));
+  assert(!annealing.accept_with_threshold(threshold - 1e-9, threshold));
+
+  TimeBasedSimulatedAnnealing timed(
+      100000.0, 10.0, 10.0, seed, 64);
+  std::mt19937_64 timed_reference(seed);
+  const double timed_expected =
+      10.0 * std::log(reference_random_01(timed_reference));
+  const double timed_threshold = timed.draw_acceptance_threshold();
+  assert(almost_equal(timed_threshold, timed_expected));
+  assert(timed.engine == timed_reference);
+  assert(timed.accept_with_threshold(timed_threshold + 1e-9,
+                                     timed_threshold));
+  assert(!timed.accept_with_threshold(timed_threshold, timed_threshold));
+}
+
 void test_progress_based_decision_compatibility() {
   constexpr std::uint64_t seed = 123456789;
   SimulatedAnnealing annealing(1.0, 1.0, seed);
@@ -366,12 +391,51 @@ void test_time_based_problem_runner() {
   assert(runner.annealing().is_over_now());
 }
 
+void test_time_based_threshold_runner() {
+  struct Problem {
+    struct State {
+      double value = 0.0;
+    };
+    struct Move {
+      double improvement = 0.0;
+    };
+    using Score = double;
+
+    std::optional<Move> propose_move(
+        const State&, std::mt19937_64&, double) const {
+      return Move{-std::numeric_limits<double>::infinity()};
+    }
+
+    std::optional<Score> evaluate_move_with_threshold(
+        const State&, const Move& move, double threshold) const {
+      if (move.improvement <= threshold) return std::nullopt;
+      return move.improvement;
+    }
+
+    void apply_move(State& state, const Move& move) const {
+      state.value += move.improvement;
+    }
+  };
+
+  Problem problem;
+  TimeBasedAnnealingRunner<Problem> runner(
+      problem, Problem::State{}, 0.0, 100000.0, 1.0, 1.0, 999, 1);
+  assert(runner.step_with_threshold());
+  assert(runner.iterations() == 1);
+  assert(runner.valid_moves() == 1);
+  assert(runner.accepted_moves() == 0);
+  assert(runner.threshold_pruned_moves() == 1);
+  assert(runner.current_score() == 0.0);
+}
+
 int main() {
   test_progress_based_temperature_settings();
   test_probability_helpers();
+  test_acceptance_threshold_helpers();
   test_progress_based_decision_compatibility();
   test_time_based_temperature_settings();
   test_time_based_probability_and_decisions();
   test_time_checks();
   test_time_based_problem_runner();
+  test_time_based_threshold_runner();
 }
