@@ -25,18 +25,22 @@
 問題ごとの型と関数、探索の呼び出し、出力関数まで、最終的な`main.cpp`と同じ順番に
 配置しています。
 
-## 5本を単体で使った完全な例
+## 探索コアを実問題へ当てはめた完全な例
 
 | 探索コア | 問題例 | 完全な`main.cpp` |
 |---|---|---|
-| 時間焼きなまし | AHC006の配達経路 | [`ahc006_sa.cpp`](examples/search/ahc006_sa.cpp) |
+| 時間焼きなましRunner | AHC006の配達経路 | [`ahc006_sa.cpp`](examples/search/ahc006_sa.cpp) |
+| 共通未来Monte Carlo Runner | AHC015の飴配置 | [`ahc015_common_rollout.cpp`](examples/search/ahc015_common_rollout.cpp) |
 | 通常ビーム | Introduction to Heuristics Contest A | [`intro_heuristics_simple_beam.cpp`](examples/search/intro_heuristics_simple_beam.cpp) |
 | Action先行ビーム | Introduction to Heuristics Contest A | [`intro_heuristics_action_beam.cpp`](examples/search/intro_heuristics_action_beam.cpp) |
-| 木上ビーム | AHC021の山崩し | [`ahc021_tree_beam.cpp`](examples/search/ahc021_tree_beam.cpp) |
+| 木上ビームRunner | AHC021の山崩し | [`ahc021_tree_beam.cpp`](examples/search/ahc021_tree_beam.cpp) |
+| Action先行ビームRunner | AHC032のmodスタンプ | [`ahc032_action_beam.cpp`](examples/search/ahc032_action_beam.cpp) |
 | 世代飛ばし木上ビーム | 移動時間1〜3の締切付き宝集め | [`variable_cost_beam.cpp`](examples/search/variable_cost_beam.cpp) |
+| 世代飛ばし木上ビーム | AHC038のロボットアーム | [`ahc038_variable_cost_beam.cpp`](examples/search/ahc038_variable_cost_beam.cpp) |
 | Action先行ビーム＋行DP | AHC071の壁構築 | [`ahc071_action_beam.cpp`](examples/search/ahc071_action_beam.cpp) |
 
-どれも探索ヘッダを1個だけ読み込む、入力から出力まで揃った例です。
+どれも中心となる探索ヘッダを1個読み込む、入力から出力まで揃った例です。
+必要な例だけ、時計などの小さな補助hppも併用します。
 提出時は使用したヘッダの中身を`main.cpp`の先頭へコピーし、`#include`の1行を
 削除します。検証内容とコンパイル方法は
 [`examples/search/README.md`](examples/search/README.md) にまとめています。
