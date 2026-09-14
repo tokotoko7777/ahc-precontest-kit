@@ -91,48 +91,67 @@ struct Answer {
   vector<Move> moves;
 };
 
+// 問題固有の型・候補生成・差分更新を1か所へ集める。
+struct SearchProblem {
+  using State = ::State;
+  using Move = ::Move;
+  using Score = long long;
+
+  const Problem& input;
+  vector<Move> action_buffer;
+
+  explicit SearchProblem(const Problem& problem) : input(problem) {
+    action_buffer.reserve(input.n + 1);
+  }
+
+  vector<Move>& generate_moves(const State& state) {
+    action_buffer.clear();
+    if (state.elapsed == input.deadline) return action_buffer;
+
+    action_buffer.push_back(Move{state.position, -1, 1, 0, false});
+    for (int next = 0; next < input.n; ++next) {
+      if (next == state.position) continue;
+      const int duration = input.travel_time[state.position][next];
+      if (state.elapsed + duration > input.deadline) continue;
+      const bool first_visit = ((state.visited >> next) & 1U) == 0;
+      action_buffer.push_back(
+          Move{state.position, next, duration,
+               first_visit ? input.value[next] : 0, first_visit});
+    }
+    return action_buffer;
+  }
+
+  void apply_move(State& state, Move& move) const {
+    ::apply_move(state, move);
+  }
+
+  void revert_move(State& state, const Move& move) const {
+    ::revert_move(state, move);
+  }
+
+  Score evaluate(const State& state) const { return state.score; }
+
+  int get_advance(const Move& move) const { return move.duration; }
+
+  uint64_t make_key(const State& state) const {
+    // position は 0..9 なので下位 4 bit で足りる。
+    return (static_cast<uint64_t>(state.visited) << 4) |
+           static_cast<uint64_t>(state.position);
+  }
+};
+
 Answer solve_problem(const Problem& problem) {
   State initial;
   initial.score = problem.value[0];
 
   // 同じ到着時刻に存在できる key の総数以上。N <= 10 なら最大 10240。
   const int beam_width = problem.n * (1 << problem.n);
-  CostTreeBeamSearch<State, Move, long long> beam(
-      initial, initial.score, beam_width, problem.deadline);
+  SearchProblem search_problem(problem);
+  CostTreeBeamRunner<SearchProblem> beam(
+      search_problem, initial, initial.score, beam_width, problem.deadline);
   beam.reserve_candidates(
       static_cast<size_t>(beam_width) * (problem.n + 1));
-
-  // 毎回の vector 確保を避ける。expand の処理中だけ参照されるので共有できる。
-  vector<Move> action_buffer;
-  action_buffer.reserve(problem.n + 1);
-
-  const auto expand = [&](const State& state) -> vector<Move>& {
-    action_buffer.clear();
-    if (state.elapsed == problem.deadline) return action_buffer;
-
-    action_buffer.push_back(Move{state.position, -1, 1, 0, false});
-    for (int next = 0; next < problem.n; ++next) {
-      if (next == state.position) continue;
-      const int duration = problem.travel_time[state.position][next];
-      if (state.elapsed + duration > problem.deadline) continue;
-      const bool first_visit = ((state.visited >> next) & 1U) == 0;
-      action_buffer.push_back(
-          Move{state.position, next, duration,
-               first_visit ? problem.value[next] : 0, first_visit});
-    }
-    return action_buffer;
-  };
-  const auto evaluate = [](const State& state) { return state.score; };
-  const auto get_advance = [](const Move& move) { return move.duration; };
-  const auto make_key = [](const State& state) {
-    // position は 0..9 なので下位 4 bit で足りる。
-    return (static_cast<uint64_t>(state.visited) << 4) |
-           static_cast<uint64_t>(state.position);
-  };
-
-  while (beam.step_with_key(expand, apply_move, revert_move, evaluate,
-                            get_advance, make_key)) {
-  }
+  beam.run_with_key();
 
   return Answer{beam.best_score(), beam.restore()};
 }

@@ -15,42 +15,27 @@
 // https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/cost-tree-beam-search.hpp
 
 // 1手で複数世代進める場合に使う、状態をコピーしないビームサーチ。
-// 同じ generation に到着する候補ごとに、上位 beam_width 個を残す。
-// expand(state) は可能なActionを並べたコンテナを返す。
-// constコンテナはコピーし、非constコンテナの要素はmoveして消費する。
-// apply と revert は必ず逆の操作にする。advance は正の整数にする。
-// 不正な幅、最大世代、advance には invalid_argument を投げる。
-// 各コールバック自身は探索中に例外を投げない前提。
-// revert は、対応する apply の変更を完全に元へ戻すようにする。
+// 初めて使う時は、末尾のCostTreeBeamRunner<Problem>を使う。
+// 同じgenerationに到着する候補ごとに上位beam_width個を残し、
+// 到着予定の一番早いgenerationから順番に展開する。
 //
 // 空関数を配置済みの雛形: template/search/variable-cost-tree-beam.cpp
-// 使い方。TODOが付いた箇所だけ問題に合わせる:
-// TODO: 【問題ごと】1手の内容と、何世代進むかをMoveへ書く。
-// struct Move { int add; int advance; };
-// TODO: 【問題ごと】現在状態と差分更新用cacheをStateへ書く。
-// struct State { int value = 0; };
-// CostTreeBeamSearch<State, Move, long long> beam(
-//     State{}, 0, 100, 50);  // 幅100、generation 50まで
-// while (beam.step(
-//     // TODO: 【問題ごと】現在状態から試す合法Moveを返す。
-//     [](const State&) { return vector<Move>{{1, 1}, {3, 2}}; },
-//     // TODO: 【問題ごと】Moveを差分適用する。
-//     [](State& s, Move m) { s.value += m.add; },
-//     // TODO: 【問題ごと】apply前と完全に同じ状態へ戻す。
-//     [](State& s, Move m) { s.value -= m.add; },
-//     // TODO: 【問題ごと】現在Stateの順位値そのものを返す。
-//     [](const State& s) { return (long long)s.value; },
-//     // TODO: 【問題ごと】このMoveが進める正の世代数を返す。
-//     [](const Move& m) { return m.advance; })) {
-// }
+// ProblemへState、Move、Scoreと次の6関数を書く:
+// generate_moves / apply_move / revert_move / evaluate / get_advance / make_key
+// CostTreeBeamRunner<Problem> beam(
+//     problem, initial_state, problem.evaluate(initial_state),
+//     100, 50);  // 幅100、generation 50まで
+// beam.run_with_key();  // 重複除去しない場合はrun()。
 // vector<Move> answer = beam.restore();
-// この下のCostTreeBeamSearch本体は通常編集しない。
 //
-// hash が同じ状態を1つにまとめる場合は step_with_key を使う。
-// Key は標準では uint64_t。string などを使う場合は第4テンプレート引数に指定する。
+// applyとrevertは必ず逆の操作にし、advanceは正の整数にする。
+// const候補コンテナはコピーし、非const候補コンテナの要素はmoveして消費する。
+// 不正な幅、最大世代、advanceにはinvalid_argumentを投げる。
+// Keyは標準ではuint64_t。別の型はRunnerの第2テンプレート引数に指定する。
 // 幅から落ちる候補も調べる場合はstep_and_observe、key付きなら
 // step_with_key_and_observeを使う。observerは上限内の全候補について、
-// actionをapplyしたState上で選抜前にちょうど1回呼ばれる。
+// MoveをapplyしたState上で選抜前にちょうど1回呼ばれる。
+// この下のCostTreeBeamSearchは、関数を個別に渡したい上級者向け探索コア。
 template <class State,
           class Action,
           class Score,
@@ -791,4 +776,159 @@ struct CostTreeBeamSearch {
     layers_[generation_].clear();
     return true;
   }
+};
+
+// 問題依存コードをProblemへ集める、世代飛ばしapply/revertビームのRunner。
+//
+// 【使う人がmain.cpp側へ書く場所】
+// 空関数を配置済みの雛形: template/search/variable-cost-tree-beam.cpp
+//
+//   TODO: 【問題ごと】State、軽いMove、候補順位Scoreを書く。
+//   using State, Move, Score
+//   TODO: 【問題ごと】現在状態から試す合法手を列挙する。
+//   generate_moves(const State&)       -> 次に試すMoveのコンテナ。
+//   TODO: 【問題ごと】Stateを1手だけ進め、完全に戻す。
+//   apply_move(State&, Move&)
+//   revert_move(State&, const Move&)
+//   TODO: 【問題ごと】子Stateの順位値そのものを返す。
+//   evaluate(const State&)
+//   TODO: 【問題ごと】Moveが進める正の世代数を返す。
+//   get_advance(const Move&)
+//   TODO: 【必要な問題だけ】同一局面を表すkeyを書く。
+//   make_key(const State&)
+//
+// Runnerは到着世代別buffer、共有履歴木、DFS巡回、上位N件選抜、重複除去、
+// 世代ループを担当する。早期terminalを拾う時はstep_and_observe系を使う。
+// ↓↓↓ ここから下はライブラリ本体。通常は編集しない。↓↓↓
+template <class Problem,
+          class Key = std::uint64_t,
+          class KeyHash = std::hash<Key>>
+struct CostTreeBeamRunner {
+  using State = typename Problem::State;
+  using Move = typename Problem::Move;
+  using Score = typename Problem::Score;
+
+  CostTreeBeamRunner(Problem& problem,
+                     State initial_state,
+                     Score initial_score,
+                     int beam_width,
+                     int max_generation,
+                     bool maximize = true)
+      : problem_(problem),
+        beam_(std::move(initial_state),
+              std::move(initial_score),
+              beam_width,
+              max_generation,
+              maximize) {}
+
+  bool step() {
+    return beam_.step(
+        [&](const State& state) -> decltype(auto) {
+          return problem_.generate_moves(state);
+        },
+        [&](State& state, Move& move) { problem_.apply_move(state, move); },
+        [&](State& state, const Move& move) {
+          problem_.revert_move(state, move);
+        },
+        [&](const State& state) { return problem_.evaluate(state); },
+        [&](const Move& move) { return problem_.get_advance(move); });
+  }
+
+  bool step_with_key() {
+    return beam_.step_with_key(
+        [&](const State& state) -> decltype(auto) {
+          return problem_.generate_moves(state);
+        },
+        [&](State& state, Move& move) { problem_.apply_move(state, move); },
+        [&](State& state, const Move& move) {
+          problem_.revert_move(state, move);
+        },
+        [&](const State& state) { return problem_.evaluate(state); },
+        [&](const Move& move) { return problem_.get_advance(move); },
+        [&](const State& state) { return problem_.make_key(state); });
+  }
+
+  template <class Observer>
+  bool step_and_observe(Observer&& observer) {
+    return beam_.step_and_observe(
+        [&](const State& state) -> decltype(auto) {
+          return problem_.generate_moves(state);
+        },
+        [&](State& state, Move& move) { problem_.apply_move(state, move); },
+        [&](State& state, const Move& move) {
+          problem_.revert_move(state, move);
+        },
+        [&](const State& state) { return problem_.evaluate(state); },
+        [&](const Move& move) { return problem_.get_advance(move); },
+        std::forward<Observer>(observer));
+  }
+
+  template <class Observer>
+  bool step_with_key_and_observe(Observer&& observer) {
+    return beam_.step_with_key_and_observe(
+        [&](const State& state) -> decltype(auto) {
+          return problem_.generate_moves(state);
+        },
+        [&](State& state, Move& move) { problem_.apply_move(state, move); },
+        [&](State& state, const Move& move) {
+          problem_.revert_move(state, move);
+        },
+        [&](const State& state) { return problem_.evaluate(state); },
+        [&](const Move& move) { return problem_.get_advance(move); },
+        [&](const State& state) { return problem_.make_key(state); },
+        std::forward<Observer>(observer));
+  }
+
+  int run() {
+    while (step()) {
+    }
+    return generation();
+  }
+
+  int run_with_key() {
+    while (step_with_key()) {
+    }
+    return generation();
+  }
+
+  template <class Visit>
+  void for_each_state(Visit&& visit) {
+    beam_.for_each_state(
+        std::forward<Visit>(visit),
+        [&](State& state, Move& move) { problem_.apply_move(state, move); },
+        [&](State& state, const Move& move) {
+          problem_.revert_move(state, move);
+        });
+  }
+
+  int generation() const { return beam_.generation(); }
+  int size() const { return beam_.size(); }
+  int beam_width() const { return beam_.beam_width(); }
+  int max_generation() const { return beam_.max_generation(); }
+  const Score& best_score() const { return beam_.best_score(); }
+
+  std::vector<Move> restore(int rank = 0) const {
+    return beam_.restore(rank);
+  }
+  void restore(int rank, std::vector<Move>& out) const {
+    beam_.restore(rank, out);
+  }
+  std::vector<Move> restore_candidate(
+      int parent_rank, const Move& move) const {
+    return beam_.restore_candidate(parent_rank, move);
+  }
+  void restore_candidate(
+      int parent_rank, const Move& move, std::vector<Move>& out) const {
+    beam_.restore_candidate(parent_rank, move, out);
+  }
+
+  void set_width(int width) { beam_.set_beam_width(width); }
+  void reserve_nodes(std::size_t count) { beam_.reserve_nodes(count); }
+  void reserve_candidates(std::size_t count) {
+    beam_.reserve_candidates(count);
+  }
+
+ private:
+  Problem& problem_;
+  CostTreeBeamSearch<State, Move, Score, Key, KeyHash> beam_;
 };

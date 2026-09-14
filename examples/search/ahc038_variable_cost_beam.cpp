@@ -8,7 +8,7 @@ using namespace std;
 //
 // ビームの1手は公式出力の1ターンではなく、
 // 「ある指を、次に拾う/置くマスまで運ぶ」までの複数ターンです。
-// そのため、経過ターン数が候補ごとに違う CostTreeBeamSearch を使います。
+// そのため、経過ターン数が候補ごとに違う CostTreeBeamRunner を使います。
 //
 // 問題に合わせて試行錯誤する場所には TODO(AHC038) を付けました。
 // 探索木・上位N個の選抜・状態をコピーしないDFSはhpp側の仕事です。
@@ -74,6 +74,11 @@ struct Answer {
 
 class Ahc038BeamProblem {
  public:
+  // CostTreeBeamRunnerが読む、問題ごとの3型。
+  using State = ::State;
+  using Move = ::Move;
+  using Score = long long;
+
   void read(istream& input) {
     input >> n_ >> takoyaki_count_ >> vertex_limit_;
     initial_board_.resize(n_);
@@ -576,7 +581,7 @@ class Ahc038BeamProblem {
   }
 
   long long evaluate(const State& state) const {
-    // TODO(AHC038): 最重要の評価関数。CostTreeBeamSearchをminimizeで使う。
+    // TODO(AHC038): 最重要の評価関数。CostTreeBeamRunnerをminimizeで使う。
     // 同じ公式ターンへ到達した状態同士なら、まずPの実行数を優先する。
     // 同数なら、複数運搬しやすい「保持中の指が多い状態」を少し優先する。
     const long long remaining = state.supply_count + state.demand_count;
@@ -588,7 +593,15 @@ class Ahc038BeamProblem {
     return remaining * 1'000'000LL - holding * 1'000LL + center_distance;
   }
 
-  Answer solve(int beam_width, double time_limit_ms) const {
+  // TODO(AHC038): 1回のMoveが公式出力の何ターン分かを返す。
+  // 必ず1以上。候補はこの到着ターンごとに別々の上位N件へ絞られる。
+  int get_advance(const Move& move) const { return move.advance; }
+
+  // TODO(AHC038): 同じ到着ターンで、以後の候補と評価が等価な局面のkey。
+  // State::hashは盤面、根、全指の向き、保持状態をすべて含む。
+  uint64_t make_key(const State& state) const { return state.hash; }
+
+  Answer solve(int beam_width, double time_limit_ms) {
     const State initial = make_initial_state();
     Answer best;
     best.lengths = lengths_;
@@ -614,8 +627,8 @@ class Ahc038BeamProblem {
       return best;
     }
 
-    CostTreeBeamSearch<State, Move, long long> beam(
-        initial, evaluate(initial), beam_width, greedy_turns, false);
+    CostTreeBeamRunner<Ahc038BeamProblem> beam(
+        *this, initial, evaluate(initial), beam_width, greedy_turns, false);
     beam.reserve_nodes(static_cast<size_t>(beam_width) *
                        static_cast<size_t>(2 * initial.supply_count + 4));
     beam.reserve_candidates(static_cast<size_t>(beam_width) * 16U);
@@ -629,12 +642,6 @@ class Ahc038BeamProblem {
       if (elapsed_ms >= time_limit_ms) break;
 
       const bool advanced = beam.step_with_key_and_observe(
-          [&](const State& state) { return generate_moves(state); },
-          [&](State& state, Move& move) { apply_move(state, move); },
-          [&](State& state, const Move& move) { revert_move(state, move); },
-          [&](const State& state) { return evaluate(state); },
-          [](const Move& move) { return move.advance; },
-          [](const State& state) { return state.hash; },
           [&](int parent_rank, const Move& move, const State& state,
               long long, int next_generation) {
             if (!finished(state) || next_generation >= best.turns()) return;
