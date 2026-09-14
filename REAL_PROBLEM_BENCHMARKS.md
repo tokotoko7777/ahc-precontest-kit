@@ -15,6 +15,7 @@
 | 決定的rollout | AHC026 Stack of Boxes | 下記公式入力用script | 既存直書き版とRunner版の公式score |
 | Action先行ビーム | AHC032 Mod Stamp | `make benchmark-search` | 幅による最終公式score |
 | 世代飛ばし木上ビーム | AHC038 Tree Robot Arm | 下記公式ツール用script | 幅による公式操作ターン数 |
+| Action先行ビーム＋区間LNS | AHC071 Wall Making | 下記公式入力用script | 参考`main3.cpp`との公式score |
 
 4本を続けて実行する場合は`make benchmark-real-search`です。ケース数、制限時間、
 幅、sample数は各実行ファイルの引数で変更できます。
@@ -200,6 +201,33 @@ bitset、状態hashを組み合わせた探索です。この例にもbitsetと�
 腕は固定星型で、姿勢前計算と重複除去も未導入です。したがって上位解との残差は
 ライブラリの上位N個選択より、主にこの`TODO(AHC038)`側にあります。
 
+## AHC071: Action先行ビーム＋区間LNS
+
+[`ahc071_action_beam.cpp`](examples/search/ahc071_action_beam.cpp)は、上から下へ1段ずつ
+行DPの候補を作り、次段へ必要な中心bitsetだけをStateに持ちます。候補Actionの費用を
+先に比較してから採用分だけStateを作り、同じ中心bitsetは最安の1件へまとめます。
+完成解の費用を超える候補は`evaluate_action_with_threshold`で途中打ち切りします。
+
+提出用の自己完結した1ファイルは[`practice/ahc071`](practice/ahc071/)です。
+
+```sh
+python3 benchmarks/ahc071_official_benchmark.py \
+  --tools /path/to/AHC071 \
+  --solver practice/ahc071/main.cpp \
+  --reference /path/to/AHC071/main3.cpp \
+  --ported-score --cases 10
+```
+
+公式seed 0000--0009、各1.8秒の再測定では全出力が合法でした。
+
+| 実装 | 平均score | 合計 | kit版から見た勝敗 |
+|---|---:|---:|---:|
+| kitフォーマット版 | 10,652.30 | 106,523 | - |
+| 参考`main3.cpp` | 10,652.50 | 106,525 | 2勝4分4敗 |
+
+両方とも壁時計で探索を停止するため数点変動します。この比較は、上位者一般との順位比較では
+なく、ユーザー指定の参考実装と同じ公式入力・時間でフォーマット版の探索力を確認したものです。
+
 ## 正しさの確認
 
 各ベンチマークは探索中の差分値をそのまま信用せず、完成解を別経路で再生します。
@@ -207,7 +235,8 @@ AHC001は長方形の境界・要求点・非重複と全score、AHC015は100タ
 score、AHC021は全交換の合法性・完成盤面・公式score、AHC026は全箱操作・energy・
 公式score、AHC032は操作数・盤面・
 差分scoreを検査します。AHC038は探索Stateとは別の盤面シミュレータと公式Rust
-visualizerの両方で、全命令・最終盤面・操作ターン数を検査します。
+visualizerの両方で、全命令・最終盤面・操作ターン数を検査します。AHC071は全レンガの
+範囲・重複・支持条件・穴の被覆と公式scoreを別の採点処理で検査します。
 
 ## 参考資料
 
@@ -225,3 +254,4 @@ visualizerの両方で、全命令・最終盤面・操作ターン数を検査�
 - [AHC032 Mod Stamp](https://atcoder.jp/contests/ahc032/tasks/ahc032_a)
 - [AHC038 Tree Robot Arm](https://atcoder.jp/contests/ahc038/tasks/ahc038_a)
 - [AHC038公式ツール](https://img.atcoder.jp/ahc038/GhBuR36w.zip)
+- [AHC071 Wall Making](https://atcoder.jp/contests/ahc071/tasks/ahc071_a)
