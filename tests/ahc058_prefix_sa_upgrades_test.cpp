@@ -50,10 +50,10 @@ int main() {
         auto move = problem.propose_move(state, engine, 0.5);
         if (!move) continue;
         const auto saved = state;
-        const auto delta = problem.evaluate_move(state, *move);
+        const auto delta = problem.evaluate_move(state, *move, -numeric_limits<double>::infinity());
         auto slow = initial;
         for (int action : move->actions) problem.advance_purchase(slow, action);
-        assert(delta == problem.score(slow) - state.score);
+        assert(delta && *delta == problem.score(slow) - state.score);
         assert(state.actions == saved.actions && state.score == saved.score);
         if (i % 2 == 0) {
             problem.apply_move(state, *move);

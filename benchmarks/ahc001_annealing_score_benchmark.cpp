@@ -266,7 +266,9 @@ struct AdvertisementProblem {
   }
 
   // TODO: 【問題ごと】Stateを変更せず、正=改善となる得点差を返す。
-  Score evaluate_move(const State& state, const Move& move) const {
+  std::optional<Score> evaluate_move(const State& state, const Move& move,
+                                    double /* threshold */) const {
+    // 差分はO(1)。閾値を使わず正確な改善量を返す。
     const long long desired = input.requests[move.index].desired_area;
     return satisfaction(desired, move.next.area()) -
            satisfaction(desired, state.rectangle[move.index].area());

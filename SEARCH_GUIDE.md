@@ -113,7 +113,7 @@ if (improvement && sa.accept_with_threshold(*improvement, threshold)) {
 ```
 
 `TimeBasedAnnealingRunner`ではProblemに
-`evaluate_move_with_threshold(state, move, threshold)`を書き、
+`evaluate_move(state, move, threshold)`を1個だけ書き、
 `run_with_threshold()`を呼びます。採用不能と証明できた時だけ`nullopt`、それ以外は
 正確な改善量を返します。良化手を含め毎試行乱数を1個使うため通常の`accept()`とは
 乱数列が変わりますが、各手の採用確率は同じです。
@@ -125,8 +125,9 @@ runner.annealing().set_threshold_precomputation(false); // 対数表の前計算
 runner.run_with_threshold(true);                       // スコア途中打ち切りON
 ```
 
-4通りすべて使えます。`run_with_threshold(false)`は`evaluate_move`で最後まで
-計算しますが、受理乱数の消費はON時と同じです。両方の関数は穴埋め雛形に配置済みです。
+4通りすべて使えます。`run_with_threshold(false)`は同じ`evaluate_move`へ`-∞`を渡します。
+有限の改善量の上限では打ち切れず、最後まで計算します。受理乱数の消費はON時と同じです。
+評価関数は1個だけを穴埋め雛形に配置済みです。閾値を使わず全計算しても構いません。
 表は対数用で、問題固有のスコアや距離の前計算とは別です。
 打ち切れるのは「途中改善量＋残り利得の上限」が閾値以下の時だけで、
 残りに利得があるのに途中値だけを比べてはいけません。
@@ -161,7 +162,12 @@ struct Problem {
   // TODO: 【問題ごと】move適用後の改善量を差分計算する。
   // 正なら良化、負なら悪化。
   // stateを変更しない。不採用手をrevertせず捨てられるよう差分計算する。
-  Score evaluate_move(const State& state, const Move& move) {
+  optional<Score> evaluate_move(
+      const State& state, const Move& move, double threshold) {
+    // TODO: 【任意】最終改善量の上限<=thresholdと確定したらnulloptで途中終了。
+    // 閾値が不要な問題では無視して全計算でよい。不合法手もnulloptで棄却できる。
+    // 打ち切りOFFでは同じ関数に-infが渡される。
+    (void)threshold;
     return calculate_score_delta(state, move);
   }
 
@@ -179,7 +185,7 @@ TimeBasedAnnealingRunner<Problem> runner(
     1900.0,       // 時間制限[ms]
     1000.0, 1.0,  // 開始温度、終了温度
     123, 64);     // seed、時計を見る間隔
-runner.run();
+runner.run_with_threshold(); // 評価関数は上の1個だけ。
 MyState answer = runner.best_state();
 ```
 

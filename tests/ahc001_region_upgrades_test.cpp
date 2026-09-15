@@ -24,12 +24,17 @@ int main() {
   }
   RegionProblem problem(requests);
   auto state = problem.make_state(regions);
+  // 領域0を右へ広げ、領域1の要求点を失わせる手。-infでも不合法なら棄却する。
+  const RegionProblem::Move illegal{0, 0, 1, 3500, 0, 0};
+  assert(!problem.evaluate_move(state, illegal, -numeric_limits<double>::infinity()));
+  assert(state.regions[0].right == 2500 && state.regions[1].left == 2500);
+  problem.validate(state);
   mt19937_64 random(42);
   for (int trial = 0; trial < 1600; ++trial) {
     const auto move = problem.propose_move(state, random, 0.3);
     if (!move) continue;
     const auto previous = state;
-    const auto delta = problem.evaluate_move(state, *move);
+    const auto delta = problem.evaluate_move(state, *move, -numeric_limits<double>::infinity());
     assert(state.quality == previous.quality);
     for (size_t i = 0; i < state.regions.size(); ++i) {
       const auto& a = state.regions[i];
@@ -37,17 +42,17 @@ int main() {
       assert(a.left == b.left && a.bottom == b.bottom &&
              a.right == b.right && a.top == b.top);
     }
-    if (delta > -1e99) {
+    if (delta) {
       auto candidate = state;
       auto action = *move;
       problem.apply_move(candidate, action);
       problem.validate(candidate);
-      assert(abs(problem.score(candidate) - problem.score(state) - delta) < 1e-10);
+      assert(abs(problem.score(candidate) - problem.score(state) - *delta) < 1e-10);
       // 閾値版が切った場合は、本当に境界を超えないことを確認する。
       const double threshold = -static_cast<double>(random() % 100) / 10000.0;
-      const auto bounded = problem.evaluate_move_with_threshold(state, *move, threshold);
-      if (!bounded) assert(delta <= threshold + 1e-12);
-      else assert(abs(*bounded - delta) < 1e-10);
+      const auto bounded = problem.evaluate_move(state, *move, threshold);
+      if (!bounded) assert(*delta <= threshold + 1e-12);
+      else assert(abs(*bounded - *delta) < 1e-10);
       if (trial % 3 != 0) state = candidate;
     }
   }

@@ -54,7 +54,7 @@ struct Problem {
   std::optional<Move> propose_move(const State&, std::mt19937_64& random, double) {
     return Move{static_cast<int>(random() % 7) - 3};
   }
-  std::optional<int> evaluate_move_with_threshold(const State& state, const Move& move, double bound) {
+  std::optional<int> evaluate_move(const State& state, const Move& move, double bound) {
     const int next = state.x + move.change;
     const int delta = state.x * state.x - next * next;
     return delta <= bound ? std::nullopt : std::optional<int>{delta};

@@ -340,7 +340,9 @@ struct TilePathProblem {
   }
 
   // TODO(AHC002): Runnerへは改善量を返す。経路全体の再計算は不要。
-  Score evaluate_move(const State& state, const Move& move) const {
+  optional<Score> evaluate_move(const State& state, const Move& move,
+                                double /* threshold */) const {
+    // TODO: 差分は既にO(1)で分かるので、閾値を使わず正確な改善量を返す。
     return move.next_score - state.score;
   }
 

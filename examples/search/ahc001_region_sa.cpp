@@ -342,8 +342,8 @@ struct RegionProblem {
   }
   // TODO: thresholdより良くならないと分かったらnullopt。それ以外は正確な「差分」。
   // 仮変更をpendingへ保存し、採用時だけapply_moveで確定する。
-  optional<Score> evaluate_move_with_threshold(const State& state, const Move& move,
-                                               double threshold) {
+  // 打ち切りOFFではthreshold=-inf。別の全評価関数は不要。不合法手は常にnullopt。
+  optional<Score> evaluate_move(const State& state, const Move& move, double threshold) {
     auto evaluation_guard = evaluation_profile.measure();
     pending.clear();
     const int id = move.index, n = static_cast<int>(requests.size());
@@ -409,11 +409,6 @@ struct RegionProblem {
     pending.push_back({first, best_a, quality(first, best_a)});
     pending.push_back({second, best_b, quality(second, best_b)});
     return best_delta;
-  }
-  Score evaluate_move(const State& state, const Move& move) {
-    // 途中打ち切りOFFでは全差分を計算。不合法手は必ず棄却される-infを返す。
-    return evaluate_move_with_threshold(state, move, -numeric_limits<double>::infinity())
-        .value_or(-numeric_limits<double>::infinity());
   }
   // TODO: 採用された仮変更だけをStateへ反映する。不採用時は呼ばれない。
   void apply_move(State& state, Move&) {

@@ -321,7 +321,7 @@ struct TimeBasedSimulatedAnnealing {
   }
 
   // 受理閾値が入る区間。lowerは安全な枝刈り用で、最終採否そのものではない。
-  // TODO: evaluate_move_with_thresholdへlowerを渡し、最後はaccept()で確認する。
+  // TODO: evaluate_moveへlowerを渡し、最後はaccept()で確認する。
   // 値が区間内なら元のT*log(u)を計算するので、希少な悪化手も切り捨てない。
   struct AcceptanceWindow {
     double lower, upper, uniform_value, temperature;
@@ -397,13 +397,13 @@ struct TimeBasedSimulatedAnnealing {
 //   TODO: 【問題ごと】次に試す近傍を1個作る。
 //   optional<Move> propose_move(const State&, mt19937_64&, double progress)
 //     -> 近傍を1個作る。作れない試行はnullopt。
-//   TODO: 【問題ごと】近傍による改善量を差分計算する。
-//   Score evaluate_move(const State&, const Move&)
-//     -> その手の改善量。正なら良化、負なら悪化。
-//   TODO: 【任意】閾値で差分計算を途中終了する。
-//   optional<Score> evaluate_move_with_threshold(
+//   TODO: 【問題ごと】評価関数はこの1個だけ。近傍による改善量を差分計算する。
+//   optional<Score> evaluate_move(
 //       const State&, const Move&, double acceptance_threshold)
-//     -> 閾値を超えないと証明できた時だけnullopt。その他は正確な改善量。
+//     -> 正なら良化、負なら悪化となる正確な改善量を返す。
+//     -> 【任意】最終改善量の上限 <= 閾値と証明できたらnulloptで途中終了。
+//     -> 打ち切りが難しい問題では閾値を無視して最後まで計算してよい。
+//     -> 打ち切りOFF時の閾値は-inf。不合法手は設定に関係なくnulloptでよい。
 //   TODO: 【問題ごと】採用された近傍だけを現在解へ反映する。
 //   void apply_move(State&, Move&)
 //     -> 採用済みの手だけをStateへ反映する。Move内のvector等はmoveしてよい。
@@ -438,6 +438,7 @@ struct TimeBasedAnnealingRunner {
         move_engine_(seed ^ 0xd1b54a32d192ed03ULL) {}
 
   // 制限時間内なら1試行進める。時間終了後はfalse。
+  // 閾値は-infで全評価。従来のaccept()の採否・乱数消費を維持する。
   bool step() {
     if (annealing_.is_over()) return false;
     ++iterations_;
@@ -448,12 +449,13 @@ struct TimeBasedAnnealingRunner {
     if (!move.has_value()) return true;
 
     ++valid_moves_;
-    const Score improvement = problem_.evaluate_move(
-        static_cast<const State&>(current_state_), *move);
-    if (!annealing_.accept(improvement)) return true;
+    const std::optional<Score> improvement = problem_.evaluate_move(
+        static_cast<const State&>(current_state_), *move,
+        -std::numeric_limits<double>::infinity());
+    if (!improvement || !annealing_.accept(*improvement)) return true;
 
     problem_.apply_move(current_state_, *move);
-    current_score_ += improvement;
+    current_score_ += *improvement;
     ++accepted_moves_;
     if (best_score_ < current_score_) {
       best_score_ = current_score_;
@@ -464,7 +466,7 @@ struct TimeBasedAnnealingRunner {
   }
 
   // 差分評価が重く、途中で採用不能と証明できる問題向け。
-  // Problem::evaluate_move_with_thresholdは、improvementがthresholdを
+  // Problem::evaluate_moveは、improvementがthresholdを
   // 超えないと証明できた時だけnulloptを返す。分からない場合は最後まで
   // 計算し、正確なimprovementを返せば通常の焼きなましと同じ分布になる。
   // 区間表を有効にした場合は実際の閾値以下の下限を渡し、最終採否を別途確認する。
@@ -472,9 +474,9 @@ struct TimeBasedAnnealingRunner {
     return step_threshold_impl<true>();
   }
 
-  // true: evaluate_move_with_thresholdで安全に途中打ち切り。
-  // false: evaluate_moveで最後まで計算する。閾値の抽選・最終採否は同じ。
-  // このbool版を使うProblemには上記の両方の関数を書く（雛形に配置済み）。
+  // 呼ぶ評価関数は常にevaluate_moveの1個だけ。
+  // true: 安全な受理閾値を渡す。false: -infを渡して全評価。
+  // 閾値の抽選・最終採否は同じ。評価側は閾値を無視してもよい。
   bool step_with_threshold(bool enable_score_early_stop) {
     return enable_score_early_stop ? step_threshold_impl<true>()
                                    : step_threshold_impl<false>();
@@ -493,14 +495,10 @@ struct TimeBasedAnnealingRunner {
 
     ++valid_moves_;
     const auto threshold = annealing_.draw_acceptance_window();
-    std::optional<Score> improvement;
-    if constexpr (EnableScoreEarlyStop) {
-      improvement = problem_.evaluate_move_with_threshold(
-          static_cast<const State&>(current_state_), *move, threshold.lower);
-    } else {
-      improvement = problem_.evaluate_move(
-          static_cast<const State&>(current_state_), *move);
-    }
+    const double evaluation_threshold = EnableScoreEarlyStop
+        ? threshold.lower : -std::numeric_limits<double>::infinity();
+    const std::optional<Score> improvement = problem_.evaluate_move(
+        static_cast<const State&>(current_state_), *move, evaluation_threshold);
     if (!improvement.has_value()) {
       ++threshold_pruned_moves_;
       return true;
@@ -558,6 +556,7 @@ struct TimeBasedAnnealingRunner {
   std::uint64_t accepted_moves() const { return accepted_moves_; }
   std::uint64_t best_updates() const { return best_updates_; }
   std::uint64_t restarts() const { return restarts_; }
+  // 閾値方式でevaluate_moveがnulloptを返した件数。不合法手の棄却も含む。
   std::uint64_t threshold_pruned_moves() const {
     return threshold_pruned_moves_;
   }
