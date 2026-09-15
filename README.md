@@ -183,6 +183,7 @@ Stateが大きくてもActionから次の順位を計算できるなら`action-b
 | [`binary-trie.hpp`](library/binary-trie.hpp) | 非負整数集合の最小・最大XOR要素 |
 | [`xor-basis.hpp`](library/xor-basis.hpp) | 部分集合XORの表現可能性・最小・最大値 |
 | [`axis-aligned-rectangle.hpp`](library/axis-aligned-rectangle.hpp) | 半開矩形の面積・点包含・重なり判定 |
+| [`largest-empty-rectangle.hpp`](library/largest-empty-rectangle.hpp) | 指定セルを含む最大空き長方形を列挙ベースで厳密に求める |
 | [`interval-union.hpp`](library/interval-union.hpp) | 半開区間の併合・被覆長・2集合の対称差長 |
 
 ### グラフ・グリッド
@@ -309,7 +310,7 @@ AHC001〜AHC069に加え、新しい問題も順次追加しています。全�
 
 | 問題 | 主に使うパーツ |
 |---|---|
-| [`practice/ahc001`](practice/ahc001/) | 半開矩形、面積比による再帰領域分割 |
+| [`practice/ahc001`](practice/ahc001/) | 領域再構築SA、受理閾値、最大空き長方形、1位との得点差レポート |
 | [`practice/ahc002`](practice/ahc002/) | 焼きなまし、多点スタート、destroy/repair |
 | [`practice/ahc003`](practice/ahc003/) | オンライン辺重み推定、不確実性付きDijkstra |
 | [`practice/ahc004`](practice/ahc004/) | 列の重ね合わせ、巡回窓の差分更新 |

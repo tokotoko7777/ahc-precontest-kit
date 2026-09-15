@@ -1794,3 +1794,21 @@ sort(points.begin(), points.end(), [](const Point& a, const Point& b) {
 
 `bits=10` なら各座標は `0..1023` です。厳密な最近傍順ではありませんが、空間的に
 まとまったcluster作成、query順、cache localityの改善候補を1行のkeyで作れます。
+
+## 指定セルを含む最大の空き長方形
+
+`axis-aligned-rectangle.hpp`と`largest-empty-rectangle.hpp`を貼ると、障害物を避けて
+指定した整数セルを含む最大面積の長方形を探せます。障害物数Mに対し最悪O(M²)です。
+
+```cpp
+using Rect = AxisAlignedRectangle<int>;
+Rect bounds{0, 0, 100, 100};
+vector<Rect> obstacles{{0, 0, 20, 100}, {70, 20, 100, 80}};
+Rect result = largest_empty_rectangle(bounds, 50, 50, obstacles);
+// resultは(50,50)のセルを含み、obstaclesとは正の面積で重ならない。
+```
+
+点が塞がれている場合やbounds外の場合は例外になります。辺が接するだけなら合法です。
+既に置かれた要素を再配置する場合、その要素自身をobstaclesから除いて呼びます。
+座標・矩形型は自分の型でも構いません。必要なメンバはhpp先頭のTODOに記載しています。
+AHC001の[領域再構築SA](examples/search/ahc001_region_sa.cpp)で使用しています。

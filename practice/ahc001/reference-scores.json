@@ -1,0 +1,20 @@
+{
+  "contest": "ahc001",
+  "user": "hakomo",
+  "rank": 1,
+  "source": "https://atcoder.jp/contests/ahc001/standings",
+  "provenance": "Official standings/submission metadata archived locally on 2026-07-24; standings JSON Score was divided by 100 and matched to the displayed submission score.",
+  "live_recheck": "2026-09-15: standings required login and submission access returned HTTP 403; exact scores below have not been freshly reverified.",
+  "provisional": {
+    "cases": 50,
+    "score": 49697919919,
+    "source": "https://atcoder.jp/contests/ahc001/submissions/20926292"
+  },
+  "system": {
+    "cases": 1000,
+    "score": 993823071683,
+    "source": "https://atcoder.jp/contests/ahc001/submissions/77738201",
+    "seed_url": "https://img.atcoder.jp/ahc001/seeds.zip",
+    "seed_md5": "8fc1ce3f4beabac6abc1bdb4206d7f7e"
+  }
+}

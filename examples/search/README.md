@@ -6,6 +6,7 @@
 
 | ファイル | 使う探索 | 題材 | 確認したこと |
 |---|---|---|---|
+| [`ahc001_region_sa.cpp`](ahc001_region_sa.cpp) | `TimeBasedAnnealingRunner` | AHC001 | 境界押し移動と1・2領域再構築。単調な損失の閾値打ち切り、仮変更buffer、整数サイズ仕上げをProblemへ分離 |
 | [`ahc002_destroy_repair_sa.cpp`](ahc002_destroy_repair_sa.cpp) | `TimeBasedAnnealingRunner` | AHC002 | 可変長経路の末尾再構築と区間DFS修復をProblemへ分離。採用時のbuffer移動と最良解からの再開を使用 |
 | [`ahc006_sa.cpp`](ahc006_sa.cpp) | `TimeBasedAnnealingRunner` | AHC006 | `DeliveryProblem`へState・Move・近傍・差分・反映を分離。固定長Routeで毎試行のvector確保を避ける |
 | [`ahc011_tree_beam.cpp`](ahc011_tree_beam.cpp) | `TreeBeamRunner` | AHC011 | 最大4手をFixedVectorで列挙。盤面1個をapply/revertし、差分hash、同一局面除去、全候補からの最良解復元を使用 |
@@ -55,6 +56,7 @@ AHC061は対話問題なので、公式`tester`が必須です。AHC058の閉形
 リポジトリのルートで実行します。
 
 ```sh
+g++ -std=c++17 -O2 -Wall -Wextra -pedantic examples/search/ahc001_region_sa.cpp -o /tmp/ahc001_sa
 g++ -std=c++17 -O2 -Wall -Wextra -pedantic examples/search/ahc002_destroy_repair_sa.cpp -o /tmp/ahc002_sa
 g++ -std=c++17 -O2 -Wall -Wextra -pedantic examples/search/ahc006_sa.cpp -o /tmp/ahc006_sa
 g++ -std=c++17 -O2 -Wall -Wextra -pedantic examples/search/ahc011_tree_beam.cpp -o /tmp/ahc011_beam
@@ -79,6 +81,11 @@ g++ -std=c++17 -O2 -Wall -Wextra -pedantic \
 ```
 
 ## 提出用の1ファイルにする
+
+AHC001は[`practice/ahc001/main.cpp`](../../practice/ahc001/main.cpp)にヘッダを
+展開済みです。そのまま1ファイルで提出でき、原本との一致をCIで検査します。
+問題側の編集場所、公式ツールでの採点、1位との差の扱いは
+[`practice/ahc001/README.md`](../../practice/ahc001/README.md)を参照してください。
 
 例では読みやすさのため、次のようにリポジトリ内のヘッダを参照しています。
 
