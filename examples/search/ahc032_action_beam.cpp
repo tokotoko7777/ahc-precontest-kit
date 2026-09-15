@@ -22,7 +22,7 @@ constexpr uint32_t MODULO = 998244353U;
 constexpr long long RANK_SCALE = 4900;
 
 #ifndef AHC032_BEAM_WIDTH
-#define AHC032_BEAM_WIDTH 6000
+#define AHC032_BEAM_WIDTH 9000
 #endif
 #ifndef AHC032_END_COMBOS
 #define AHC032_END_COMBOS 0

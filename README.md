@@ -310,8 +310,9 @@ GitHub 上ではファイルを開き、右上のコピーアイコン、また�
 
 ## 過去AHCでの実戦例
 
-AHC001〜AHC069に加え、新しい問題も順次追加しています。全問題の状態と次の作業は
-[`practice/PROGRESS.md`](practice/PROGRESS.md) で管理します。
+全問題を網羅するのではなく、手法別の重点問題でフォーマットの性能を磨きます。
+現在の対象と採用基準は[`practice/README.md`](practice/README.md)、
+以下の全問題一覧と[`practice/PROGRESS.md`](practice/PROGRESS.md)は既存資産の記録です。
 
 | 問題 | 主に使うパーツ |
 |---|---|
@@ -346,7 +347,7 @@ AHC001〜AHC069に加え、新しい問題も順次追加しています。全�
 | [`practice/ahc029`](practice/ahc029/) | 全カード×案件評価、投資・購入閾値、対話fallback |
 | [`practice/ahc030`](practice/ahc030/) | 油田配置仮説bitset、情報量query、確定セル掘削 |
 | [`practice/ahc031`](practice/ahc031/) | 共通帯DP、guillotine配置、壁区間の対称差 |
-| [`practice/ahc032`](practice/ahc032/) | Action先行ビーム幅6,000、可換stamp列挙、確定セル評価。旧practice比で公式100ケース平均約7.67%改善 |
+| [`practice/ahc032`](practice/ahc032/) | Action先行ビーム幅9,000、可換stamp列挙、確定セル評価。同じ幅での高速化と幅拡大の得点差を公式入力で分離検証 |
 | [`practice/ahc033`](practice/ahc033/) | 入口退避buffer、搬出順制御、安全な単一大型crane |
 | [`practice/ahc034`](practice/ahc034/) | 循環蛇行路、積載量分割、区間操作SA |
 | [`practice/ahc035`](practice/ahc035/) | 交配期待値、成分極値保存、盤面swap SA |
