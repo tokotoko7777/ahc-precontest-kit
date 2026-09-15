@@ -387,10 +387,10 @@ struct TreeBeamSearch {
                 nodes[parent].beam_rank,
                 action_order++};
             ++last_generated_count_;
-            const auto found = index_by_key.find(key);
-            if (found == index_by_key.end()) {
-              const int index = static_cast<int>(candidate_buffer.size());
-              index_by_key.emplace(std::move(key), index);
+            // findの後で同じkeyを再hashして挿入しない。
+            const auto [found, inserted] = index_by_key.try_emplace(
+                std::move(key), static_cast<int>(candidate_buffer.size()));
+            if (inserted) {
               candidate_buffer.push_back(std::move(candidate));
             } else if (candidate_is_better(
                            candidate,
@@ -674,6 +674,16 @@ struct TreeBeamRunner {
   }
 
   const Score& best_score() const { return beam_.best_score(); }
+  // 現在の候補を全て調べる。visit(rank, const State&)で正式scoreを比較し、
+  // 選んだrankをrestore(rank)へ渡せる。途中の近似評価と正式scoreが違う時に使う。
+  // Stateは借用参照。保存せず、このRunnerをvisit内から変更しないこと。
+  // 終了時はrootへ戻る。Problemに新しい関数を書く必要はない。
+  template <class Visit>
+  void for_each_state(Visit&& visit) {
+    beam_.for_each_state(std::forward<Visit>(visit),
+        [&](State& state, Move& move) { problem_.apply_move(state, move); },
+        [&](State& state, const Move& move) { problem_.revert_move(state, move); });
+  }
   int depth() const { return beam_.depth(); }
   int size() const { return beam_.size(); }
   std::vector<Move> restore(int rank = 0) const {

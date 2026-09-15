@@ -68,6 +68,9 @@ AHCでは、同じ制限時間で評価できる候補数が増えること自�
   Problemの各関数はコンパイル時に型が決まり、`std::function`の間接呼び出しはない。
 - `TreeBeamSearch`と`CostTreeBeamSearch`は`State`を1個にできるが、
   `apply / revert`は得点、hash、候補集合まで完全に戻す。`Move`も小さく保つ。
+  木上版のkey挿入は`try_emplace`で二重検索を省く。
+  `TreeBeamRunner::for_each_state`ではStateをコピーせず候補を巡回できる。
+  途中評価と正式scoreが違う時は、正式scoreでrankを選んでから復元する。
 - `rank_score`は全候補に呼ばれる。安い近似評価で絞り、問題本来の
   重い得点計算はterminalや上位候補に限定する。
 - `step_with_key`は重複による無駄を減らす一方、hash表の構築費用がかかる。
@@ -95,6 +98,11 @@ AHCでは、同じ制限時間で評価できる候補数が増えること自�
 apply/revert木上ビーム、AHC032のAction先行ビームの測定方法と結果は
 [`REAL_PROBLEM_BENCHMARKS.md`](REAL_PROBLEM_BENCHMARKS.md)にまとめています。
 一括実行は`make benchmark-real-search`です。
+
+AHC021では共通経路保持の試作だけでは明確な短縮を確認できず、採用しませんでした。
+実測の主な負荷だった問題側の候補生成を、前線cache・最短路の厳密な途中終了・
+経路配列の確保削減で軽くしています。コアだけの速度、問題側の速度、幅による得点差、
+完成候補の選び直しは[個別レポート](benchmarks/AHC021_CORE_REPORT.md)で区別します。
 
 重点問題と採用条件は[`practice/README.md`](practice/README.md)です。
 全問題の網羅より、手法ごとの代表問題で同一探索量の正しさ・速度を比較し、

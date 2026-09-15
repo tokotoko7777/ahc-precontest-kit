@@ -422,6 +422,13 @@ beam.run_with_key(max_turn);
 vector<MyMove> answer = beam.restore();
 ```
 
+完成後の正式scoreが探索中の順位値と異なる場合は、
+`beam.for_each_state([&](int rank, const State& state) { ... });`で残った候補を調べ、
+正式scoreが最良だったrankを`restore(rank)`へ渡せます。
+Stateはその場だけの借用参照で、保存したり、巡回中にRunnerを変更したりしません。
+AHC021では、途中は重み付き経路費用で並べ、最後は実際の交換回数で選び直しています。
+これも共通ライブラリがapply/revertを担当するので、Stateのコピー処理は不要です。
+
 | 人が問題に合わせて書く | ライブラリが担当する |
 |---|---|
 | `State`、`Move`、順位値 | 生存履歴木とDFS巡回 |

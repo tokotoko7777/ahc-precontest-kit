@@ -336,7 +336,7 @@ GitHub 上ではファイルを開き、右上のコピーアイコン、また�
 | [`practice/ahc018`](practice/ahc018/) | 硬さ推定、複数始点Dijkstra、rolling replan |
 | [`practice/ahc019`](practice/ahc019/) | 24回転voxel重合、投影bitmask、残余domino化 |
 | [`practice/ahc020`](practice/ahc020/) | 重み付きset cover、metric MST、非terminal葉刈り |
-| [`practice/ahc021`](practice/ahc021/) | 木型ビームサーチ、Zobrist hash、状態重複除去 |
+| [`practice/ahc021`](practice/ahc021/) | 前線確定型の木上ビーム、RadixHeap、必要な最短路だけ計算、正式scoreで完成候補を選択 |
 | [`practice/ahc022`](practice/ahc022/) | 2値温度符号、active measurement、Hungarian復号 |
 | [`practice/ahc023`](practice/ahc023/) | 永続通路、区間min-cost flow、区間彩色 |
 | [`practice/ahc024`](practice/ahc024/) | 接触辺数差分、局所連結判定、短時間multi-start |
