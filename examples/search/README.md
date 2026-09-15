@@ -17,7 +17,7 @@
 | [`ahc061_common_rollout.cpp`](ahc061_common_rollout.cpp) | `CommonScenarioRolloutRunner` | AHC061 | 相手の粒子推定と衝突simulationを問題側へ分離。独自乱数・double加算・近似同点を保存 |
 | [`intro_heuristics_simple_beam.cpp`](intro_heuristics_simple_beam.cpp) | `SimpleBeamSearch` | Introduction to Heuristics Contest A | 365日入力を最後まで構築し、出力日数・番号範囲・得点計算を確認した |
 | [`intro_heuristics_action_beam.cpp`](intro_heuristics_action_beam.cpp) | `ActionBeamRunner` | Introduction to Heuristics Contest A | 問題依存コードを1 structへ分離。State・Action・Scoreと3関数へ何を書き何を返すか、行ごとのコメント付き |
-| [`ahc021_tree_beam.cpp`](ahc021_tree_beam.cpp) | `TreeBeamRunner` | AHC021 | `PyramidProblem`へ候補生成・`apply/revert`・差分評価・hashを分離。履歴木と上位選抜はRunner側 |
+| [`ahc021_tree_beam.cpp`](ahc021_tree_beam.cpp) | `TreeBeamRunner`＋`RadixHeap` | AHC021 | 前線マスへの最短路で球を1個ずつ確定。候補生成を高速化し、完成候補の巡回で正式scoreを最大化。practice・採点と同じProblemを共有 |
 | [`ahc032_action_beam.cpp`](ahc032_action_beam.cpp) | `ActionBeamRunner` | AHC032 | 3×3スタンプ多重集合を2-byte Action化。採用候補だけ盤面をコピーし、49位置を順に確定 |
 | [`variable_cost_beam.cpp`](variable_cost_beam.cpp) | `CostTreeBeamRunner` | 締切付き宝集め | Problem型へ可変長行動を分離。1、2、3世代進む行動と再訪を扱い、200ランダムケースを厳密DPと照合した |
 | [`ahc038_variable_cost_beam.cpp`](ahc038_variable_cost_beam.cpp) | `CostTreeBeamRunner` | AHC038 | 「次の把持・解放」まで1手で世代を飛ばす。問題側は候補・apply/revert・評価・進行量・keyだけを書き、公式seed 0--99を全て合法に完了した |

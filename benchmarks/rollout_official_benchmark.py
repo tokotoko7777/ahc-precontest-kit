@@ -46,7 +46,7 @@ def official_score(task, tool, executable, input_path, work, label):
         _, stderr = run(command, stdin=source, stdout=output,
                         stderr=subprocess.PIPE, text=True, cwd=work)
     elapsed = time.perf_counter() - started
-    if task in ("032", "058"):
+    if task in ("021", "032", "058"):
         stdout, stderr = run([str(tool), str(input_path), str(output_path)],
                              stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                              text=True, cwd=work)
