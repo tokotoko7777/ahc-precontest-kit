@@ -51,11 +51,28 @@ CIで原本＋ヘッダと提出用ファイルの完全一致を確認します
 `-DAHC001_TIME_LIMIT_MS=...`で変更できます。
 `-DAHC001_ITERATIONS=100`は短時間の整合性検査用で、得点比較の設定ではありません。
 
-### 対数前計算と処理別計測（任意）
+### 前計算・スコア途中打ち切り・処理別計測（任意）
 
-`-DAHC001_THRESHOLD_TABLE_SIZE=4096`で受理閾値の区間表を使えます。
+前計算と途中打ち切りを独立にON/OFFできます。提出用`main.cpp`でも同じ設定です。
+
+| コンパイル設定 | 意味 | 既定 |
+|---|---|---|
+| `-DAHC001_PRECOMPUTE_THRESHOLD=0` または `1` | 受理判定の対数表をOFF／ON | OFF |
+| `-DAHC001_SCORE_EARLY_STOP=0` または `1` | 差分スコアの途中打ち切りをOFF／ON | ON |
+| `-DAHC001_THRESHOLD_TABLE_SIZE=4096` | ON時の表サイズ | ONなら4096 |
+
+従来の表サイズ指定だけでもONになります。明示的な`PRECOMPUTE_THRESHOLD=0`があれば
+サイズ指定より優先してOFFにします。前計算OFFでも受理閾値は毎回logで作るため、
+途中打ち切りを使えます。途中打ち切りOFFでは全差分を求め、不合法手は必ず棄却します。
+ON/OFFで受理乱数の消費方法は同じです。時間ベースでは試行回数などが変わるので、
+同じseedでも最終スコアの一致を意味しません。
+
+```sh
+g++ -std=c++17 -O2 -DNDEBUG -DAHC001_PRECOMPUTE_THRESHOLD=0 \
+  -DAHC001_SCORE_EARLY_STOP=1 practice/ahc001/main.cpp -o build/ahc001
+```
+
 通常の受理確率は近似せず、境界に近い場合だけ元のlog計算へ戻します。
-0が既定です。問題側の評価関数は変更不要です。
 詳細は[`MARATHON_LIBRARY_REVIEW.md`](../../MARATHON_LIBRARY_REVIEW.md)を参照してください。
 
 `-DAHC_ENABLE_PROFILING`では、stderrへ評価全体と再構築の回数・合計msを出します。
@@ -197,6 +214,11 @@ python3 benchmarks/ahc001_official_benchmark.py \
   --threshold-table-size 4096 --compare-threshold-table \
   --output build/ahc001-table-comparison.csv
 ```
+
+`--score-early-stop 0`を加えると途中打ち切りOFF、`1`ならON（既定）です。
+`--compare-threshold-table`では両方の現行solverへ同じ打ち切り設定を渡します。
+旧commitとの比較では設定は現行solverだけに適用し、旧版の`score_early_stop`列は空欄です。
+4通りの少数ケース動作確認は[生データの説明](../../benchmarks/results/README.md#ahc001の独立onoffスイッチ2026-09-15)を参照してください。
 
 ## AtCoderへ提出する場合
 

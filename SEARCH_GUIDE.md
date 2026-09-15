@@ -118,6 +118,20 @@ if (improvement && sa.accept_with_threshold(*improvement, threshold)) {
 正確な改善量を返します。良化手を含め毎試行乱数を1個使うため通常の`accept()`とは
 乱数列が変わりますが、各手の採用確率は同じです。
 
+前計算と途中打ち切りを切り替えたい場合は、別々のboolで指定します。
+
+```cpp
+runner.annealing().set_threshold_precomputation(false); // 対数表の前計算OFF
+runner.run_with_threshold(true);                       // スコア途中打ち切りON
+```
+
+4通りすべて使えます。`run_with_threshold(false)`は`evaluate_move`で最後まで
+計算しますが、受理乱数の消費はON時と同じです。両方の関数は穴埋め雛形に配置済みです。
+表は対数用で、問題固有のスコアや距離の前計算とは別です。
+打ち切れるのは「途中改善量＋残り利得の上限」が閾値以下の時だけで、
+残りに利得があるのに途中値だけを比べてはいけません。
+設定表・具体例は[使い方](USAGE.md#前計算とスコア途中打ち切りを別々にonoffする)を参照してください。
+
 ### 焼きなましで人が書く箇所を分ける
 
 普段の編集箇所を1か所に集めたい時は`TimeBasedAnnealingRunner<Problem>`を使います。

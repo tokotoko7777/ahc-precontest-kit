@@ -8,6 +8,10 @@ using namespace std;
 // ここから問題ごとに編集する。
 // ============================================================================
 
+// TODO: この2つは独立してON/OFFできる。4通りすべて使える。
+constexpr bool PRECOMPUTE_ACCEPTANCE = false; // 対数表を作る。問題固有の前計算とは別。
+constexpr bool STOP_SCORE_EARLY = true;      // 閾値に届かないと判明したら評価を止める。
+
 struct Problem {
   struct State {
     // TODO: 現在解を書く。例: 順列、盤面、現在得点、差分更新用cache。
@@ -42,6 +46,19 @@ struct Problem {
     // 「残りを最良に見積もっても improvement > acceptance_threshold に
     // ならない」と証明できた時だけnulloptを返す。そうでなければ最後まで
     // 計算して正確な改善量を返す。下は枝刈りしない安全な初期形。
+    //
+    // 例: 全利得gainが先に分かり、あとは非負の損失だけを引く場合:
+    //   Score delta = gain;
+    //   for (各損失項) {
+    //     delta -= その項の非負の損失;
+    //     if (double(delta) <= acceptance_threshold) return nullopt;
+    //   }
+    //   return delta;  // 完走した場合だけ正確な差分を返す。
+    //
+    // 残りに正の利得もある場合は、deltaだけで切らない。
+    // delta + 残り利得の上限 <= acceptance_threshold と証明できた時だけ切る。
+    // 途中値を「正確な得点」として返さない。State/cacheも変更しない。
+    // 前計算がOFFでも、この打ち切りは使える。
     (void)acceptance_threshold;
     return evaluate_move(state, move);
   }
@@ -85,10 +102,9 @@ int main() {
       1900.0,       // TODO: 制限時間[ms]
       1000.0, 1.0,  // TODO: 開始温度、終了温度
       123, 64);     // TODO: seed、時計を見る間隔
-  // TODO: 【任意・前計算】軽い近傍で使う場合だけ次を有効にする。
-  // 受理確率は近似しない。実問題のスコアで比べ、効果がある時だけ使う。
-  // runner.annealing().set_threshold_table_size(4096);
-  // evaluate_moveが十分軽いならrunner.run()でもよい。
-  runner.run_with_threshold();
+  runner.annealing().set_threshold_precomputation(PRECOMPUTE_ACCEPTANCE);
+  // OFFならevaluate_move、ONならevaluate_move_with_thresholdを呼ぶ。
+  // run()へ替えると乱数の消費方法も変わるので、ON/OFF比較にはこちらを使う。
+  runner.run_with_threshold(STOP_SCORE_EARLY);
   print_answer(problem, runner.best_state());
 }
