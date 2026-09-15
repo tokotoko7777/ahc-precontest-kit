@@ -24,6 +24,7 @@ CIで原本＋ヘッダと提出用ファイルの完全一致を確認します
 
 使うパーツは`BatchedTimer`、`Random`、`AxisAlignedRectangle`、
 `largest_empty_rectangle`、`TimeBasedAnnealingRunner`です。
+診断時だけ有効になる`ScopeProfiler`も展開済みです。
 今回追加した[`largest-empty-rectangle.hpp`](../../library/largest-empty-rectangle.hpp)は、
 指定セルを含む最大面積の空き長方形を求めます。座標型はRect側で選べます。
 
@@ -49,6 +50,17 @@ CIで原本＋ヘッダと提出用ファイルの完全一致を確認します
 時計は間引いて確認するため、提出環境でのTLEを保証するものではありません。
 `-DAHC001_TIME_LIMIT_MS=...`で変更できます。
 `-DAHC001_ITERATIONS=100`は短時間の整合性検査用で、得点比較の設定ではありません。
+
+### 対数前計算と処理別計測（任意）
+
+`-DAHC001_THRESHOLD_TABLE_SIZE=4096`で受理閾値の区間表を使えます。
+通常の受理確率は近似せず、境界に近い場合だけ元のlog計算へ戻します。
+0が既定です。問題側の評価関数は変更不要です。
+詳細は[`MARATHON_LIBRARY_REVIEW.md`](../../MARATHON_LIBRARY_REVIEW.md)を参照してください。
+
+`-DAHC_ENABLE_PROFILING`では、stderrへ評価全体と再構築の回数・合計msを出します。
+再構築は評価全体に含まれるため、両方の時間を足さないでください。
+通常ビルドは計測用の時計取得・記録・出力をしません。
 
 ## 公式ツールによる新旧比較
 
@@ -90,6 +102,28 @@ CIで原本＋ヘッダと提出用ファイルの完全一致を確認します
 この100件では旧版や1位のコードを実行していません。新旧の直接比較は前節の10件だけです。
 また、保存済みの1位得点の出典と再確認上の制約を、次節に記載しています。
 99.33%という比率だけで1位並みと判断せず、残る損失が参考値で約2.08倍ある点も見ます。
+
+## 対数区間表の有無だけの比較
+
+MarathonLibraryの前計算の着想を、採否を近似しない区間表へ作り直して比較しました。
+同じソースを`AHC001_THRESHOLD_TABLE_SIZE=0 / 4096`だけ変えてコンパイルし、
+同じ入力・4.75秒目安・`g++ -O2 -DNDEBUG`で、順序を交互にして逐次実行しました。
+プロファイラは無効、他の重いビルド・solverも並行していません。
+
+| 入力集合 | 表なし平均 | 区間表4096の平均 | 平均点の変化 | 表ありの勝敗 |
+|---|---:|---:|---:|---|
+| 開発用seed 0〜9 | 990,047,681.00 | 990,656,408.10 | +0.0615% | 6勝0分4敗 |
+| 設定固定後・公開system一覧100〜119 | 987,877,192.75 | 987,735,372.35 | −0.0144% | 11勝0分9敗 |
+
+全60出力が合法で、観測した最長実時間は4.738秒でした。
+生データ: [開発10件](../../benchmarks/results/ahc001-threshold-window-dev-10.csv)、
+[別system20件](../../benchmarks/results/ahc001-threshold-window-system-20.csv)。
+各ケース1回の時間ベース測定であり、差には反復数・温度更新時点の変動が含まれます。
+**一貫したスコア改善は確認できないので、既定は0のままです。**
+構築費用・cache負荷・枝刈り境界を緩める費用もあり、表引きだけで強くなるとは限りません。
+
+前節までの1位比較用100件は`f20438c`時点の測定です。
+今回の表の結果で上書きせず、入力集合・設定が違う別の実験として残しています。
 
 ## 1位との差の記録方法
 
@@ -150,6 +184,19 @@ python3 benchmarks/ahc001_gap_report.py \
 出力CSVを上書きしないので、再測定時は新しい名前を指定してください。
 各行へ入力・出力・sourceのhash、seed、得点、実時間、5秒超過フラグを残します。
 スコア測定中は、他の重い処理を同時に走らせないことを推奨します。
+
+対数区間表の有無だけを比べる場合は、同じsolverを2通りでコンパイルします。
+このモードの`reference`は古いpracticeではなく、**現在のsolverの表なし版**です。
+`reference_commit`は空、`source_sha256`は共通、
+`threshold_table_size`が4096と0で区別できます。
+
+```sh
+python3 benchmarks/ahc001_official_benchmark.py \
+  --tools /path/to/tools --seeds /path/to/system/seeds.txt \
+  --suite system --first-case 100 --cases 20 \
+  --threshold-table-size 4096 --compare-threshold-table \
+  --output build/ahc001-table-comparison.csv
+```
 
 ## AtCoderへ提出する場合
 

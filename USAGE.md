@@ -97,6 +97,62 @@ double temperature =
 既定は指数冷却です。必要なら`use_linear_schedule()`で線形冷却、
 `set_cooling_power(2.0)`で高温の時間を長くできます。
 
+### 対数の前計算を使う場合だけ
+
+時間焼きなましRunnerの呼び出し前に、次の1行を足します。
+問題側のState・近傍・差分評価を変える必要はありません。
+
+```cpp
+runner.annealing().set_threshold_table_size(4096); // 0で無効（既定）
+runner.run_with_threshold();
+```
+
+これは「近似の受理確率」に切り替える設定ではありません。
+真の受理閾値を挟む区間を表引きし、曖昧な場合だけ元のlogを計算します。
+乱数は毎回新しく1個消費し、固定温度・同じ近傍列では通常方式と採否が一致します。
+2のべき乗、最大2^20を指定でき、4096では約64 KiBです。
+表の準備は時計をリセットせず、`accept()`や通常の`run()`には影響しません。
+速くなるかは近傍・cache・枝刈り率次第なので、実問題のスコアで比較してください。
+
+自分でループを書く場合は、区間の**下限**だけで最終採否を決めないようにします。
+
+```cpp
+sa.set_threshold_table_size(4096);
+while (!sa.is_over()) {
+  auto move = make_random_move(current);
+  auto threshold = sa.draw_acceptance_window();
+  // TODO: delta <= 下限と証明できたらnullopt、それ以外は正確な差分を返す。
+  auto delta = calculate_delta_with_threshold(current, move, threshold.lower);
+  if (delta && threshold.accept(*delta)) apply(current, move);
+}
+```
+
+### どこに時間を使っているか測る
+
+`scope-profiler.hpp`を貼り、測りたい処理の手前にGuardを置きます。
+スコープを抜けると、return・例外の場合も含めて計測が終わります。
+
+```cpp
+ScopeProfiler evaluation("evaluation");
+for (int i = 0; i < 100; ++i) {
+  auto guard = evaluation.measure();
+  // TODO: ここで評価処理など、測定対象を実行する。
+}
+evaluation.report(cerr); // 回数と合計ms。stdoutには出さない。
+```
+
+通常ビルドでは時計を読まず、記録・出力もしません。
+診断したい時だけ`-DAHC_ENABLE_PROFILING`を付けます。
+AHC001の提出用ファイルにも評価全体・再構築の計測位置を配置済みです。
+
+```sh
+g++ -std=c++17 -O2 -DAHC_ENABLE_PROFILING practice/ahc001/main.cpp -o build/ahc001-profile
+./build/ahc001-profile < /path/to/input.txt > build/ahc001-profile.out
+```
+
+計測自体にも費用があるため、このビルドのスコアを通常版と混ぜないでください。
+入れ子の区間は内側の時間も含みます。評価全体と再構築の時間を足して総時間にしません。
+
 ## 行動列を途中からだけ再生する
 
 `prefix-replay.hpp`は、購入順序・経路・スケジュールなどの行動列を少し変更して

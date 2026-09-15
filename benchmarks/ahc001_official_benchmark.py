@@ -38,8 +38,16 @@ def main():
     parser.add_argument("--solver", type=Path, default=ROOT / "examples/search/ahc001_region_sa.cpp")
     parser.add_argument("--skip-reference", action="store_true")
     parser.add_argument("--reference-ref", default=BASE)
+    parser.add_argument("--threshold-table-size", type=int, default=0)
+    parser.add_argument("--compare-threshold-table", action="store_true",
+                        help="compile the same solver twice: requested table vs disabled table")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
+    bins = args.threshold_table_size
+    if bins < 0 or bins > 2**20 or (bins and bins & (bins - 1)):
+        parser.error("threshold table size must be 0 or a power of two up to 2^20")
+    if args.compare_threshold_table and (args.skip_reference or bins == 0):
+        parser.error("table comparison needs a nonzero table and cannot skip reference")
     seed_bytes = args.seeds.read_bytes()
     seed_md5 = hashlib.md5(seed_bytes).hexdigest()
     seeds = [int(s) for s in seed_bytes.split()]
@@ -51,7 +59,9 @@ def main():
     tools = args.tools.resolve() / "target/release"
     if not all((tools / name).is_file() for name in ("gen", "vis")): parser.error("build official gen and vis first")
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    reference = subprocess.check_output(["git", "rev-parse", "--verify", f"{args.reference_ref}^{{commit}}"], cwd=ROOT, text=True).strip()
+    reference = ""
+    if not args.skip_reference and not args.compare_threshold_table:
+        reference = subprocess.check_output(["git", "rev-parse", "--verify", f"{args.reference_ref}^{{commit}}"], cwd=ROOT, text=True).strip()
     with tempfile.TemporaryDirectory(prefix="ahc001-score-") as directory:
         work = Path(directory)
         chosen = seeds[args.first_case:args.first_case + args.cases]
@@ -59,16 +69,20 @@ def main():
         subprocess.run([str(tools / "gen")], input="\n".join(map(str,chosen))+"\n", cwd=work, text=True,
                        stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, check=True)
         sources = {"region_sa": args.solver.resolve()}
-        if not args.skip_reference:
+        if args.compare_threshold_table:
+            sources["reference"] = args.solver.resolve()
+        elif not args.skip_reference:
             sources["reference"] = work / "reference.cpp"
             sources["reference"].write_bytes(subprocess.check_output(["git", "show", f"{reference}:practice/ahc001/main.cpp"], cwd=ROOT))
         for label, source in sources.items():
-            subprocess.run(["g++", "-std=c++17", "-O2", "-DNDEBUG", "-Wall", "-Wextra", str(source), "-o", str(work / label)], check=True)
+            table_size = bins if label == "region_sa" else 0
+            subprocess.run(["g++", "-std=c++17", "-O2", "-DNDEBUG", "-Wall", "-Wextra",
+                            f"-DAHC001_THRESHOLD_TABLE_SIZE={table_size}", str(source), "-o", str(work / label)], check=True)
         totals = {label:0 for label in sources}
         maximum = {label:0.0 for label in sources}
         wins = ties = losses = 0
         with args.output.open("x", newline="") as destination:
-            writer = csv.DictWriter(destination, fieldnames=["case_index","seed","suite","version","score","seconds","over_5s","input_sha256","output_sha256","source_sha256","seed_manifest_md5","reference_commit"])
+            writer = csv.DictWriter(destination, fieldnames=["case_index","seed","suite","version","score","seconds","over_5s","input_sha256","output_sha256","source_sha256","seed_manifest_md5","reference_commit","threshold_table_size"])
             writer.writeheader()
             for offset, seed in enumerate(chosen):
                 index = args.first_case + offset
@@ -88,7 +102,7 @@ def main():
                     scores[label] = score
                     totals[label] += score
                     maximum[label] = max(maximum[label], seconds)
-                    writer.writerow(dict(case_index=index,seed=seed,suite=args.suite,version=label,score=score,seconds=f"{seconds:.6f}",over_5s=int(seconds>5),input_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),output_sha256=hashlib.sha256(output.read_bytes()).hexdigest(),source_sha256=hashlib.sha256(sources[label].read_bytes()).hexdigest(),seed_manifest_md5=seed_md5,reference_commit=reference))
+                    writer.writerow(dict(case_index=index,seed=seed,suite=args.suite,version=label,score=score,seconds=f"{seconds:.6f}",over_5s=int(seconds>5),input_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),output_sha256=hashlib.sha256(output.read_bytes()).hexdigest(),source_sha256=hashlib.sha256(sources[label].read_bytes()).hexdigest(),seed_manifest_md5=seed_md5,reference_commit=reference,threshold_table_size=bins if label == "region_sa" else 0))
                     destination.flush()
                 if "reference" in scores:
                     difference = scores["region_sa"] - scores["reference"]

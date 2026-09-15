@@ -111,6 +111,7 @@ Problemへ渡します。超えないと証明できた候補だけ`nullopt`で�
 |---|---|
 | [`timer.hpp`](library/timer.hpp) | 経過時間・残り時間・進捗率 |
 | [`batched-timer.hpp`](library/batched-timer.hpp) | 時計を見る回数を間引くタイマー |
+| [`scope-profiler.hpp`](library/scope-profiler.hpp) | 処理別の回数・時間。指定したビルドだけ有効、通常は時計取得・出力なし |
 | [`random.hpp`](library/random.hpp) | 型を選べる乱数、ランダム選択、重み付き選択 |
 | [`alias-table.hpp`](library/alias-table.hpp) | 固定重み分布から前計算後O(1)で抽選 |
 | [`fast-io.hpp`](library/fast-io.hpp) | 大量の整数・文字列用のバッファ入出力 |
@@ -128,7 +129,7 @@ Problemへ渡します。超えないと証明できた候補だけ`nullopt`で�
 | ファイル | できること |
 |---|---|
 | [`simulated-annealing.hpp`](library/simulated-annealing.hpp) | 外部から進捗率を渡す焼きなまし |
-| [`time-based-simulated-annealing.hpp`](library/time-based-simulated-annealing.hpp) | タイマー内蔵の焼きなまし。問題分離Runner付き |
+| [`time-based-simulated-annealing.hpp`](library/time-based-simulated-annealing.hpp) | タイマー内蔵の焼きなまし。問題分離Runner、閾値区間表の任意設定付き |
 | [`prefix-replay.hpp`](library/prefix-replay.hpp) | 行動列の変更部分からだけ再計算。仮評価と採用を分けるcheckpoint cache |
 | [`multi-start.hpp`](library/multi-start.hpp) | 回数または時間指定の多点スタート |
 | [`simple-beam-search.hpp`](library/simple-beam-search.hpp) | 状態をコピーする初心者向けビームサーチ |
@@ -273,6 +274,10 @@ GitHub 上ではファイルを開き、右上のコピーアイコン、また�
 
 ## 参考資料
 
+- [asi1024/MarathonLibrary](https://github.com/asi1024/MarathonLibrary) —
+  前計算、候補生成前の足切り、処理別計測、条件付きqueueを調査。
+  採用した機能・既存との重複・今後の候補を
+  [調査メモ](MARATHON_LIBRARY_REVIEW.md)へ分けて記録しています。
 - [木上のビームサーチ：高速化編](https://trap.jp/post/2920/) —
   apply / revert、履歴共有、状態コピー削減という考え方を参考にしています。
 - [AtCoder Heuristic Contest Memo: Beam Search](https://jetbead.github.io/AtCoderHeuristicContestMemo/Library/beam_search.html) —

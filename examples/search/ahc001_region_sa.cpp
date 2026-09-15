@@ -5,6 +5,7 @@ using namespace std;
 #include "../../library/axis-aligned-rectangle.hpp"
 #include "../../library/largest-empty-rectangle.hpp"
 #include "../../library/time-based-simulated-annealing.hpp"
+#include "../../library/scope-profiler.hpp"
 // Pre-contest public solver source (created with generative AI):
 // https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/examples/search/ahc001_region_sa.cpp
 // Official problem: https://atcoder.jp/contests/ahc001/tasks/ahc001_a
@@ -16,6 +17,9 @@ using namespace std;
 #endif
 #ifndef AHC001_ITERATIONS
 #define AHC001_ITERATIONS 0
+#endif
+#ifndef AHC001_THRESHOLD_TABLE_SIZE
+#define AHC001_THRESHOLD_TABLE_SIZE 0
 #endif
 using Rect = AxisAlignedRectangle<int>;
 
@@ -260,6 +264,9 @@ struct RegionProblem {
   vector<vector<int>> neighbors;
   vector<Change> pending; // 仮変更。Stateではないので、不採用で現在解は壊れない。
   vector<Rect> obstacles; // 再配置用scratchを再利用する。
+  // TODO: 【診断時だけ】-DAHC_ENABLE_PROFILINGで処理別時間を測る。
+  ScopeProfiler evaluation_profile{"evaluation (including rebuild)"};
+  ScopeProfiler rebuild_profile{"rebuild"};
 
   explicit RegionProblem(const vector<Request>& input) : requests(input) {
     const int n = static_cast<int>(requests.size());
@@ -331,6 +338,7 @@ struct RegionProblem {
   // 仮変更をpendingへ保存し、採用時だけapply_moveで確定する。
   optional<Score> evaluate_move_with_threshold(const State& state, const Move& move,
                                                double threshold) {
+    auto evaluation_guard = evaluation_profile.measure();
     pending.clear();
     const int id = move.index, n = static_cast<int>(requests.size());
     if (move.kind == 0) {
@@ -357,6 +365,7 @@ struct RegionProblem {
       }
       return delta;
     }
+    auto rebuild_guard = rebuild_profile.measure();
     obstacles.clear();
     for (int j = 0; j < n; ++j) {
       if (j != id && (move.kind == 1 || j != move.other)) obstacles.push_back(state.regions[j]);
@@ -439,6 +448,8 @@ int main() {
     TimeBasedAnnealingRunner<RegionProblem> sa(problem, state, problem.score(state),
         budget, phase == 0 ? 0.015 : 1e-8, phase == 0 ? 1e-6 : 1e-8,
         seed + static_cast<uint64_t>(phase), 4);
+    // TODO: 【任意】対数の区間表。0は従来方式。スコア比較用に4096等を指定できる。
+    sa.annealing().set_threshold_table_size(AHC001_THRESHOLD_TABLE_SIZE);
     if (AHC001_ITERATIONS > 0) {
       for (int i = 0; i < AHC001_ITERATIONS; ++i) sa.step_with_threshold();
     } else sa.run_with_threshold();
@@ -457,5 +468,7 @@ int main() {
     cout << x << ' ' << y << ' ' << x+w << ' ' << y+h << '\n';
   }
   cerr << "iterations=" << iterations << " pruned=" << pruned << " elapsed_ms=" << elapsed() << '\n';
+  problem.evaluation_profile.report(cerr);
+  problem.rebuild_profile.report(cerr);
   return 0;
 }

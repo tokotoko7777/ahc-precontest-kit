@@ -85,6 +85,9 @@ int main() {
       1900.0,       // TODO: 制限時間[ms]
       1000.0, 1.0,  // TODO: 開始温度、終了温度
       123, 64);     // TODO: seed、時計を見る間隔
+  // TODO: 【任意・前計算】軽い近傍で使う場合だけ次を有効にする。
+  // 受理確率は近似しない。実問題のスコアで比べ、効果がある時だけ使う。
+  // runner.annealing().set_threshold_table_size(4096);
   // evaluate_moveが十分軽いならrunner.run()でもよい。
   runner.run_with_threshold();
   print_answer(problem, runner.best_state());
