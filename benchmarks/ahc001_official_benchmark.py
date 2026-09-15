@@ -39,6 +39,8 @@ def main():
     parser.add_argument("--skip-reference", action="store_true")
     parser.add_argument("--reference-ref", default=BASE)
     parser.add_argument("--threshold-table-size", type=int, default=0)
+    parser.add_argument("--score-early-stop", type=int, choices=[0, 1], default=1,
+                        help="early score cutoff for the current solver (also same-source reference)")
     parser.add_argument("--compare-threshold-table", action="store_true",
                         help="compile the same solver twice: requested table vs disabled table")
     parser.add_argument("--output", type=Path, required=True)
@@ -76,13 +78,18 @@ def main():
             sources["reference"].write_bytes(subprocess.check_output(["git", "show", f"{reference}:practice/ahc001/main.cpp"], cwd=ROOT))
         for label, source in sources.items():
             table_size = bins if label == "region_sa" else 0
+            current_source = label == "region_sa" or args.compare_threshold_table
+            switches = ([f"-DAHC001_PRECOMPUTE_THRESHOLD={int(table_size > 0)}",
+                         f"-DAHC001_SCORE_EARLY_STOP={args.score_early_stop}"]
+                        if current_source else [])
             subprocess.run(["g++", "-std=c++17", "-O2", "-DNDEBUG", "-Wall", "-Wextra",
-                            f"-DAHC001_THRESHOLD_TABLE_SIZE={table_size}", str(source), "-o", str(work / label)], check=True)
+                            f"-DAHC001_THRESHOLD_TABLE_SIZE={table_size}", *switches,
+                            str(source), "-o", str(work / label)], check=True)
         totals = {label:0 for label in sources}
         maximum = {label:0.0 for label in sources}
         wins = ties = losses = 0
         with args.output.open("x", newline="") as destination:
-            writer = csv.DictWriter(destination, fieldnames=["case_index","seed","suite","version","score","seconds","over_5s","input_sha256","output_sha256","source_sha256","seed_manifest_md5","reference_commit","threshold_table_size"])
+            writer = csv.DictWriter(destination, fieldnames=["case_index","seed","suite","version","score","seconds","over_5s","input_sha256","output_sha256","source_sha256","seed_manifest_md5","reference_commit","threshold_table_size","score_early_stop"])
             writer.writeheader()
             for offset, seed in enumerate(chosen):
                 index = args.first_case + offset
@@ -102,7 +109,7 @@ def main():
                     scores[label] = score
                     totals[label] += score
                     maximum[label] = max(maximum[label], seconds)
-                    writer.writerow(dict(case_index=index,seed=seed,suite=args.suite,version=label,score=score,seconds=f"{seconds:.6f}",over_5s=int(seconds>5),input_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),output_sha256=hashlib.sha256(output.read_bytes()).hexdigest(),source_sha256=hashlib.sha256(sources[label].read_bytes()).hexdigest(),seed_manifest_md5=seed_md5,reference_commit=reference,threshold_table_size=bins if label == "region_sa" else 0))
+                    writer.writerow(dict(case_index=index,seed=seed,suite=args.suite,version=label,score=score,seconds=f"{seconds:.6f}",over_5s=int(seconds>5),input_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),output_sha256=hashlib.sha256(output.read_bytes()).hexdigest(),source_sha256=hashlib.sha256(sources[label].read_bytes()).hexdigest(),seed_manifest_md5=seed_md5,reference_commit=reference,threshold_table_size=bins if label == "region_sa" else 0,score_early_stop=args.score_early_stop if label == "region_sa" or args.compare_threshold_table else ""))
                     destination.flush()
                 if "reference" in scores:
                     difference = scores["region_sa"] - scores["reference"]

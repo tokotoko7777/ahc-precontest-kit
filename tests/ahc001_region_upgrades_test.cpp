@@ -56,4 +56,37 @@ int main() {
   for (int i = 0; i < 300; ++i) runner.step_with_threshold();
   problem.validate(runner.best_state());
   assert(abs(problem.score(runner.best_state()) - runner.best_score()) < 1e-8);
+
+  // 実問題のadapterも4通りで比較。同じ初期状態・固定温度なら採否は同じ。
+  array<RegionProblem, 4> problems = {RegionProblem(requests), RegionProblem(requests),
+                                    RegionProblem(requests), RegionProblem(requests)};
+  using Runner = TimeBasedAnnealingRunner<RegionProblem>;
+  array<unique_ptr<Runner>, 4> runners;
+  for (int mode = 0; mode < 4; ++mode) {
+    runners[mode] = make_unique<Runner>(problems[mode], state, problem.score(state),
+                                      1e9, 0.01, 0.01, 42, 1);
+    runners[mode]->annealing().set_threshold_precomputation((mode & 2) != 0);
+  }
+  auto same_state = [](const RegionProblem::State& a, const RegionProblem::State& b) {
+    assert(a.quality == b.quality && a.regions.size() == b.regions.size());
+    for (size_t i = 0; i < a.regions.size(); ++i) {
+      assert(a.regions[i].left == b.regions[i].left);
+      assert(a.regions[i].right == b.regions[i].right);
+      assert(a.regions[i].bottom == b.regions[i].bottom);
+      assert(a.regions[i].top == b.regions[i].top);
+    }
+  };
+  for (int trial = 0; trial < 1000; ++trial) {
+    for (int mode = 0; mode < 4; ++mode) {
+      auto& current = *runners[mode];
+      assert(current.step_with_threshold((mode & 1) != 0));
+      same_state(current.current_state(), runners[0]->current_state());
+      same_state(current.best_state(), runners[0]->best_state());
+      assert(current.current_score() == runners[0]->current_score());
+      assert(current.best_score() == runners[0]->best_score());
+      assert(current.accepted_moves() == runners[0]->accepted_moves());
+      assert(current.annealing().engine == runners[0]->annealing().engine);
+    }
+  }
+  for (const auto& current : runners) problem.validate(current->best_state());
 }

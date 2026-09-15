@@ -21,6 +21,12 @@ using namespace std;
 #ifndef AHC001_THRESHOLD_TABLE_SIZE
 #define AHC001_THRESHOLD_TABLE_SIZE 0
 #endif
+#ifndef AHC001_PRECOMPUTE_THRESHOLD
+#define AHC001_PRECOMPUTE_THRESHOLD (AHC001_THRESHOLD_TABLE_SIZE > 0)
+#endif
+#ifndef AHC001_SCORE_EARLY_STOP
+#define AHC001_SCORE_EARLY_STOP 1
+#endif
 using Rect = AxisAlignedRectangle<int>;
 
 // TODO(AHC001): 固定入力、初期解の再帰分割、領域内の最終サイズ選択。
@@ -405,7 +411,9 @@ struct RegionProblem {
     return best_delta;
   }
   Score evaluate_move(const State& state, const Move& move) {
-    return evaluate_move_with_threshold(state, move, -numeric_limits<double>::infinity()).value_or(-1e100);
+    // 途中打ち切りOFFでは全差分を計算。不合法手は必ず棄却される-infを返す。
+    return evaluate_move_with_threshold(state, move, -numeric_limits<double>::infinity())
+        .value_or(-numeric_limits<double>::infinity());
   }
   // TODO: 採用された仮変更だけをStateへ反映する。不採用時は呼ばれない。
   void apply_move(State& state, Move&) {
@@ -448,11 +456,13 @@ int main() {
     TimeBasedAnnealingRunner<RegionProblem> sa(problem, state, problem.score(state),
         budget, phase == 0 ? 0.015 : 1e-8, phase == 0 ? 1e-6 : 1e-8,
         seed + static_cast<uint64_t>(phase), 4);
-    // TODO: 【任意】対数の区間表。0は従来方式。スコア比較用に4096等を指定できる。
-    sa.annealing().set_threshold_table_size(AHC001_THRESHOLD_TABLE_SIZE);
+    // TODO: 前計算とスコア途中打ち切りは独立。どちらもON/OFFできる。
+    sa.annealing().set_threshold_precomputation(AHC001_PRECOMPUTE_THRESHOLD != 0,
+        AHC001_THRESHOLD_TABLE_SIZE > 0 ? AHC001_THRESHOLD_TABLE_SIZE : 4096);
     if (AHC001_ITERATIONS > 0) {
-      for (int i = 0; i < AHC001_ITERATIONS; ++i) sa.step_with_threshold();
-    } else sa.run_with_threshold();
+      for (int i = 0; i < AHC001_ITERATIONS; ++i)
+        sa.step_with_threshold(AHC001_SCORE_EARLY_STOP != 0);
+    } else sa.run_with_threshold(AHC001_SCORE_EARLY_STOP != 0);
     state = sa.best_state();
     iterations += sa.iterations();
     pruned += sa.threshold_pruned_moves();

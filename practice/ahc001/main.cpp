@@ -570,6 +570,20 @@ struct TimeBasedSimulatedAnnealing {
     return threshold_log_bounds_.empty() ? 0 : threshold_log_bounds_.size() - 1;
   }
 
+  // TODO: 【任意】対数表の前計算だけをON/OFFする。スコア途中打ち切りとは独立。
+  // falseでもrun_with_threshold(true)で途中打ち切りできる。
+  // 距離表など「問題固有の前計算」を行う設定ではない。
+  void set_threshold_precomputation(bool enabled, std::size_t bins = 4096) {
+    if (enabled && bins == 0) {
+      throw std::invalid_argument("enabled precomputation needs a nonzero table size");
+    }
+    set_threshold_table_size(enabled ? bins : 0);
+  }
+
+  bool threshold_precomputation_enabled() const {
+    return !threshold_log_bounds_.empty();
+  }
+
   // 受理閾値が入る区間。lowerは安全な枝刈り用で、最終採否そのものではない。
   // TODO: evaluate_move_with_thresholdへlowerを渡し、最後はaccept()で確認する。
   // 値が区間内なら元のT*log(u)を計算するので、希少な悪化手も切り捨てない。
@@ -719,6 +733,20 @@ struct TimeBasedAnnealingRunner {
   // 計算し、正確なimprovementを返せば通常の焼きなましと同じ分布になる。
   // 区間表を有効にした場合は実際の閾値以下の下限を渡し、最終採否を別途確認する。
   bool step_with_threshold() {
+    return step_threshold_impl<true>();
+  }
+
+  // true: evaluate_move_with_thresholdで安全に途中打ち切り。
+  // false: evaluate_moveで最後まで計算する。閾値の抽選・最終採否は同じ。
+  // このbool版を使うProblemには上記の両方の関数を書く（雛形に配置済み）。
+  bool step_with_threshold(bool enable_score_early_stop) {
+    return enable_score_early_stop ? step_threshold_impl<true>()
+                                   : step_threshold_impl<false>();
+  }
+
+ private:
+  template <bool EnableScoreEarlyStop>
+  bool step_threshold_impl() {
     if (annealing_.is_over()) return false;
     ++iterations_;
     std::optional<Move> move = problem_.propose_move(
@@ -729,9 +757,14 @@ struct TimeBasedAnnealingRunner {
 
     ++valid_moves_;
     const auto threshold = annealing_.draw_acceptance_window();
-    std::optional<Score> improvement =
-        problem_.evaluate_move_with_threshold(
-            static_cast<const State&>(current_state_), *move, threshold.lower);
+    std::optional<Score> improvement;
+    if constexpr (EnableScoreEarlyStop) {
+      improvement = problem_.evaluate_move_with_threshold(
+          static_cast<const State&>(current_state_), *move, threshold.lower);
+    } else {
+      improvement = problem_.evaluate_move(
+          static_cast<const State&>(current_state_), *move);
+    }
     if (!improvement.has_value()) {
       ++threshold_pruned_moves_;
       return true;
@@ -749,6 +782,7 @@ struct TimeBasedAnnealingRunner {
     return true;
   }
 
+ public:
   std::uint64_t run() {
     while (step()) {
     }
@@ -757,6 +791,16 @@ struct TimeBasedAnnealingRunner {
 
   std::uint64_t run_with_threshold() {
     while (step_with_threshold()) {
+    }
+    return iterations_;
+  }
+
+  // TODO: スコア途中打ち切りだけをON/OFFする。前計算とは別の設定。
+  // falseでも前計算した区間表を最終採否に使える。
+  // 分岐は探索開始時の1回だけ。通常のrun()とは異なり、ON/OFFで同じ乱数を消費する。
+  std::uint64_t run_with_threshold(bool enable_score_early_stop) {
+    if (enable_score_early_stop) return run_with_threshold();
+    while (step_threshold_impl<false>()) {
     }
     return iterations_;
   }
@@ -884,6 +928,12 @@ struct ScopeProfiler {
 #endif
 #ifndef AHC001_THRESHOLD_TABLE_SIZE
 #define AHC001_THRESHOLD_TABLE_SIZE 0
+#endif
+#ifndef AHC001_PRECOMPUTE_THRESHOLD
+#define AHC001_PRECOMPUTE_THRESHOLD (AHC001_THRESHOLD_TABLE_SIZE > 0)
+#endif
+#ifndef AHC001_SCORE_EARLY_STOP
+#define AHC001_SCORE_EARLY_STOP 1
 #endif
 using Rect = AxisAlignedRectangle<int>;
 
@@ -1269,7 +1319,9 @@ struct RegionProblem {
     return best_delta;
   }
   Score evaluate_move(const State& state, const Move& move) {
-    return evaluate_move_with_threshold(state, move, -numeric_limits<double>::infinity()).value_or(-1e100);
+    // 途中打ち切りOFFでは全差分を計算。不合法手は必ず棄却される-infを返す。
+    return evaluate_move_with_threshold(state, move, -numeric_limits<double>::infinity())
+        .value_or(-numeric_limits<double>::infinity());
   }
   // TODO: 採用された仮変更だけをStateへ反映する。不採用時は呼ばれない。
   void apply_move(State& state, Move&) {
@@ -1312,11 +1364,13 @@ int main() {
     TimeBasedAnnealingRunner<RegionProblem> sa(problem, state, problem.score(state),
         budget, phase == 0 ? 0.015 : 1e-8, phase == 0 ? 1e-6 : 1e-8,
         seed + static_cast<uint64_t>(phase), 4);
-    // TODO: 【任意】対数の区間表。0は従来方式。スコア比較用に4096等を指定できる。
-    sa.annealing().set_threshold_table_size(AHC001_THRESHOLD_TABLE_SIZE);
+    // TODO: 前計算とスコア途中打ち切りは独立。どちらもON/OFFできる。
+    sa.annealing().set_threshold_precomputation(AHC001_PRECOMPUTE_THRESHOLD != 0,
+        AHC001_THRESHOLD_TABLE_SIZE > 0 ? AHC001_THRESHOLD_TABLE_SIZE : 4096);
     if (AHC001_ITERATIONS > 0) {
-      for (int i = 0; i < AHC001_ITERATIONS; ++i) sa.step_with_threshold();
-    } else sa.run_with_threshold();
+      for (int i = 0; i < AHC001_ITERATIONS; ++i)
+        sa.step_with_threshold(AHC001_SCORE_EARLY_STOP != 0);
+    } else sa.run_with_threshold(AHC001_SCORE_EARLY_STOP != 0);
     state = sa.best_state();
     iterations += sa.iterations();
     pruned += sa.threshold_pruned_moves();
