@@ -192,13 +192,18 @@ class PrefixReplay {
 #include <algorithm>
 #include <chrono>
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
+#include <limits>
 #include <optional>
 #include <random>
 #include <stdexcept>
 #include <utility>
+#include <vector>
 // Pre-contest public source (created with generative AI):
 // https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/time-based-simulated-annealing.hpp
+// 前計算の着想: https://github.com/asi1024/MarathonLibrary/blob/13fe8241ac04fcdcfb8da6e84b050bd4b23ad3a9/snippets/simulated_annealing.h
+// この実装は近似値だけで採否を決めず、区間内だけ通常のlogで確認する独自実装。
 
 // タイマーを内蔵した焼きなまし。これ1ファイルだけで使える。
 // 使い方:
@@ -229,6 +234,8 @@ struct TimeBasedSimulatedAnnealing {
   double cooling_power_value = 1.0;
   mutable double prepared_start_temperature = 0.0;
   mutable double prepared_end_temperature = 0.0;
+  // 各分割点のlogを上下へ1 ULP広げた境界。未使用なら確保しない。
+  std::vector<std::pair<double, double>> threshold_log_bounds_;
 
   static void validate_temperatures(double start_value, double end_value) {
     if (!(start_value > 0.0) || !std::isfinite(start_value) ||
@@ -464,6 +471,62 @@ struct TimeBasedSimulatedAnnealing {
     return static_cast<double>(engine() >> 11) * inverse;
   }
 
+  // TODO: 【任意】軽い差分評価の試行数が多い時だけ、探索前に4096等を指定する。
+  // 0で無効（既定）。2のべき乗、最大2^20。約16*(bins+1) bytesを使う。
+  // 構築はO(bins)。時刻・乱数列はリセットしない。accept()には影響しない。
+  // 固定表を順番に巡回せず、各試行で従来と同じ新しい乱数を1個使う。
+  void set_threshold_table_size(std::size_t bins) {
+    if (bins == 0) {
+      threshold_log_bounds_.clear();
+      return;
+    }
+    if (bins > (std::size_t{1} << 20) || (bins & (bins - 1)) != 0) {
+      throw std::invalid_argument("threshold table size must be a power of two up to 2^20");
+    }
+    std::vector<std::pair<double, double>> bounds(bins + 1);
+    const double infinity = std::numeric_limits<double>::infinity();
+    for (std::size_t i = 0; i <= bins; ++i) {
+      const double value = i == 0 ? -infinity :
+          std::log(static_cast<double>(i) / static_cast<double>(bins));
+      bounds[i] = {std::nextafter(value, -infinity), std::nextafter(value, infinity)};
+    }
+    threshold_log_bounds_.swap(bounds);
+  }
+
+  std::size_t threshold_table_size() const {
+    return threshold_log_bounds_.empty() ? 0 : threshold_log_bounds_.size() - 1;
+  }
+
+  // 受理閾値が入る区間。lowerは安全な枝刈り用で、最終採否そのものではない。
+  // TODO: evaluate_move_with_thresholdへlowerを渡し、最後はaccept()で確認する。
+  // 値が区間内なら元のT*log(u)を計算するので、希少な悪化手も切り捨てない。
+  struct AcceptanceWindow {
+    double lower, upper, uniform_value, temperature;
+
+    template <class Score>
+    bool accept(Score improvement) const {
+      const double value = static_cast<double>(improvement);
+      if (std::isnan(value) || value <= lower) return false;
+      if (value > upper) return true;
+      return value > temperature * std::log(uniform_value);
+    }
+  };
+
+  AcceptanceWindow draw_acceptance_window() {
+    synchronize_temperature_settings();
+    const double u = random_01();
+    const double t = cached_temperature_value;
+    if (threshold_log_bounds_.empty()) {
+      const double threshold = t * std::log(u);
+      return {threshold, threshold, u, t};
+    }
+    const std::size_t bins = threshold_table_size();
+    // binsが2のべき乗なので、[0,1)の53-bit乱数の区間を正確に選べる。
+    const auto index = static_cast<std::size_t>(u * static_cast<double>(bins));
+    return {t * threshold_log_bounds_[index].first,
+            t * threshold_log_bounds_[index + 1].second, u, t};
+  }
+
   // この試行が採用されるために必要な最小improvementを先に返す。
   // improvement > thresholdなら採用。差分評価が重い時は、この閾値を
   // 評価関数へ渡し、超えないと証明できた時点で計算を打ち切れる。
@@ -581,6 +644,7 @@ struct TimeBasedAnnealingRunner {
   // Problem::evaluate_move_with_thresholdは、improvementがthresholdを
   // 超えないと証明できた時だけnulloptを返す。分からない場合は最後まで
   // 計算し、正確なimprovementを返せば通常の焼きなましと同じ分布になる。
+  // 区間表を有効にした場合は実際の閾値以下の下限を渡し、最終採否を別途確認する。
   bool step_with_threshold() {
     if (annealing_.is_over()) return false;
     ++iterations_;
@@ -591,15 +655,15 @@ struct TimeBasedAnnealingRunner {
     if (!move.has_value()) return true;
 
     ++valid_moves_;
-    const double threshold = annealing_.draw_acceptance_threshold();
+    const auto threshold = annealing_.draw_acceptance_window();
     std::optional<Score> improvement =
         problem_.evaluate_move_with_threshold(
-            static_cast<const State&>(current_state_), *move, threshold);
+            static_cast<const State&>(current_state_), *move, threshold.lower);
     if (!improvement.has_value()) {
       ++threshold_pruned_moves_;
       return true;
     }
-    if (!annealing_.accept_with_threshold(*improvement, threshold)) return true;
+    if (!threshold.accept(*improvement)) return true;
 
     problem_.apply_move(current_state_, *move);
     current_score_ += *improvement;

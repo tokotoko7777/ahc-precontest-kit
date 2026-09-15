@@ -265,13 +265,18 @@ Rect largest_empty_rectangle(const Rect& bounds, decltype(Rect::left) x,
 #include <algorithm>
 #include <chrono>
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
+#include <limits>
 #include <optional>
 #include <random>
 #include <stdexcept>
 #include <utility>
+#include <vector>
 // Pre-contest public source (created with generative AI):
 // https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/time-based-simulated-annealing.hpp
+// 前計算の着想: https://github.com/asi1024/MarathonLibrary/blob/13fe8241ac04fcdcfb8da6e84b050bd4b23ad3a9/snippets/simulated_annealing.h
+// この実装は近似値だけで採否を決めず、区間内だけ通常のlogで確認する独自実装。
 
 // タイマーを内蔵した焼きなまし。これ1ファイルだけで使える。
 // 使い方:
@@ -302,6 +307,8 @@ struct TimeBasedSimulatedAnnealing {
   double cooling_power_value = 1.0;
   mutable double prepared_start_temperature = 0.0;
   mutable double prepared_end_temperature = 0.0;
+  // 各分割点のlogを上下へ1 ULP広げた境界。未使用なら確保しない。
+  std::vector<std::pair<double, double>> threshold_log_bounds_;
 
   static void validate_temperatures(double start_value, double end_value) {
     if (!(start_value > 0.0) || !std::isfinite(start_value) ||
@@ -537,6 +544,62 @@ struct TimeBasedSimulatedAnnealing {
     return static_cast<double>(engine() >> 11) * inverse;
   }
 
+  // TODO: 【任意】軽い差分評価の試行数が多い時だけ、探索前に4096等を指定する。
+  // 0で無効（既定）。2のべき乗、最大2^20。約16*(bins+1) bytesを使う。
+  // 構築はO(bins)。時刻・乱数列はリセットしない。accept()には影響しない。
+  // 固定表を順番に巡回せず、各試行で従来と同じ新しい乱数を1個使う。
+  void set_threshold_table_size(std::size_t bins) {
+    if (bins == 0) {
+      threshold_log_bounds_.clear();
+      return;
+    }
+    if (bins > (std::size_t{1} << 20) || (bins & (bins - 1)) != 0) {
+      throw std::invalid_argument("threshold table size must be a power of two up to 2^20");
+    }
+    std::vector<std::pair<double, double>> bounds(bins + 1);
+    const double infinity = std::numeric_limits<double>::infinity();
+    for (std::size_t i = 0; i <= bins; ++i) {
+      const double value = i == 0 ? -infinity :
+          std::log(static_cast<double>(i) / static_cast<double>(bins));
+      bounds[i] = {std::nextafter(value, -infinity), std::nextafter(value, infinity)};
+    }
+    threshold_log_bounds_.swap(bounds);
+  }
+
+  std::size_t threshold_table_size() const {
+    return threshold_log_bounds_.empty() ? 0 : threshold_log_bounds_.size() - 1;
+  }
+
+  // 受理閾値が入る区間。lowerは安全な枝刈り用で、最終採否そのものではない。
+  // TODO: evaluate_move_with_thresholdへlowerを渡し、最後はaccept()で確認する。
+  // 値が区間内なら元のT*log(u)を計算するので、希少な悪化手も切り捨てない。
+  struct AcceptanceWindow {
+    double lower, upper, uniform_value, temperature;
+
+    template <class Score>
+    bool accept(Score improvement) const {
+      const double value = static_cast<double>(improvement);
+      if (std::isnan(value) || value <= lower) return false;
+      if (value > upper) return true;
+      return value > temperature * std::log(uniform_value);
+    }
+  };
+
+  AcceptanceWindow draw_acceptance_window() {
+    synchronize_temperature_settings();
+    const double u = random_01();
+    const double t = cached_temperature_value;
+    if (threshold_log_bounds_.empty()) {
+      const double threshold = t * std::log(u);
+      return {threshold, threshold, u, t};
+    }
+    const std::size_t bins = threshold_table_size();
+    // binsが2のべき乗なので、[0,1)の53-bit乱数の区間を正確に選べる。
+    const auto index = static_cast<std::size_t>(u * static_cast<double>(bins));
+    return {t * threshold_log_bounds_[index].first,
+            t * threshold_log_bounds_[index + 1].second, u, t};
+  }
+
   // この試行が採用されるために必要な最小improvementを先に返す。
   // improvement > thresholdなら採用。差分評価が重い時は、この閾値を
   // 評価関数へ渡し、超えないと証明できた時点で計算を打ち切れる。
@@ -654,6 +717,7 @@ struct TimeBasedAnnealingRunner {
   // Problem::evaluate_move_with_thresholdは、improvementがthresholdを
   // 超えないと証明できた時だけnulloptを返す。分からない場合は最後まで
   // 計算し、正確なimprovementを返せば通常の焼きなましと同じ分布になる。
+  // 区間表を有効にした場合は実際の閾値以下の下限を渡し、最終採否を別途確認する。
   bool step_with_threshold() {
     if (annealing_.is_over()) return false;
     ++iterations_;
@@ -664,15 +728,15 @@ struct TimeBasedAnnealingRunner {
     if (!move.has_value()) return true;
 
     ++valid_moves_;
-    const double threshold = annealing_.draw_acceptance_threshold();
+    const auto threshold = annealing_.draw_acceptance_window();
     std::optional<Score> improvement =
         problem_.evaluate_move_with_threshold(
-            static_cast<const State&>(current_state_), *move, threshold);
+            static_cast<const State&>(current_state_), *move, threshold.lower);
     if (!improvement.has_value()) {
       ++threshold_pruned_moves_;
       return true;
     }
-    if (!annealing_.accept_with_threshold(*improvement, threshold)) return true;
+    if (!threshold.accept(*improvement)) return true;
 
     problem_.apply_move(current_state_, *move);
     current_score_ += *improvement;
@@ -737,6 +801,75 @@ struct TimeBasedAnnealingRunner {
   std::uint64_t threshold_pruned_moves_ = 0;
 };
 // END LIBRARY: time-based-simulated-annealing.hpp
+// BEGIN LIBRARY: scope-profiler.hpp
+#include <chrono>
+#include <cstdint>
+#include <ostream>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/scope-profiler.hpp
+// 着想: https://github.com/asi1024/MarathonLibrary/blob/13fe8241ac04fcdcfb8da6e84b050bd4b23ad3a9/snippets/profiler.h
+
+// 処理別の回数と合計時間を測る。-DAHC_ENABLE_PROFILING を付けた時だけ有効。
+// TODO: ScopeProfiler evaluation("evaluate"); のように処理名を付ける。
+// TODO: 測りたいブロックの先頭へ auto guard = evaluation.measure(); と書く。
+// TODO: 終了時に evaluation.report(cerr); を呼ぶ。stdoutへは出さない。
+// 無効ビルドでは時計を読まない・記録しない・出力しない。最適化時は空の処理になる。
+// 機種別のCPU周波数は不要。ネストした区間は内側の時間も含む（exclusive時間ではない）。
+// 同じProfilerを複数threadから使わない。ProfilerはGuardより長生きさせる。
+struct ScopeProfiler {
+#ifdef AHC_ENABLE_PROFILING
+  const char* name; // 文字列リテラルなど、このProfilerより長生きする名前を渡す。
+  std::uint64_t count = 0;
+  double total_ms = 0.0;
+  explicit ScopeProfiler(const char* label) : name(label) {}
+#else
+  explicit ScopeProfiler(const char*) {}
+#endif
+
+  struct Guard {
+#ifdef AHC_ENABLE_PROFILING
+    ScopeProfiler& owner;
+    std::chrono::steady_clock::time_point started;
+    explicit Guard(ScopeProfiler& profiler)
+        : owner(profiler), started(std::chrono::steady_clock::now()) {}
+#else
+    explicit Guard(ScopeProfiler&) {}
+#endif
+    Guard(const Guard&) = delete;
+    Guard& operator=(const Guard&) = delete;
+    ~Guard() {
+#ifdef AHC_ENABLE_PROFILING
+      owner.total_ms += std::chrono::duration<double, std::milli>(
+          std::chrono::steady_clock::now() - started).count();
+      ++owner.count;
+#endif
+    }
+  };
+
+  Guard measure() { return Guard(*this); }
+  std::uint64_t calls() const {
+#ifdef AHC_ENABLE_PROFILING
+    return count;
+#else
+    return 0;
+#endif
+  }
+  double elapsed_ms() const {
+#ifdef AHC_ENABLE_PROFILING
+    return total_ms;
+#else
+    return 0.0;
+#endif
+  }
+  void report(std::ostream& output) const {
+#ifdef AHC_ENABLE_PROFILING
+    output << name << ": calls=" << count << " total_ms=" << total_ms << '\n';
+#else
+    (void)output;
+#endif
+  }
+};
+// END LIBRARY: scope-profiler.hpp
 // Pre-contest public solver source (created with generative AI):
 // https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/examples/search/ahc001_region_sa.cpp
 // Official problem: https://atcoder.jp/contests/ahc001/tasks/ahc001_a
@@ -748,6 +881,9 @@ struct TimeBasedAnnealingRunner {
 #endif
 #ifndef AHC001_ITERATIONS
 #define AHC001_ITERATIONS 0
+#endif
+#ifndef AHC001_THRESHOLD_TABLE_SIZE
+#define AHC001_THRESHOLD_TABLE_SIZE 0
 #endif
 using Rect = AxisAlignedRectangle<int>;
 
@@ -992,6 +1128,9 @@ struct RegionProblem {
   vector<vector<int>> neighbors;
   vector<Change> pending; // 仮変更。Stateではないので、不採用で現在解は壊れない。
   vector<Rect> obstacles; // 再配置用scratchを再利用する。
+  // TODO: 【診断時だけ】-DAHC_ENABLE_PROFILINGで処理別時間を測る。
+  ScopeProfiler evaluation_profile{"evaluation (including rebuild)"};
+  ScopeProfiler rebuild_profile{"rebuild"};
 
   explicit RegionProblem(const vector<Request>& input) : requests(input) {
     const int n = static_cast<int>(requests.size());
@@ -1063,6 +1202,7 @@ struct RegionProblem {
   // 仮変更をpendingへ保存し、採用時だけapply_moveで確定する。
   optional<Score> evaluate_move_with_threshold(const State& state, const Move& move,
                                                double threshold) {
+    auto evaluation_guard = evaluation_profile.measure();
     pending.clear();
     const int id = move.index, n = static_cast<int>(requests.size());
     if (move.kind == 0) {
@@ -1089,6 +1229,7 @@ struct RegionProblem {
       }
       return delta;
     }
+    auto rebuild_guard = rebuild_profile.measure();
     obstacles.clear();
     for (int j = 0; j < n; ++j) {
       if (j != id && (move.kind == 1 || j != move.other)) obstacles.push_back(state.regions[j]);
@@ -1171,6 +1312,8 @@ int main() {
     TimeBasedAnnealingRunner<RegionProblem> sa(problem, state, problem.score(state),
         budget, phase == 0 ? 0.015 : 1e-8, phase == 0 ? 1e-6 : 1e-8,
         seed + static_cast<uint64_t>(phase), 4);
+    // TODO: 【任意】対数の区間表。0は従来方式。スコア比較用に4096等を指定できる。
+    sa.annealing().set_threshold_table_size(AHC001_THRESHOLD_TABLE_SIZE);
     if (AHC001_ITERATIONS > 0) {
       for (int i = 0; i < AHC001_ITERATIONS; ++i) sa.step_with_threshold();
     } else sa.run_with_threshold();
@@ -1189,5 +1332,7 @@ int main() {
     cout << x << ' ' << y << ' ' << x+w << ' ' << y+h << '\n';
   }
   cerr << "iterations=" << iterations << " pruned=" << pruned << " elapsed_ms=" << elapsed() << '\n';
+  problem.evaluation_profile.report(cerr);
+  problem.rebuild_profile.report(cerr);
   return 0;
 }

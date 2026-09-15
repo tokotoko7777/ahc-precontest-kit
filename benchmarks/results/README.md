@@ -1,5 +1,19 @@
 # 公式スコア比較の生データ
 
+## AHC001の受理閾値・対数区間表（2026-09-15）
+
+`ahc001-threshold-window-dev-10.csv`と
+`ahc001-threshold-window-system-20.csv`は、同じ現行solverの
+区間表4096（`region_sa`）と無効（`reference`）の比較です。
+`threshold_table_size`列を必ず確認してください。古いpracticeとの比較ではありません。
+前計算以外の近傍・温度・時間は共通で、開発10件の後も設定を変えていません。
+追加20件は公開system seed一覧の行番号100〜119で、以前測った0〜99とは別です。
+前者は平均+0.0615%、後者は−0.0144%。全60出力合法、手元では全て5秒以内。
+明確なスコア向上とはせず、**既定で有効化していません**。
+プロファイラ無効のビルドで、solverは逐次実行し、重いビルドも並行していません。
+この比較では`reference_commit`は空欄です。同じsource hashと異なるtable sizeで識別し、
+依存ヘッダはこの結果を追加したcommitのものです。
+
 ## AHC001の領域再構築SA（2026-09-15）
 
 `ahc001-region-development-10.csv`は公式ツール付属の開発seed 0〜9で、
