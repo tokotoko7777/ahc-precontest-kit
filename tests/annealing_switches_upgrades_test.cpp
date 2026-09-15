@@ -27,18 +27,11 @@ struct LossProblem {
     if (last_proposal == 64) return std::nullopt;
     return Move{last_proposal};
   }
-  Score evaluate_move(const State& state, const Move& move) {
-    ++full_calls;
-    pending_cost = 0;
-    for (int i = 0; i < 64; ++i) {
-      ++terms;
-      pending_cost += loss(move.x, i);
-    }
-    return state.cost - pending_cost;
-  }
-  std::optional<Score> evaluate_move_with_threshold(
+  // 評価関数は1個だけ。-infならこの同じループで全項を計算する。
+  std::optional<Score> evaluate_move(
       const State& state, const Move& move, double threshold) {
-    ++bounded_calls;
+    if (threshold == -std::numeric_limits<double>::infinity()) ++full_calls;
+    else ++bounded_calls;
     Score new_cost = 0;
     for (int i = 0; i < 64; ++i) {
       ++terms;
@@ -108,11 +101,13 @@ int main() {
   for (int mode = 0; mode < 4; ++mode) {
     const auto& problem = problems[mode];
     if (mode & 1) {
-      assert(problem.full_calls == 0 && problem.bounded_calls > 0);
+      // ONでもu=0や区間表の最初のbinでは安全な下限が-infになることがある。
+      assert(problem.bounded_calls > 0);
       assert(problem.stopped > 0 && problem.terms < problems[0].terms);
       assert(runners[mode]->threshold_pruned_moves() == static_cast<unsigned>(problem.stopped));
     } else {
       assert(problem.full_calls > 0 && problem.bounded_calls == 0);
+      assert(problem.terms == 64 * problem.full_calls);
       assert(runners[mode]->threshold_pruned_moves() == 0);
     }
     // 終了済みのrunも両方の設定で動く。時計依存の長い実行にはしない。

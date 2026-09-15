@@ -15,7 +15,7 @@ CIで原本＋ヘッダと提出用ファイルの完全一致を確認します
 | `RegionProblem::State` | 要求点を含む非重複の担当領域と、領域ごとの評価cache |
 | `Move / propose_move` | 動かす領域、辺、座標、再構築する相手。Stateは変えず、小さな操作情報を返す |
 | `quality / score` | 領域の評価値とその合計。大きいほど良い |
-| `evaluate_move_with_threshold` | 変更後−変更前の**差分**を返す。不合法・閾値以下と確定したら`nullopt`。仮変更は`pending`へ置く |
+| `evaluate_move(state, move, threshold)` | 評価はこの1関数だけ。変更後−変更前の**差分**を返す。不合法・閾値以下と確定したら`nullopt`。仮変更は`pending`へ置く |
 | `apply_move` | 採用された`pending`だけStateへ反映する。不採用なら呼ばれない |
 | 初期解・最終出力 | 再帰分割で領域を作る／領域内で整数の縦横サイズを選ぶ |
 | `TimeBasedAnnealingRunner` | 時間管理、温度、採否、受理閾値、現在解・最良解の保存。問題ごとの編集は不要 |
@@ -63,7 +63,8 @@ CIで原本＋ヘッダと提出用ファイルの完全一致を確認します
 
 従来の表サイズ指定だけでもONになります。明示的な`PRECOMPUTE_THRESHOLD=0`があれば
 サイズ指定より優先してOFFにします。前計算OFFでも受理閾値は毎回logで作るため、
-途中打ち切りを使えます。途中打ち切りOFFでは全差分を求め、不合法手は必ず棄却します。
+途中打ち切りを使えます。途中打ち切りOFFでは同じ評価関数へ`-∞`を渡して全差分を求め、
+不合法手は`nullopt`で棄却します。通常評価用の別関数を書く必要はありません。
 ON/OFFで受理乱数の消費方法は同じです。時間ベースでは試行回数などが変わるので、
 同じseedでも最終スコアの一致を意味しません。
 
@@ -218,7 +219,8 @@ python3 benchmarks/ahc001_official_benchmark.py \
 `--score-early-stop 0`を加えると途中打ち切りOFF、`1`ならON（既定）です。
 `--compare-threshold-table`では両方の現行solverへ同じ打ち切り設定を渡します。
 旧commitとの比較では設定は現行solverだけに適用し、旧版の`score_early_stop`列は空欄です。
-4通りの少数ケース動作確認は[生データの説明](../../benchmarks/results/README.md#ahc001の独立onoffスイッチ2026-09-15)を参照してください。
+4通りの少数ケース動作確認と単一評価関数への移行後の再確認は
+[生データの説明](../../benchmarks/results/README.md)を参照してください。
 
 ## AtCoderへ提出する場合
 

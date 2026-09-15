@@ -363,7 +363,8 @@ void test_time_based_problem_runner() {
       return Move{1};
     }
 
-    Score evaluate_move(const State&, const Move& move) const {
+    std::optional<Score> evaluate_move(const State&, const Move& move, double threshold) const {
+      assert(threshold == -std::numeric_limits<double>::infinity());
       return move.delta;
     }
 
@@ -406,7 +407,7 @@ void test_time_based_threshold_runner() {
       return Move{-std::numeric_limits<double>::infinity()};
     }
 
-    std::optional<Score> evaluate_move_with_threshold(
+    std::optional<Score> evaluate_move(
         const State&, const Move& move, double threshold) const {
       if (move.improvement <= threshold) return std::nullopt;
       return move.improvement;
@@ -446,7 +447,8 @@ void test_time_based_runner_restart_from_best() {
       return Move{proposed == 1 ? 10 : -1};
     }
 
-    Score evaluate_move(const State&, const Move& move) const {
+    std::optional<Score> evaluate_move(const State&, const Move& move, double threshold) const {
+      assert(threshold == -std::numeric_limits<double>::infinity());
       return move.improvement;
     }
 

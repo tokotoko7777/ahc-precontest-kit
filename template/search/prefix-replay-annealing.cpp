@@ -31,7 +31,10 @@ struct Problem {
         // 作れない試行はnullopt。現在Stateは変更しない。
         return nullopt;
     }
-    Score evaluate_move(const State& state, const Move& move) {
+    optional<Score> evaluate_move(const State& state, const Move& move,
+                                  double /* threshold */) {
+        // TODO: 評価関数はこれ1個。初期形では閾値を使わず最後まで再生する。
+        // 途中打ち切りを追加するなら、最終改善量の上限<=thresholdと証明できた時だけnullopt。
         const auto step = [this](SimulationState& simulation, const Action& action) {
             advance(simulation, action);
         };

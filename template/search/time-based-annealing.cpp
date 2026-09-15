@@ -32,17 +32,17 @@ struct Problem {
     return nullopt;
   }
 
-  Score evaluate_move(const State&, const Move&) const {
-    // TODO: Moveによる改善量を返す。正なら良化、負なら悪化。
-    // State全体を作り直さず、変更箇所だけから計算すると速い。
-    return 0;
-  }
-
-  optional<Score> evaluate_move_with_threshold(
+  optional<Score> evaluate_move(
       const State& state,
       const Move& move,
       double acceptance_threshold) const {
-    // TODO: 【任意・高速化】改善量を部分ごとに計算する。
+    // TODO: 評価を書く場所はこの1個だけ。Moveによる正確な改善量を返す。
+    // 最大化なら変更後-変更前、最小化なら変更前cost-変更後cost。正なら良化。
+    // State全体を作り直さず、変更箇所だけから計算すると速い。
+    // 閾値を使わない問題ならacceptance_thresholdを無視して全計算でよい。
+    // 打ち切りOFF時にはライブラリが-infを渡す。不合法手は常にnulloptでよい。
+    //
+    // TODO: 【任意・高速化】改善量を部分ごとに計算し、途中で打ち切る。
     // 「残りを最良に見積もっても improvement > acceptance_threshold に
     // ならない」と証明できた時だけnulloptを返す。そうでなければ最後まで
     // 計算して正確な改善量を返す。下は枝刈りしない安全な初期形。
@@ -58,9 +58,11 @@ struct Problem {
     // 残りに正の利得もある場合は、deltaだけで切らない。
     // delta + 残り利得の上限 <= acceptance_threshold と証明できた時だけ切る。
     // 途中値を「正確な得点」として返さない。State/cacheも変更しない。
-    // 前計算がOFFでも、この打ち切りは使える。
+    // 前計算がOFFでも、この打ち切りは使える。閾値-infなら有限の上限では切らない。
+    (void)state;
+    (void)move;
     (void)acceptance_threshold;
-    return evaluate_move(state, move);
+    return Score{0}; // TODO: 仮の0を、自分の問題の正確な改善量の計算に置き換える。
   }
 
   void apply_move(State&, Move&) const {
@@ -103,7 +105,7 @@ int main() {
       1000.0, 1.0,  // TODO: 開始温度、終了温度
       123, 64);     // TODO: seed、時計を見る間隔
   runner.annealing().set_threshold_precomputation(PRECOMPUTE_ACCEPTANCE);
-  // OFFならevaluate_move、ONならevaluate_move_with_thresholdを呼ぶ。
+  // 同じevaluate_moveへ、ONなら受理閾値、OFFなら-infを渡す。
   // run()へ替えると乱数の消費方法も変わるので、ON/OFF比較にはこちらを使う。
   runner.run_with_threshold(STOP_SCORE_EARLY);
   print_answer(problem, runner.best_state());

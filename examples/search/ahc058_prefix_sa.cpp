@@ -369,7 +369,9 @@ struct PurchaseSequenceProblem {
     }
 
     // TODO: 仮実行で得たスコアの「差分」を返す。採用前のcacheは壊さない。
-    Score evaluate_move(const State& state, const Move& move) {
+    optional<Score> evaluate_move(const State& state, const Move& move,
+                                  double /* threshold */) {
+        // TODO: 残りの生産増加の安全な上限はここでは作らず、閾値を無視して完走する。
         const auto step = [this](SimulationState& simulation, int action) {
             advance_purchase(simulation, action);
         };
