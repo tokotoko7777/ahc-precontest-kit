@@ -49,6 +49,7 @@ verify-copy:
 	python3 tests/copy_part_test.py
 	python3 tests/source_url_test.py
 	python3 tests/standalone_search_test.py
+	python3 tests/ahc001_gap_test.py
 	python3 tests/repository_bundle_test.py
 	python3 tools/copy_part.py --ref HEAD \
 		--main tests/fixtures/copied_parts_main.cpp \
