@@ -406,8 +406,9 @@ struct ActionBeamSearch {
     const std::size_t width = static_cast<std::size_t>(beam_width_);
     // candidates_[width - 1] は直近cutoff時点の最下位。新しい候補を
     // 追加しても真の境界は良くなるだけなので、この古い境界で落とすのは安全。
+    // 新しい候補のorderは必ず後。同点でも残れないのでScore比較1回でよい。
     if (batched_selection_ && cutoff_ready_ &&
-        !candidate_is_better(candidate, candidates_[width - 1])) {
+        !score_is_better(candidate.score, candidates_[width - 1].score)) {
       return;
     }
 
@@ -415,7 +416,7 @@ struct ActionBeamSearch {
     last_buffered_peak_count_ =
         std::max(last_buffered_peak_count_, candidates_.size());
     if (batched_selection_ && candidates_.size() >= batch_limit()) {
-      keep_best_candidates(width);
+      keep_best_candidates(width, false);
       cutoff_ready_ = true;
     }
   }
@@ -487,7 +488,7 @@ struct ActionBeamSearch {
         // 利用できる。古い境界は真の境界以下(最小化なら以上)なので安全。
         if (batched_selection_ && !cutoff_ready_ &&
             candidates_.size() >= width) {
-          keep_best_candidates(width);
+          keep_best_candidates(width, false);
           cutoff_ready_ = true;
         }
       }
@@ -496,10 +497,33 @@ struct ActionBeamSearch {
     return finish_step(apply);
   }
 
-  // candidates_を良い順の上位kept件へ縮める。
-  // 小さいIDを選ぶため、選抜中にActionやScoreを何度もswapしない。
-  void keep_best_candidates(std::size_t kept) {
+  // candidates_を上位kept件へ縮める。中間選抜では全件をsortしない。
+  // sorted=falseでもkept-1には最下位を置くので、次のcutoff判定に使える。
+  // 大きい候補は小さいIDを選び、選抜中にActionやScoreを何度もswapしない。
+  void keep_best_candidates(std::size_t kept, bool sorted = true) {
     kept = std::min(kept, candidates_.size());
+    if (kept == 0) { candidates_.clear(); return; }
+    // 小さく単純な候補は直接partitionする。ID経由の間接参照・別bufferへの
+    // 移動を省く。大きい/非trivial/代入不能なActionは下のID選抜を維持する。
+    if constexpr (sizeof(Candidate) <= 32 &&
+                  std::is_trivially_copyable_v<Candidate> &&
+                  std::is_move_constructible_v<Candidate> &&
+                  std::is_move_assignable_v<Candidate>) {
+      const auto better = [&](const Candidate& a, const Candidate& b) {
+        return candidate_is_better(a, b);
+      };
+      if (kept < candidates_.size()) {
+        std::nth_element(candidates_.begin(),
+                         candidates_.begin() + (sorted ? kept : kept - 1),
+                         candidates_.end(), better);
+      } else if (!sorted) {
+        std::iter_swap(candidates_.end() - 1,
+                      std::max_element(candidates_.begin(), candidates_.end(), better));
+      }
+      candidates_.erase(candidates_.begin() + kept, candidates_.end());
+      if (sorted) std::sort(candidates_.begin(), candidates_.end(), better);
+      return;
+    }
     candidate_ids_.resize(candidates_.size());
     std::iota(candidate_ids_.begin(), candidate_ids_.end(), std::size_t{0});
     const auto better_id = [&](std::size_t a, std::size_t b) {
@@ -507,11 +531,17 @@ struct ActionBeamSearch {
     };
     if (kept < candidate_ids_.size()) {
       std::nth_element(candidate_ids_.begin(),
-                       candidate_ids_.begin() + kept,
+                       candidate_ids_.begin() + (sorted ? kept : kept - 1),
                        candidate_ids_.end(), better_id);
       candidate_ids_.resize(kept);
     }
-    std::sort(candidate_ids_.begin(), candidate_ids_.end(), better_id);
+    if (sorted) {
+      std::sort(candidate_ids_.begin(), candidate_ids_.end(), better_id);
+    } else if (kept == candidates_.size()) {
+      // 最初のN件で境界を作る場合はpartition不要。最下位だけ末尾へ移す。
+      std::iter_swap(candidate_ids_.end() - 1,
+                    std::max_element(candidate_ids_.begin(), candidate_ids_.end(), better_id));
+    }
 
     scratch_candidates_.clear();
     scratch_candidates_.reserve(std::max(scratch_candidates_.capacity(), kept));
@@ -552,9 +582,9 @@ struct ActionBeamSearch {
   }
 
   template <class Apply>
-  bool finish_step(Apply& apply) {
+  bool finish_step(Apply& apply, bool already_selected = false) {
     if (candidates_.empty()) return false;
-    keep_best_candidates(static_cast<std::size_t>(beam_width_));
+    if (!already_selected) keep_best_candidates(static_cast<std::size_t>(beam_width_));
     last_kept_count_ = candidates_.size();
 
     next_beam_.clear();
@@ -562,9 +592,9 @@ struct ActionBeamSearch {
     next_beam_.reserve(candidates_.size());
     next_scores_.reserve(candidates_.size());
     for (Candidate& candidate : candidates_) {
-      State child(beam_[candidate.parent]);
-      apply(child, candidate.action);
-      next_beam_.push_back(std::move(child));
+      // 最終配置先へ直接コピーして反映。大きなStateの一時object→vector移動を省く。
+      next_beam_.emplace_back(beam_[candidate.parent]);
+      apply(next_beam_.back(), candidate.action);
       next_scores_.push_back(std::move(candidate.score));
     }
 
@@ -635,7 +665,7 @@ struct ActionBeamSearch {
     for (const auto& entry : best_by_key) candidate_ids_.push_back(entry.second);
     last_unique_count_ = candidate_ids_.size();
     select_candidate_ids();
-    return finish_step(apply);
+    return finish_step(apply, true);
   }
 
   template <class Expand,
@@ -723,7 +753,7 @@ struct ActionBeamSearch {
     }
     last_unique_count_ = candidate_ids_.size();
     select_candidate_ids();
-    return finish_step(apply);
+    return finish_step(apply, true);
   }
 };
 
@@ -950,7 +980,7 @@ constexpr uint32_t MODULO = 998244353U;
 constexpr long long RANK_SCALE = 4900;
 
 #ifndef AHC032_BEAM_WIDTH
-#define AHC032_BEAM_WIDTH 6000
+#define AHC032_BEAM_WIDTH 9000
 #endif
 #ifndef AHC032_END_COMBOS
 #define AHC032_END_COMBOS 0

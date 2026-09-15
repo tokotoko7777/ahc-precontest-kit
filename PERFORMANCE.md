@@ -39,6 +39,8 @@ AHCでは、同じ制限時間で評価できる候補数が増えること自�
   幅件まで絞ってから、残した候補だけを並べる。
 - `ActionBeamSearch`: 小さいAction候補が2N件たまるたびN件へ縮め、
   既知のcutoff以下を保存せず、採用N件だけStateを作る。
+  中間選抜はN件全部のsortを省き、境界の最下位だけを確定する。
+  世代末だけ生成順の同点処理を含めて整列する。
 - `radix-heap.hpp`: キーが非負整数かつ単調という条件を満たす場合だけ使う。
 
 制約つきの高速部品は、条件を破ると正しい結果になりません。分からない場合は
@@ -56,6 +58,10 @@ AHCでは、同じ制限時間で評価できる候補数が増えること自�
   通常の`step`が同時に持つAction候補は最大`2 * width`件で、Stateコピーと
   `apply`は最大`width`回。key重複除去やbucket制限時は厳密性を保つため、
   全Action候補をいったん保存する。
+  内部のCandidate全体が32 byte以下でtrivialかつ移動・代入可能なら直接partitionし、
+  それ以外は候補IDを並べ替える。大きいActionやmove-only型も維持するための内部選択で、
+  問題側に設定や編集箇所を増やさない。採用Stateは次世代bufferへ直接コピーして更新し、
+  一時Stateからの追加移動を省く。key/bucketの選抜後にも重複してsortしない。
   候補が生成順に改善し続けて中間選抜が増える場合は、
   `set_batched_selection(false)`で最後の`nth_element`1回と比較する。
   `ActionBeamRunner<Problem>`を使っても薄いテンプレートラッパーなので、
@@ -89,6 +95,11 @@ AHCでは、同じ制限時間で評価できる候補数が増えること自�
 apply/revert木上ビーム、AHC032のAction先行ビームの測定方法と結果は
 [`REAL_PROBLEM_BENCHMARKS.md`](REAL_PROBLEM_BENCHMARKS.md)にまとめています。
 一括実行は`make benchmark-real-search`です。
+
+重点問題と採用条件は[`practice/README.md`](practice/README.md)です。
+全問題の網羅より、手法ごとの代表問題で同一探索量の正しさ・速度を比較し、
+増やせた探索量が実際のscoreへつながるかを確認します。旧版の幅も調整して比較し、
+旧既定値に元からあった時間の余裕を全てライブラリ高速化の効果とは扱いません。
 
 ビームサーチの標準ベンチマークは、リポジトリ直下で`make benchmark-search`を
 実行します。AHC032「Mod Stamp」と同じ9×9盤面、20スタンプ、81操作上限、
