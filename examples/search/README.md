@@ -10,7 +10,7 @@
 | [`ahc002_destroy_repair_sa.cpp`](ahc002_destroy_repair_sa.cpp) | `TimeBasedAnnealingRunner` | AHC002 | 可変長経路の末尾再構築と区間DFS修復をProblemへ分離。採用時のbuffer移動と最良解からの再開を使用 |
 | [`ahc006_sa.cpp`](ahc006_sa.cpp) | `TimeBasedAnnealingRunner` | AHC006 | `DeliveryProblem`へState・Move・近傍・差分・反映を分離。固定長Routeで毎試行のvector確保を避ける |
 | [`ahc011_tree_beam.cpp`](ahc011_tree_beam.cpp) | `TreeBeamRunner` | AHC011 | 最大4手をFixedVectorで列挙。盤面1個をapply/revertし、差分hash、同一局面除去、全候補からの最良解復元を使用 |
-| [`ahc015_common_rollout.cpp`](ahc015_common_rollout.cpp) | `CommonScenarioRolloutRunner` | AHC015 | 4方向を同じ未来配置で比較。盤面操作・Scenario・rollout評価と共通乱数処理の境界を明示 |
+| [`ahc015_common_rollout.cpp`](ahc015_common_rollout.cpp) | `CommonScenarioRolloutRunner`＋`CoalescedRollout` | AHC015 | 同じ盤面に合流した候補の残り計算を共有し、サンプル数を増やして公式scoreで検証。単一提出ファイルも同期 |
 | [`ahc026_deterministic_rollout.cpp`](ahc026_deterministic_rollout.cpp) | `DeterministicRolloutRunner` | AHC026 | 全先読み幅を最後まで同じ貪欲で仮実行。山操作・候補幅・完走評価と最小値選択の境界を明示 |
 | [`ahc058_deterministic_rollout.cpp`](ahc058_deterministic_rollout.cpp) | `DeterministicRolloutRunner` | AHC058 | 固定長状態を3手先読み。合法手・投資・生産式はProblemへ、候補比較はRunnerへ分離 |
 | [`ahc058_prefix_sa.cpp`](ahc058_prefix_sa.cpp) | `TimeBasedAnnealingRunner`＋`PrefixReplay` | AHC058 | 3手先読みを初期解に購入順序をSA。途中再生・待機一括更新を使い、公式100ケースで平均約6.24%改善 |

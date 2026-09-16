@@ -494,6 +494,22 @@ AHC015の飴配置を終端までrolloutする実例は
 sample数だけを増やしても、未来の自分の行動が弱ければ評価も弱いままです。
 未知情報のsample、未来のルール方策、1 rolloutの軽さを問題ごとに設計します。
 
+### 同じ途中状態以降の共有
+
+同じ未来の仮実行で途中状態が一致しやすい場合は
+[`coalesced-rollout.hpp`](library/coalesced-rollout.hpp)も使えます。
+`CoalescedRollout<State, Score>::evaluate(initial_states, steps, advance, evaluate)`へ
+各Actionを1回適用したState列、段数、1段の遷移、最終評価を渡すと、各Actionのscore列を返します。
+同じ段階の等価な状態以降を共有します。型や方策にAHC015固有の制約はありません。
+`evaluate<false>`で共有を無効にして、全評価とのscore一致を検査できます。
+
+`choose_action_batched`は、そのscore列をScenarioごとに受け取って平均します。
+通常版と各Actionの加算順・乱数列・同点処理を保ちますが、評価の呼び出し順は変わるため、
+callbackは外部乱数や副作用へ依存させません。既存の`choose_action`はそのまま使えます。
+穴埋め形式の入口は[`coalesced-monte-carlo.cpp`](template/search/coalesced-monte-carlo.cpp)、
+実戦例は[`AHC015`](examples/search/ahc015_common_rollout.cpp)です。
+詳細条件と実問題scoreは[比較レポート](benchmarks/AHC015_COALESCED_REPORT.md)を参照してください。
+
 ## 決定的rollout
 
 未来が乱数や追加入力に左右されず、現在状態と方策パラメータから全て決まるなら、

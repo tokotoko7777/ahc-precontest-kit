@@ -18,6 +18,7 @@
 | [`tree-beam.cpp`](tree-beam.cpp) | apply/revert木上ビーム | `generate_moves`、`apply_move`、`revert_move`、`evaluate` |
 | [`variable-cost-tree-beam.cpp`](variable-cost-tree-beam.cpp) | 世代飛ばし木上ビーム | 上記に加えて`get_advance` |
 | [`monte-carlo-rollout.cpp`](monte-carlo-rollout.cpp) | 共通シナリオMonte Carlo | `generate_scenario`、`evaluate_action`、`apply_real_action` |
+| [`coalesced-monte-carlo.cpp`](coalesced-monte-carlo.cpp) | 同一状態以降を共有するMonte Carlo | `start_rollout`、`advance_rollout`、`evaluate_rollout`、仮状態の等価判定 |
 | [`deterministic-rollout.cpp`](deterministic-rollout.cpp) | 決定的な完走・先読み評価 | `generate_actions`、`evaluate_action`、`apply_real_action` |
 
 `TODO: 【重複除去する場合だけ】`のように書かれた項目は任意です。まずhashなしで
