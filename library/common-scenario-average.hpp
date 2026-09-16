@@ -87,6 +87,52 @@ struct CommonScenarioRolloutRunner {
 
   template <class Better>
   Action choose_action(const State& state, int sample_count, Better better) {
+    prepare(state, sample_count);
+
+    for (std::size_t action = 0; action < actions_.size(); ++action) {
+      for (const Scenario& scenario : scenarios_) {
+        average_scores_[action] += static_cast<Average>(
+            problem_.evaluate_action(state, actions_[action], scenario));
+      }
+      average_scores_[action] /= static_cast<Average>(sample_count);
+    }
+    return select(better);
+  }
+
+  // 【任意】同じScenarioの全Actionを一括評価する。共通の途中計算を共有したい時だけ使う。
+  // evaluate_batch(const State&, const vector<Action>&, const Scenario&)
+  //   -> Action列と同じ長さ・順序のscore列（vectorやarray、借用参照も可）。
+  // TODO: callbackへ全候補の評価を書く。CoalescedRolloutで同じ状態以降を共有できる。
+  // 各Actionの加算順・乱数列・同点処理は通常版と同じ。評価関数の呼び出し順は異なるので、
+  // 外部乱数や評価の副作用に依存しないこと。Problemの必須関数は増やさない。
+  template <class EvaluateBatch>
+  Action choose_action_batched(const State& state, int sample_count,
+                               EvaluateBatch&& evaluate_batch) {
+    return choose_action_batched(state, sample_count, evaluate_batch,
+        [this](const Action&, Average score, const Action&, Average best) {
+          return maximize_ ? best < score : score < best;
+        });
+  }
+
+  template <class EvaluateBatch, class Better>
+  Action choose_action_batched(const State& state, int sample_count,
+                               EvaluateBatch&& evaluate_batch, Better better) {
+    prepare(state, sample_count);
+    for (const Scenario& scenario : scenarios_) {
+      auto&& scores = evaluate_batch(state, actions_, scenario);
+      if (scores.size() != actions_.size()) {
+        throw std::invalid_argument("batch scores must match actions");
+      }
+      for (std::size_t action = 0; action < actions_.size(); ++action) {
+        average_scores_[action] += static_cast<Average>(scores[action]);
+      }
+    }
+    for (Average& score : average_scores_) score /= static_cast<Average>(sample_count);
+    return select(better);
+  }
+
+ private:
+  void prepare(const State& state, int sample_count) {
     if (sample_count <= 0) {
       throw std::invalid_argument("sample_count must be positive");
     }
@@ -105,14 +151,10 @@ struct CommonScenarioRolloutRunner {
     }
 
     average_scores_.assign(actions_.size(), Average{});
-    for (std::size_t action = 0; action < actions_.size(); ++action) {
-      for (const Scenario& scenario : scenarios_) {
-        average_scores_[action] += static_cast<Average>(
-            problem_.evaluate_action(state, actions_[action], scenario));
-      }
-      average_scores_[action] /= static_cast<Average>(sample_count);
-    }
+  }
 
+  template <class Better>
+  Action select(Better& better) {
     std::size_t best = 0;
     for (std::size_t action = 1; action < actions_.size(); ++action) {
       if (better(actions_[action], average_scores_[action],
@@ -121,6 +163,7 @@ struct CommonScenarioRolloutRunner {
     return actions_[best];
   }
 
+ public:
   void reserve(int action_count, int sample_count) {
     if (action_count < 0 || sample_count < 0) {
       throw std::invalid_argument("reserve counts must be non-negative");

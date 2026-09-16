@@ -119,6 +119,17 @@ python3 benchmarks/ahc011_official_benchmark.py \
 
 ## AHC015: 共通シナリオMonte Carlo
 
+2026-09-16に、同じ途中状態以降の仮実行を共有する共通部品`CoalescedRollout`と
+一括評価APIを追加しました。既存の強い固定方策を変えず、旧版にも時間内のsample数を与え、
+サンプル数増加を公式scoreの改善へ変えられるかを検証しています。
+手番ごとに入力を渡す対話ハーネス、公式visualizer、独立replayを使用します。
+今回の固定設定・追加確認を含む90ケース・不採用判断は
+[共有rolloutのレポート](benchmarks/AHC015_COALESCED_REPORT.md)を参照してください。
+この実験ブランチでは使用例と単一ファイルpracticeを同じ実装へ揃えましたが、
+448への増量が旧384を上回らなかったためマージを保留しています。
+
+以下は以前の独自生成入力の記録で、今回の公式入力CSVとは別の比較です。
+
 問題側の編集箇所は`CandyRolloutProblem`に集めています。
 
 - `generate_actions`: 今このターンに選べる操作

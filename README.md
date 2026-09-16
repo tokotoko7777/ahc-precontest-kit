@@ -137,6 +137,7 @@ Problemへ渡します。超えないと証明できた候補だけ`nullopt`で�
 | [`tree-beam-search.hpp`](library/tree-beam-search.hpp) | 1手1世代のapply / revert型ビームサーチ。問題分離Runner付き |
 | [`cost-tree-beam-search.hpp`](library/cost-tree-beam-search.hpp) | 1手の進み幅が異なるapply / revert型ビームサーチ |
 | [`common-scenario-average.hpp`](library/common-scenario-average.hpp) | 全候補を同じ未来sampleで比較するrollout。問題分離Runner付き |
+| [`coalesced-rollout.hpp`](library/coalesced-rollout.hpp) | 同じ未来を辿る少数候補で、等価な途中状態以降の計算を共有。ON/OFF可能 |
 | [`deterministic-rollout.hpp`](library/deterministic-rollout.hpp) | 全候補を決定的方策で仮実行して比較するrollout。問題分離Runner付き |
 
 ビームサーチを初めて使う場合は `simple-beam-search.hpp` から始めてください。
