@@ -134,6 +134,9 @@ Problemへ渡します。超えないと証明できた候補だけ`nullopt`で�
 | [`prefix-replay.hpp`](library/prefix-replay.hpp) | 行動列の変更部分からだけ再計算。仮評価と採用を分けるcheckpoint cache |
 | [`multi-start.hpp`](library/multi-start.hpp) | 回数または時間指定の多点スタート |
 | [`large-neighborhood-search.hpp`](library/large-neighborhood-search.hpp) | 部分破壊・再構築。山登り/RRT/SA、閾値打ち切り、近傍への成果通知 |
+| [`iterated-local-search.hpp`](library/iterated-local-search.hpp) | 大きな摂動＋小さい局所探索を繰り返すILS。共有締切・最良解への再開 |
+| [`chokudai-search.hpp`](library/chokudai-search.hpp) | 深さ別に候補を残して巡回する時間制限型探索。Action先行評価・容量上限 |
+| [`monte-carlo-tree-search.hpp`](library/monte-carlo-tree-search.hpp) | 確率的な結果ごとの枝を保持するUCT。試行配分・訪問回数・報酬更新 |
 | [`simple-beam-search.hpp`](library/simple-beam-search.hpp) | 状態をコピーする初心者向けビームサーチ |
 | [`action-beam-search.hpp`](library/action-beam-search.hpp) | Actionを先に上位N件へ絞るビーム。問題依存部分をまとめるRunner付き |
 | [`tree-beam-search.hpp`](library/tree-beam-search.hpp) | 1手1世代のapply / revert型ビームサーチ。問題分離Runner付き |

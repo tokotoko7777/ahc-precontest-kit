@@ -14,6 +14,9 @@
 | [`time-based-annealing.cpp`](time-based-annealing.cpp) | 時間焼きなまし | `propose_move`、`evaluate_move`、`apply_move` |
 | [`large-neighborhood-search.cpp`](large-neighborhood-search.cpp) | 部分破壊・再構築（LNS）。山登り/RRT/SAを切替 | `destroy`、`repair`。完成候補の絶対スコアを返す |
 | [`adaptive-large-neighborhood-search.cpp`](adaptive-large-neighborhood-search.cpp) | 複数の壊し方を適応的に選ぶALNS | `operator_id`ごとの`destroy`、`repair`、任意の`reward` |
+| [`iterated-local-search.cpp`](iterated-local-search.cpp) | 大きい変更と小さい改善を分けるILS | `perturb`、`local_search`。絶対得点を返し、共有締切を内側でも確認 |
+| [`chokudai-search.cpp`](chokudai-search.cpp) | 深さ別の候補を残して巡回するchokudai | `generate_actions`、`evaluate_action`、`apply_action`、`is_terminal`、`final_score` |
+| [`monte-carlo-tree-search.cpp`](monte-carlo-tree-search.cpp) | 確率遷移のある探索木を育てるUCT | `sample_transition`は結果ID、`rollout`は正規化した[0,1]の評価を返す |
 | [`prefix-replay-annealing.cpp`](prefix-replay-annealing.cpp) | 行動列の途中から再生する焼きなまし | `advance`、`evaluate_end`、`propose_move`。仮cacheの確定まで配置済み |
 | [`simple-beam.cpp`](simple-beam.cpp) | 通常ビーム | `expand`、`evaluate` |
 | [`action-beam.cpp`](action-beam.cpp) | Action差分ビーム | `generate_actions`、`evaluate_action`、`apply_action` |
