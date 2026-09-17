@@ -82,7 +82,15 @@ def variants(task, reference):
                  "rrt2_no_both": {"MODE": 1, "PRECOMPUTE": 0, "CUTOFF": 0}}
         for name, settings in modes.items():
             prefix = "".join(f"#define AHC059_LNS_{key} {value}\n" for key, value in settings.items())
-            result[name] = prefix + source
+            result[name] = "#define AHC059_ALNS_POLICY 0\n" + prefix + source
+        # 固定反復で旧LNSとの乱数列互換も検査できる。旧・入れ子鎖版にはこの機能はない。
+        if "#ifdef AHC059_LNS_ITERATIONS" in result["legacy"]:
+            result["previous_lns_sa"] = result["legacy"]
+        for name, policy in (("uniform", 1), ("adaptive", 2)):
+            result[name] = f"#define AHC059_ALNS_POLICY {policy}\n" + source
+        result["adaptive_no_cutoff"] = "#define AHC059_LNS_CUTOFF 0\n" + result["adaptive"]
+        result["adaptive_no_precompute"] = "#define AHC059_LNS_PRECOMPUTE 0\n" + result["adaptive"]
+        result["adaptive_no_both"] = "#define AHC059_LNS_CUTOFF 0\n#define AHC059_LNS_PRECOMPUTE 0\n" + result["adaptive"]
     else:
         result["previous_sa"] = expanded("examples/search/ahc002_destroy_repair_sa.cpp", reference)
         source = expanded("examples/search/ahc002_destroy_repair_lns.cpp")
@@ -106,12 +114,20 @@ def summary(rows, history=()):
         selected = [r for r in rows if r["version"] == version]
         points = sum(100 * int(r["score"]) / best[r["input_sha256"]]
                      for r in selected if valid(r) and best.get(r["input_sha256"], 0) > 0)
+        by_input = {}
+        for r in selected:
+            key = r["input_sha256"]
+            value = 100 * int(r["score"]) / best[key] if valid(r) and best.get(key, 0) > 0 else 0
+            by_input.setdefault(key, []).append(value)
+        case_points = sum(statistics.mean(values) for values in by_input.values())
         print(f"{version}: mean_score={statistics.mean(int(r['score']) for r in selected):.3f} "
               f"relative={points:.6f}/{100 * len(selected)} average_ratio={points / len(selected):.6f}% "
               f"median_s={statistics.median(float(r['seconds']) for r in selected):.6f} "
               f"max_s={max(float(r['seconds']) for r in selected):.6f} "
               f"invalid={sum(not int(r['legal']) for r in selected)} "
-              f"over_2s={sum(int(r['over_2s']) for r in selected)}", flush=True)
+              f"over_2s={sum(int(r['over_2s']) for r in selected)} "
+              f"case_relative={case_points:.6f}/{100 * len(by_input)} "
+              f"case_average_ratio={case_points / len(by_input):.6f}%", flush=True)
     print("Common best includes all compared versions/repeats for each input; illegal/over-2s runs earn zero. "
           "Raw means are secondary; these ratios are NOT official standings ratios.")
 

@@ -73,7 +73,19 @@ Manhattan距離では、カードを挿入しても経路の長さは減りま�
 | `AHC059_LNS_PRECOMPUTE` | 1 | 距離表の前計算。打ち切りとは独立 |
 | `AHC059_LNS_TIME_MS` | 1850 | 入力・初期解を含めた内部の時間枠 |
 | `AHC059_LNS_SPAN` | 15 | 破壊対象を選ぶ区間長 |
+| `AHC059_ALNS_POLICY` | 0 | 0=従来の単一区間、1=5種類を等確率、2=成果に応じて適応選択 |
 | `AHC059_LNS_ITERATIONS` | 未指定 | 固定反復テスト用。実時間の採用判断には使わない |
+
+### 複数の壊し方を使う
+
+`AHC059_ALNS_POLICY=1/2`では区間長4・8・15・30とランダム4ペアの5種類を使います。
+`operator_id`の分岐が問題依存で、選択・重み更新は
+[`adaptive-operator-selector.hpp`](../../library/adaptive-operator-selector.hpp)が担当します。
+最良更新1、現在値改善0.5、同点/悪化採用0.1、棄却0の報酬で、128試行ごとに重みを更新。
+選択確率の10%を一様分布にし、一度苦手と判定した近傍も再試行します。
+SAの温度・時間枠・修復処理は従来版と同じです。
+初心者用の[ALNS穴埋め版](../../template/search/adaptive-large-neighborhood-search.cpp)と
+[比較報告](../../benchmarks/ALNS_REPORT.md)を用意しています。
 
 ## 合法性と得点の検証
 

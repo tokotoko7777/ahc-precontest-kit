@@ -11,6 +11,7 @@
 | 領域再構築SA | AHC001 Advertisement | `ahc001_official_benchmark.py` | 旧practiceと公式score比較、公開システムseedで1位との差を記録 |
 | destroy/repair焼きなまし | AHC002 Walking on Tiles | 下記公式入力用script | 既存直書き版とRunner版の公式score |
 | LNS（山登り/RRT/SA切替） | AHC059 / AHC002 | `lns_official_benchmark.py` | 旧解・受理方式・前計算/打ち切りON/OFFの公式score |
+| ALNS（近傍の適応選択） | AHC059 | `lns_official_benchmark.py` | 同じ5近傍の等確率/適応選択と、従来単一近傍の公式score |
 | apply/revert木上ビーム | AHC011 Sliding Tree Puzzle | 下記入力用script | 既存直書き版とRunner版の公式score |
 | 共通シナリオMonte Carlo | AHC015 Halloween Candy | `make benchmark-monte-carlo` | rollout数による最終公式score |
 | apply/revert木上ビーム | AHC021 Pyramid Sorting | `make benchmark-tree-beam` | 幅による操作数と最終公式score |

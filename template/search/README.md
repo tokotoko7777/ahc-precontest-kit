@@ -13,6 +13,7 @@
 |---|---|---|
 | [`time-based-annealing.cpp`](time-based-annealing.cpp) | 時間焼きなまし | `propose_move`、`evaluate_move`、`apply_move` |
 | [`large-neighborhood-search.cpp`](large-neighborhood-search.cpp) | 部分破壊・再構築（LNS）。山登り/RRT/SAを切替 | `destroy`、`repair`。完成候補の絶対スコアを返す |
+| [`adaptive-large-neighborhood-search.cpp`](adaptive-large-neighborhood-search.cpp) | 複数の壊し方を適応的に選ぶALNS | `operator_id`ごとの`destroy`、`repair`、任意の`reward` |
 | [`prefix-replay-annealing.cpp`](prefix-replay-annealing.cpp) | 行動列の途中から再生する焼きなまし | `advance`、`evaluate_end`、`propose_move`。仮cacheの確定まで配置済み |
 | [`simple-beam.cpp`](simple-beam.cpp) | 通常ビーム | `expand`、`evaluate` |
 | [`action-beam.cpp`](action-beam.cpp) | Action差分ビーム | `generate_actions`、`evaluate_action`、`apply_action` |
@@ -40,6 +41,12 @@ SA Runnerの「改善量」と混同しないでください。距離を最小�
 RRTは「最良値からの悪化許容幅」であり、現在値からの幅ではありません。
 具体例はAHC059（最小化）とAHC002（最大化）。詳細は
 [`SEARCH_GUIDE.md`](../../SEARCH_GUIDE.md#部分破壊再構築lns)を参照してください。
+
+複数の壊し方を使いたい場合はALNSの穴埋め版を使えます。`operator_count`と
+`destroy`内の分岐を編集してください。選択確率の更新はhpp側にあります。
+`reward`は絶対スコアではなく、試行の成果を表す0〜1の値です。修復失敗・枝刈りも
+0で記録します。自動調整が常に強いわけではないので、`adaptive=false`の
+等確率版・最も強い単一近傍版とも同じ時間枠で比較します。
 
 この配置は、変更しない探索ライブラリと、問題ごとに実装する`Action`・`State`・
 状態遷移関数を視覚的に分離する

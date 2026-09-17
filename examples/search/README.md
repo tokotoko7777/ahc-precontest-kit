@@ -9,7 +9,7 @@
 | [`ahc001_region_sa.cpp`](ahc001_region_sa.cpp) | `TimeBasedAnnealingRunner` | AHC001 | 境界押し移動と1・2領域再構築。単調な損失の閾値打ち切り、仮変更buffer、整数サイズ仕上げをProblemへ分離 |
 | [`ahc002_destroy_repair_sa.cpp`](ahc002_destroy_repair_sa.cpp) | `TimeBasedAnnealingRunner` | AHC002 | 可変長経路の末尾再構築と区間DFS修復をProblemへ分離。採用時のbuffer移動と最良解からの再開を使用 |
 | [`ahc002_destroy_repair_lns.cpp`](ahc002_destroy_repair_lns.cpp) | `LargeNeighborhoodSearch` | AHC002 | 既存の末尾/区間修復をdestroy/repairへ分離。得点最大化と、採用前のcache再構築省略の例 |
-| [`ahc059_lns.cpp`](ahc059_lns.cpp) | `LargeNeighborhoodSearch` | AHC059 | 区間内のペアを削除しO(n)最良再挿入。距離最小化。RRT/山登り/SA、距離前計算、閾値打ち切りを切替 |
+| [`ahc059_lns.cpp`](ahc059_lns.cpp) | `LargeNeighborhoodSearch` + `AdaptiveOperatorSelector`（任意） | AHC059 | ペアを削除しO(n)最良再挿入。SA/RRT/山登り、前計算、打ち切り。単一近傍/等確率/適応選択を比較可能 |
 | [`ahc006_sa.cpp`](ahc006_sa.cpp) | `TimeBasedAnnealingRunner` | AHC006 | `DeliveryProblem`へState・Move・近傍・差分・反映を分離。固定長Routeで毎試行のvector確保を避ける |
 | [`ahc011_tree_beam.cpp`](ahc011_tree_beam.cpp) | `TreeBeamRunner` | AHC011 | 最大4手をFixedVectorで列挙。盤面1個をapply/revertし、差分hash、同一局面除去、全候補からの最良解復元を使用 |
 | [`ahc015_common_rollout.cpp`](ahc015_common_rollout.cpp) | `CommonScenarioRolloutRunner` | AHC015 | 4方向を同じ未来配置で比較。盤面操作・Scenario・rollout評価と共通乱数処理の境界を明示 |

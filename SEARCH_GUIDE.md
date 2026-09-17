@@ -757,3 +757,37 @@ print_answer(search.best_state());
 更新時だけです。ただしdestroyで全コピーするか、必要部分だけ詰め直すかは問題依存です。
 LNSがSA/ビームより常に強いという意味ではありません。評価は同一制限時間の実問題スコアで行います。
 再現コマンドと結果は[`LNS_REPORT.md`](benchmarks/LNS_REPORT.md)に記録します。
+
+## 複数の近傍を成果で選ぶ（ALNS）
+
+[`adaptive-operator-selector.hpp`](library/adaptive-operator-selector.hpp)は、
+複数の壊し方を試し、よい成果が出たものの選択確率を増やす独立パーツです。
+[`穴埋めフォーマット`](template/search/adaptive-large-neighborhood-search.cpp)に
+問題側の`destroy` / `repair`と、変更しなくてよい探索ループを分けてあります。
+重みは区間ごとの**1試行あたりの平均報酬**で平滑更新します。区間で未試行の
+近傍は重みを維持し、全重み0なら等確率へ戻します。
+
+| 自分で書くもの | 内容 |
+|---|---|
+| `operator_count` | 壊し方の個数 |
+| `destroy`の分岐 | `operator_id`が0、1、2…の時に何を除くか |
+| `repair` | 壊した候補を完成させ、絶対スコアか`nullopt`を返す |
+| `reward`（任意） | 成果を0〜1で返す。例: 最良更新1、現在値改善0.5、採用0.1、棄却0 |
+
+`select(rng)`でidを取り、試行後に`record(id, reward)`します。
+LNSの`last_outcome()`は`ImprovedBest` / `ImprovedCurrent` / `Accepted` / `Rejected`。
+同点・悪化採用は`Accepted`、失敗・閾値打ち切りも`Rejected`です。
+`step()==false`なら試行していないので記録しません。採用した時だけ記録すると
+失敗率を学べなくなるため、棄却にも報酬0を記録します。
+
+`adaptive=false`で等確率選択、`exploration=0.1`なら各近傍に少なくとも
+`0.1 / operator_count`の選択確率を残します。区間更新は既定128試行ごと、
+学習率は0.2。選択O(近傍数)、通常の記録O(1)、更新O(近傍数)で、
+試行中のメモリ確保・時計取得・盤面hashは不要です。少数の近傍を想定しています。
+
+これは「1試行あたりの成果」を学ぶ方式で、**単位時間あたりの改善量**ではありません。
+同点の出やすい小近傍ばかりになる、探索前半にだけ強い近傍へ偏る、等の失敗はあり得ます。
+採用率・反復数ではなく、同じ時間内の最終公式得点で単一近傍 / 等確率 / 適応を比べます。
+AHC059の比較結果は[`ALNS_REPORT.md`](benchmarks/ALNS_REPORT.md)に記録します。
+ALNSの着想は[Røpke・Pisingerの原論文](https://doi.org/10.1287/trsc.1050.0135)で、
+このコードは考え方を参考にした独自実装です。
