@@ -588,20 +588,33 @@ struct ActionBeamSearch {
     if (!already_selected) keep_best_candidates(static_cast<std::size_t>(beam_width_));
     last_kept_count_ = candidates_.size();
 
-    next_beam_.clear();
     next_scores_.clear();
     next_beam_.reserve(candidates_.size());
     next_scores_.reserve(candidates_.size());
+    // copy代入できるStateは古い子オブジェクトを再利用する。
+    // State内部のvector等が持つcapacityも残せるので、コピー直後の
+    // applyで履歴を1手追加するたびにnew/deleteすることを避けられる。
+    // constメンバー等で代入不能なら、従来どおりcopy構築だけを使う。
+    if constexpr (!std::is_copy_assignable_v<State>) next_beam_.clear();
+    while (next_beam_.size() > candidates_.size()) next_beam_.pop_back();
+    std::size_t next_index = 0;
     for (Candidate& candidate : candidates_) {
-      // 最終配置先へ直接コピーして反映。大きなStateの一時object→vector移動を省く。
-      next_beam_.emplace_back(beam_[candidate.parent]);
-      apply(next_beam_.back(), candidate.action);
+      if constexpr (std::is_copy_assignable_v<State>) {
+        if (next_index < next_beam_.size()) {
+          next_beam_[next_index] = beam_[candidate.parent];
+        } else {
+          next_beam_.emplace_back(beam_[candidate.parent]);
+        }
+      } else {
+        next_beam_.emplace_back(beam_[candidate.parent]);
+      }
+      apply(next_beam_[next_index++], candidate.action);
       next_scores_.push_back(std::move(candidate.score));
     }
 
     beam_.swap(next_beam_);
     scores_.swap(next_scores_);
-    next_beam_.clear();
+    if constexpr (!std::is_copy_assignable_v<State>) next_beam_.clear();
     next_scores_.clear();
     candidates_.clear();
     ++depth_;
