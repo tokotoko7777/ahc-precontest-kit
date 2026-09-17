@@ -30,6 +30,8 @@
 | 探索コア | 問題例 | 完全な`main.cpp` |
 |---|---|---|
 | 時間焼きなましRunner | AHC002の経路destroy/repair | [`ahc002_destroy_repair_sa.cpp`](examples/search/ahc002_destroy_repair_sa.cpp) |
+| LNS（山登り/RRT/SA切替） | AHC059のカードペア再挿入 | [`ahc059_lns.cpp`](examples/search/ahc059_lns.cpp) |
+| LNS（最大化への横展開） | AHC002の経路destroy/repair | [`ahc002_destroy_repair_lns.cpp`](examples/search/ahc002_destroy_repair_lns.cpp) |
 | 時間焼きなましRunner | AHC006の配達経路 | [`ahc006_sa.cpp`](examples/search/ahc006_sa.cpp) |
 | apply/revert木上ビーム | AHC011のスライドパズル | [`ahc011_tree_beam.cpp`](examples/search/ahc011_tree_beam.cpp) |
 | 共通未来Monte Carlo Runner | AHC015の飴配置 | [`ahc015_common_rollout.cpp`](examples/search/ahc015_common_rollout.cpp) |
@@ -707,3 +709,51 @@ assert(state == before);
 - key重複除去は、同じ世代の重複が十分多い時だけ使う。
 - 時間に応じて幅を変える場合は`set_width`または`set_beam_width`を使う。
 - ビーム幅だけでなく、1秒当たりの候補評価数と複数seedの最終得点で比べる。
+
+## 部分破壊・再構築（LNS）
+
+[`large-neighborhood-search.hpp`](library/large-neighborhood-search.hpp)は、
+解の一部分を壊して作り直す処理を繰り返します。経路の再接続、割当のやり直し、
+操作列の再挿入など、普通のswapでは変更が小さすぎる問題が候補です。
+穴埋めは[`template/search/large-neighborhood-search.cpp`](template/search/large-neighborhood-search.cpp)。
+
+| 書く関数 | 書く内容・戻り値 |
+|---|---|
+| `destroy(current, candidate, rng, progress)` | currentを読んで、candidateに壊した候補を上書きする。戻り値なし |
+| `repair(candidate, rng, progress, threshold)` | 候補を合法な完成解へ修復し、**絶対スコア**を返す。失敗/安全に打ち切れる場合だけ`nullopt` |
+| 初期解・初期評価・出力 | 問題固有。通常どおり自分で書く |
+
+ライブラリは時計・採否・最良解保存を担当します。`State`はコピー/swap可能な値型、
+`Score`は`int`、`long long`、`double`などの数値型です。整数比較の精度を守るため、
+その整数型を`long double`で正確に表せない環境ではコンパイル時に検出します。
+初期スコアと完成スコアには有限値を使います。
+
+```cpp
+LnsOptions options;
+options.maximize = false;  // コスト最小化。符号反転せず絶対コストを返す。
+options.acceptance = LnsAcceptance::RecordToRecord;
+options.start_margin = options.end_margin = 2;
+options.early_cutoff = true;
+LargeNeighborhoodSearch<Problem> search(problem, initial, initial_cost, options);
+search.run();
+print_answer(search.best_state());
+```
+
+- **山登り**: 現在値と同じか良い候補を採用する。
+- **RRT**: 過去最良値から指定幅以内なら採用する。「現在値+幅」ではない。
+- **SA**: 温度で悪化許容幅を抽選する。同じ抽選結果を修復の閾値と採否に使う。
+
+最大化では`score >= threshold`、最小化では`score <= threshold`が採用条件です。
+閾値と等しい候補も採用します。AHC059では部分経路への挿入で距離が減らないため、
+途中の距離が閾値を超えた時点で打ち切れます。AHC002では完成得点を確認した後、
+採用不能な候補のcache再構築を省きます。上下界を証明できない修復は最後まで行います。
+
+`early_cutoff=false`なら最大化で`-inf`、最小化で`+inf`を同じrepairへ渡します。
+前計算はProblem側の任意機能で、打ち切りとは独立です。AHC059は距離表のON/OFFも
+例示しています。ON/OFFで乱数列まで一致させたい場合、修復順などの抽選は
+打ち切り前に済ませてください。AHC059の例はこの形です。
+
+毎試行でcandidateのvector容量を再利用し、採用時はswapします。最良解の全コピーは
+更新時だけです。ただしdestroyで全コピーするか、必要部分だけ詰め直すかは問題依存です。
+LNSがSA/ビームより常に強いという意味ではありません。評価は同一制限時間の実問題スコアで行います。
+再現コマンドと結果は[`LNS_REPORT.md`](benchmarks/LNS_REPORT.md)に記録します。

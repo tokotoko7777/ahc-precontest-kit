@@ -39,7 +39,7 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 最小例と安全な使い方をまとめています。
 それぞれを単体で実際の問題へ使った完全な `main.cpp` は
 [`examples/search/`](examples/search/README.md) にあります。
-AHC002・006・011・015・021・026・032・058・061は、問題固有処理を`Problem`へ集めたRunner形式で、
+AHC002・006・011・015・021・026・032・058・059・061は、問題固有処理を`Problem`へ集めたRunner形式で、
 destroy/repair焼きなまし・経路焼きなまし・共通未来Monte Carlo・木上ビーム・
 決定的rollout・Actionビームを比較できます。
 探索ヘッダ内で`TODO:`を検索すると、`State`、候補生成、差分評価、状態更新など、
@@ -374,7 +374,7 @@ GitHub 上ではファイルを開き、右上のコピーアイコン、また�
 | [`practice/ahc056`](practice/ahc056/) | BFS経路、時刻を色×状態へ平方根分割 |
 | [`practice/ahc057`](practice/ahc057/) | 容量付き時空間cluster、時刻別MST、群間swap |
 | [`practice/ahc058`](practice/ahc058/) | 先読み初期解＋購入順序SA、prefix cache、待機区間の一括更新。公式100ケースで平均約6.24%改善 |
-| [`practice/ahc059`](practice/ahc059/) | 完全入れ子列、2状態DP、境界差分探索 |
+| [`practice/ahc059`](practice/ahc059/) | 部分破壊・再構築（LNS、SA/RRT切替）、O(n)ペア再挿入、閾値打ち切り |
 | [`practice/ahc060`](practice/ahc060/) | 色固定化、非逆走BFS、未登録文字列の最短配送 |
 | [`practice/ahc061`](practice/ahc061/) | 共通シナリオRunner、粒子推定、3手rollout、独自乱数・同点処理 |
 | [`practice/ahc062`](practice/ahc062/) | Hamilton閉路、prefix差分2-opt、合法swap |

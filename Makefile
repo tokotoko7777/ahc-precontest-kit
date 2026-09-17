@@ -52,6 +52,7 @@ verify-copy:
 	python3 tests/ahc001_gap_test.py
 	python3 tests/beam_score_benchmark_test.py
 	python3 tests/tree_score_benchmark_test.py
+	python3 tests/lns_benchmark_test.py
 	python3 tests/repository_bundle_test.py
 	python3 tools/copy_part.py --ref HEAD \
 		--main tests/fixtures/copied_parts_main.cpp \
