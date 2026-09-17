@@ -71,13 +71,13 @@ def source_at(ref):
 def summarize(rows):
     best = {}
     for row in rows:
-        key = row["seed"], row["repeat"]
+        key = row["seed"]
         if not row["over_2s"]:
             best[key] = max(best.get(key, 0), row["score"])
     for version in dict.fromkeys(row["version"] for row in rows):
         selected = [row for row in rows if row["version"] == version]
-        relative = sum(100 * row["score"] / best[row["seed"], row["repeat"]]
-                       for row in selected if not row["over_2s"] and best.get((row["seed"], row["repeat"]), 0))
+        relative = sum(100 * row["score"] / best[row["seed"]]
+                       for row in selected if not row["over_2s"] and best.get(row["seed"], 0))
         print(f"{version}: mean_score={statistics.mean(r['score'] for r in selected):.6f} "
               f"common_best={relative:.6f}/{100 * len(selected)} "
               f"average_best_ratio={relative / len(selected):.6f}% "
@@ -175,7 +175,7 @@ def main():
                         destination.flush()
                     print(f"seed={seed:04d} repeat={repeat} " + " ".join(f"{r['version']}={r['score']}({r['rebuilds']} rebuilds)" for r in rows[-len(versions):]), flush=True)
         summarize(rows)
-        print("Fixed mode is diagnostic only. Timed scores decide adoption; ratios use all time-valid variants per case/repeat, not official standings.")
+        print("Fixed mode is diagnostic only. Timed scores decide adoption; one common best per seed includes every time-valid variant/repeat, not official standings.")
 
 
 if __name__ == "__main__": main()

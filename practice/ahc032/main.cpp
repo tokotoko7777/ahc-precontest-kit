@@ -7,6 +7,7 @@ using namespace std;
 #include <cassert>
 #include <cmath>
 #include <cstddef>
+#include <cstdint>
 #include <functional>
 #include <limits>
 #include <numeric>
@@ -317,6 +318,7 @@ struct ActionBeamSearch {
     std::vector<Candidate>().swap(candidates_);
     std::vector<Candidate>().swap(scratch_candidates_);
     std::vector<std::size_t>().swap(candidate_ids_);
+    std::vector<std::size_t>().swap(key_slots_);
     beam_.shrink_to_fit();
     scores_.shrink_to_fit();
   }
@@ -341,6 +343,10 @@ struct ActionBeamSearch {
   std::vector<Candidate> candidates_;
   std::vector<Candidate> scratch_candidates_;
   std::vector<std::size_t> candidate_ids_;
+  // key本体は各stepの型付きvectorへ置き、この表には代表候補のIDだけを置く。
+  // 要素ごとのnew/deleteを避け、世代間では確保済み領域を再利用する。
+  // Key/Hash/Equalの型を探索クラスのテンプレート引数へ追加する必要はない。
+  std::vector<std::size_t> key_slots_;
   bool batched_selection_ = true;
   bool cutoff_ready_ = false;
   std::size_t last_generated_count_ = 0;
@@ -587,20 +593,33 @@ struct ActionBeamSearch {
     if (!already_selected) keep_best_candidates(static_cast<std::size_t>(beam_width_));
     last_kept_count_ = candidates_.size();
 
-    next_beam_.clear();
     next_scores_.clear();
     next_beam_.reserve(candidates_.size());
     next_scores_.reserve(candidates_.size());
+    // copy代入できるStateは古い子オブジェクトを再利用する。
+    // State内部のvector等が持つcapacityも残せるので、コピー直後の
+    // applyで履歴を1手追加するたびにnew/deleteすることを避けられる。
+    // constメンバー等で代入不能なら、従来どおりcopy構築だけを使う。
+    if constexpr (!std::is_copy_assignable_v<State>) next_beam_.clear();
+    while (next_beam_.size() > candidates_.size()) next_beam_.pop_back();
+    std::size_t next_index = 0;
     for (Candidate& candidate : candidates_) {
-      // 最終配置先へ直接コピーして反映。大きなStateの一時object→vector移動を省く。
-      next_beam_.emplace_back(beam_[candidate.parent]);
-      apply(next_beam_.back(), candidate.action);
+      if constexpr (std::is_copy_assignable_v<State>) {
+        if (next_index < next_beam_.size()) {
+          next_beam_[next_index] = beam_[candidate.parent];
+        } else {
+          next_beam_.emplace_back(beam_[candidate.parent]);
+        }
+      } else {
+        next_beam_.emplace_back(beam_[candidate.parent]);
+      }
+      apply(next_beam_[next_index++], candidate.action);
       next_scores_.push_back(std::move(candidate.score));
     }
 
     beam_.swap(next_beam_);
     scores_.swap(next_scores_);
-    next_beam_.clear();
+    if constexpr (!std::is_copy_assignable_v<State>) next_beam_.clear();
     next_scores_.clear();
     candidates_.clear();
     ++depth_;
@@ -647,22 +666,41 @@ struct ActionBeamSearch {
     }
     if (candidates_.empty()) return false;
 
-    std::unordered_map<Key, std::size_t, HashType, KeyEqualType> best_by_key(
-        0, std::forward<Hash>(hash), std::forward<KeyEqual>(key_equal));
-    best_by_key.reserve(candidates_.size());
+    HashType hasher(std::forward<Hash>(hash));
+    KeyEqualType equal(std::forward<KeyEqual>(key_equal));
+    // 負荷率を1/2以下にする。空きslotが必ずあるので衝突しても探索が終わる。
+    const std::size_t empty = std::numeric_limits<std::size_t>::max();
+    std::size_t slot_count = 8;
+    while (slot_count / 2 < candidates_.size()) {
+      if (slot_count > key_slots_.max_size() / 2) {
+        throw std::length_error("too many keyed beam candidates");
+      }
+      slot_count *= 2;
+    }
+    key_slots_.assign(slot_count, empty);
+    candidate_ids_.clear();
+    candidate_ids_.reserve(candidates_.size());
     for (std::size_t i = 0; i < candidates_.size(); ++i) {
-      const auto found = best_by_key.find(keys[i]);
-      if (found == best_by_key.end()) {
-        best_by_key.emplace(std::move(keys[i]), i);
-      } else if (candidate_is_better(
-                     candidates_[i], candidates_[found->second])) {
-        found->second = i;
+      // 2冪表で上位bitだけ違う整数keyも分散する。これはbucket選択だけで、
+      // hash一致を同一状態とは扱わない。必ず元のKeyEqualで確認する。
+      std::uint64_t mixed = static_cast<std::uint64_t>(hasher(keys[i]));
+      mixed = (mixed ^ (mixed >> 30)) * UINT64_C(0xbf58476d1ce4e5b9);
+      mixed = (mixed ^ (mixed >> 27)) * UINT64_C(0x94d049bb133111eb);
+      mixed ^= mixed >> 31;
+      std::size_t slot = static_cast<std::size_t>(mixed) & (slot_count - 1);
+      while (key_slots_[slot] != empty &&
+             !equal(keys[candidate_ids_[key_slots_[slot]]], keys[i])) {
+        slot = (slot + 1) & (slot_count - 1);
+      }
+      if (key_slots_[slot] == empty) {
+        key_slots_[slot] = candidate_ids_.size();
+        candidate_ids_.push_back(i);
+      } else {
+        std::size_t& best = candidate_ids_[key_slots_[slot]];
+        if (candidate_is_better(candidates_[i], candidates_[best])) best = i;
       }
     }
 
-    candidate_ids_.clear();
-    candidate_ids_.reserve(best_by_key.size());
-    for (const auto& entry : best_by_key) candidate_ids_.push_back(entry.second);
     last_unique_count_ = candidate_ids_.size();
     select_candidate_ids();
     return finish_step(apply, true);

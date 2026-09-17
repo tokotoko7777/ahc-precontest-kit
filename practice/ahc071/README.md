@@ -2,6 +2,10 @@
 
 公式問題: [A - Wall Making](https://atcoder.jp/contests/ahc071/tasks/ahc071_a)
 
+この実験ブランチのメモリ再利用版は**未採用・マージ保留**です。
+問題側を変えずに共通コアを軽くしましたが、追加30ケース×3回は同幅の旧版と全て同点でした。
+速度や探索回数だけでは強化済みとせず、[検証レポート](../../benchmarks/AHC071_ALLOCATION_REPORT.md)に残しています。
+
 [`main.cpp`](main.cpp)は、ローカルheaderへ依存しない提出可能な単一ファイルです。
 読みやすい開発元は
 [`examples/search/ahc071_action_beam.cpp`](../../examples/search/ahc071_action_beam.cpp)
@@ -10,8 +14,9 @@
 - `action-beam-search.hpp`: 上位Action選抜、State生成、重複除去、履歴復元
 - `simulated-annealing.hpp`: 区間再構築を受理する焼きなまし
 
-`main.cpp`先頭の`Source:`は、埋め込んだパーツのcommit固定URLです。提出時に別ファイルを
-参照するわけではなく、この1ファイルだけでコンパイルできます。
+各パーツのinclude直後には公開元URLがあります。提出時に別ファイルを参照するわけではなく、
+この1ファイルだけでコンパイルできます。このブランチの試作を使う場合は、公開済みの
+実験commitを指定して生成し、mainに採用済みのコードとは区別してください。
 
 ## 問題を短く言うと
 
@@ -103,11 +108,12 @@ Rust visualizerを使えない環境では`--ported-score`で、公式`src/lib.r
 ## 開発用と提出用の関係
 
 普段変更するのは`examples/search/ahc071_action_beam.cpp`の`TODO(AHC071)`部分です。
-パーツを更新したら、公開済みcommitから次のように単一ファイルを作り直します。
+CIではexampleとheaderを展開した全文が、単一ファイルと一致することを検査します。
+公開済みcommitに固定した出典付きの提出コードが必要な場合は、次のように生成できます。
 
 ```bash
 python3 tools/copy_part.py --ref <公開済みSHA> \
   --main examples/search/ahc071_action_beam.cpp \
   library/action-beam-search.hpp library/simulated-annealing.hpp \
-  -o practice/ahc071/main.cpp
+  -o build/ahc071-submit.cpp
 ```

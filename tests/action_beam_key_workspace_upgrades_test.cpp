@@ -1,6 +1,7 @@
 #include <array>
 #include <cassert>
 #include <map>
+#include <memory>
 #include <random>
 #include <string>
 #include "library/action-beam-search.hpp"
@@ -99,8 +100,28 @@ void test_key_type_switch() {
   assert(beam.states() == std::vector<int>({4, 3, 2, 1}));
 }
 
+void test_move_only_key_and_custom_equality() {
+  struct Key {
+    std::unique_ptr<int> value;
+    explicit Key(int v) : value(new int(v)) {}
+    Key(Key&&) = default;
+    Key& operator=(Key&&) = delete;
+  };
+  ActionBeamSearch<int, int, int> beam(0, 0, 4);
+  assert(beam.step_with_key(
+      [](int) { return std::array<int, 6>{{0, 1, 2, 3, 4, 5}}; },
+      [](int, int a) { return a; },
+      [](int, int a) { return Key(a); },
+      [](const Key&) { return std::size_t(0); },
+      [](const Key& a, const Key& b) { return *a.value % 2 == *b.value % 2; },
+      [](int& s, int a) { s = a; }));
+  assert(beam.last_unique_count() == 2);
+  assert(beam.states() == std::vector<int>({5, 4}));
+}
+
 int main() {
   test_key_type_switch();
+  test_move_only_key_and_custom_equality();
   for (bool maximize : {false, true}) for (bool ties : {false, true}) {
     compare_keyed(std::hash<std::uint64_t>{}, maximize, ties);
     compare_keyed(CollisionHash{7}, maximize, ties);
