@@ -2,7 +2,7 @@
 
 探索ライブラリは、合成データの速度だけでなく、その方式が実際に強かったAHCの
 得点規則で確認します。AHC001/015/021/032は公式仕様と同じ分布から固定seedで
-独自生成した回帰入力です。これとは別にAHC001/002/011/026/032/038/058/061の公式配布入力も使います。公開順位の得点は
+独自生成した回帰入力です。これとは別にAHC001/002/011/026/032/038/058/059/061の公式配布入力も使います。公開順位の得点は
 別入力の相対評価を含むため、順位の再現ではありません。
 
 | 方式 | 実問題 | 実行コマンド | 比較するもの |
@@ -10,6 +10,7 @@
 | 時間焼きなまし | AHC001 Advertisement | `make benchmark-sa` | 同じ差分近傍の山登りと焼きなまし |
 | 領域再構築SA | AHC001 Advertisement | `ahc001_official_benchmark.py` | 旧practiceと公式score比較、公開システムseedで1位との差を記録 |
 | destroy/repair焼きなまし | AHC002 Walking on Tiles | 下記公式入力用script | 既存直書き版とRunner版の公式score |
+| LNS（山登り/RRT/SA切替） | AHC059 / AHC002 | `lns_official_benchmark.py` | 旧解・受理方式・前計算/打ち切りON/OFFの公式score |
 | apply/revert木上ビーム | AHC011 Sliding Tree Puzzle | 下記入力用script | 既存直書き版とRunner版の公式score |
 | 共通シナリオMonte Carlo | AHC015 Halloween Candy | `make benchmark-monte-carlo` | rollout数による最終公式score |
 | apply/revert木上ビーム | AHC021 Pyramid Sorting | `make benchmark-tree-beam` | 幅による操作数と最終公式score |
@@ -23,6 +24,18 @@
 
 4本を続けて実行する場合は`make benchmark-real-search`です。ケース数、制限時間、
 幅、sample数は各実行ファイルの引数で変更できます。
+
+## LNS: AHC059 / AHC002
+
+問題側は`destroy`と`repair`に分離し、修復に成功した時だけ完成候補の絶対スコアを返します。
+時計・受理方式・閾値生成・最良解保存は`LargeNeighborhoodSearch`が担当します。
+
+AHC059はSA設定を固定した未使用20ケースで、旧practiceの平均15191.85に対し15352.65。
+共通best比は1979.027240 → 1999.973958 / 2000、20勝0分0敗でした。
+これは解の表現と近傍を広げた効果を含み、単なるコア速度比較ではありません。
+AHC002への横展開は合法に動作しましたが、確認20ケースで旧practiceに届かず置き換えません。
+採用・不採用と固定反復診断を含む全460実行の条件・CSVは
+[`LNS_REPORT.md`](benchmarks/LNS_REPORT.md)にあります。
 
 ## AHC002: destroy/repair焼きなまし
 

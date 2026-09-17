@@ -12,6 +12,7 @@
 | ファイル | 方式 | 主に埋める関数 |
 |---|---|---|
 | [`time-based-annealing.cpp`](time-based-annealing.cpp) | 時間焼きなまし | `propose_move`、`evaluate_move`、`apply_move` |
+| [`large-neighborhood-search.cpp`](large-neighborhood-search.cpp) | 部分破壊・再構築（LNS）。山登り/RRT/SAを切替 | `destroy`、`repair`。完成候補の絶対スコアを返す |
 | [`prefix-replay-annealing.cpp`](prefix-replay-annealing.cpp) | 行動列の途中から再生する焼きなまし | `advance`、`evaluate_end`、`propose_move`。仮cacheの確定まで配置済み |
 | [`simple-beam.cpp`](simple-beam.cpp) | 通常ビーム | `expand`、`evaluate` |
 | [`action-beam.cpp`](action-beam.cpp) | Action差分ビーム | `generate_actions`、`evaluate_action`、`apply_action` |
@@ -29,6 +30,16 @@
 1個だけです。何を計算し、いつ`nullopt`を返してよいかの例をコメントで置いています。
 安全な上限が作れない場合は閾値を無視して全差分を計算してください。
 途中打ち切りOFFでは、別関数へ切り替えず同じ関数に`-∞`を渡します。
+
+LNSは[`large-neighborhood-search.cpp`](large-neighborhood-search.cpp)を使います。
+`destroy`で候補だけを壊し、`repair`で完成させて**絶対スコア**を返します。
+SA Runnerの「改善量」と混同しないでください。距離を最小化するなら
+`options.maximize=false`にし、距離を正のまま返せます。
+修復失敗・閾値未達が確定した場合は`nullopt`。途中値を完成スコアとして返しません。
+山登り/RRT/SAの切替、時計、採否、最良解保存はhpp側が担当します。
+RRTは「最良値からの悪化許容幅」であり、現在値からの幅ではありません。
+具体例はAHC059（最小化）とAHC002（最大化）。詳細は
+[`SEARCH_GUIDE.md`](../../SEARCH_GUIDE.md#部分破壊再構築lns)を参照してください。
 
 この配置は、変更しない探索ライブラリと、問題ごとに実装する`Action`・`State`・
 状態遷移関数を視覚的に分離する

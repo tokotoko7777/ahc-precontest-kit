@@ -8,13 +8,14 @@
 |---|---|---|
 | 焼きなまし・途中再生 | AHC058 | [購入順序SA](../examples/search/ahc058_prefix_sa.cpp) |
 | 焼きなまし・閾値打ち切り | AHC001 | [領域再構築SA](../examples/search/ahc001_region_sa.cpp) |
+| 部分破壊・再構築（LNS、SA/RRT切替） | AHC059 | [カードペア再挿入](../examples/search/ahc059_lns.cpp) |
 | 差分Actionビーム | AHC032 | [Mod Stamp](../examples/search/ahc032_action_beam.cpp) |
 | apply/revert木上ビーム | AHC021 | [Pyramid Sorting](../examples/search/ahc021_tree_beam.cpp) |
 | 世代が飛ぶ木上ビーム | AHC038 | [Tree Robot Arm](../examples/search/ahc038_variable_cost_beam.cpp) |
 | Monte Carlo | AHC015 | [共通未来rollout](../examples/search/ahc015_common_rollout.cpp) |
 
 表は整備・比較の優先対象であり、全方式の最新高速化が完了したという意味ではありません。
-提出用`main.cpp`と原本の一致を自動検査しているのは、現在AHC001・021・032・058です。
+提出用`main.cpp`と原本の一致を自動検査しているのは、現在AHC001・021・032・058・059です。
 他の例も、その手法の比較を進める際に整合性と公式スコアを確認します。
 
 ## 高速化の採用条件
