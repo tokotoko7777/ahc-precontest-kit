@@ -27,10 +27,13 @@ int main() {
   options.iteration_limit = 3;
   SequenceProblem<int> hill{{10, 9, 11}, {}};
   LargeNeighborhoodSearch<SequenceProblem<int>> h(hill, {10}, 10, options);
-  h.run();
+  assert(h.step() && h.last_outcome() == LnsOutcome::Accepted);
+  assert(h.step() && h.last_outcome() == LnsOutcome::Rejected);
+  assert(h.step() && h.last_outcome() == LnsOutcome::ImprovedBest);
   assert(h.current_score() == 11 && h.best_score() == 11);
   assert(h.accepted() == 2 && h.improved() == 1 && h.iterations() == 3);
   assert(!h.step());
+  assert(h.last_outcome() == LnsOutcome::ImprovedBest); // 終了時には書き換えない。
 
   options.acceptance = LnsAcceptance::RecordToRecord;
   options.maximize = false;
@@ -38,6 +41,7 @@ int main() {
   SequenceProblem<int> rrt{{102, 104, 99}, {}};
   LargeNeighborhoodSearch<SequenceProblem<int>> r(rrt, {100}, 100, options);
   assert(r.step() && r.current_score() == 102 && r.best_score() == 100);
+  assert(r.last_outcome() == LnsOutcome::Accepted);
   assert(r.step() && r.current_score() == 102); // current+2でなくbest+2を使う。
   r.run();
   assert(r.best_score() == 99 && r.accepted() == 2);
@@ -56,6 +60,7 @@ int main() {
   f.run();
   assert(f.current_state().score == 20 && f.best_state().score == 20);
   assert(f.rejected_repairs() == 3 && f.accepted() == 0);
+  assert(f.last_outcome() == LnsOutcome::Rejected);
   assert(std::isinf(failure.thresholds[0]) && failure.thresholds[0] < 0);
 
   options.early_cutoff = true;
@@ -101,6 +106,16 @@ int main() {
   try { LargeNeighborhoodSearch<SequenceProblem<int>> bad(empty, {0}, 0, options); }
   catch (const std::invalid_argument&) { thrown = true; }
   assert(thrown);
+  options.time_limit_ms = 100000;
+  options.iteration_limit = 3;
+  options.maximize = false;
+  options.acceptance = LnsAcceptance::RecordToRecord;
+  options.start_margin = options.end_margin = 5;
+  SequenceProblem<int> feedback{{104, 102, 99}, {}};
+  LargeNeighborhoodSearch<SequenceProblem<int>> fb(feedback, {100}, 100, options);
+  assert(fb.step() && fb.last_outcome() == LnsOutcome::Accepted);
+  assert(fb.step() && fb.last_outcome() == LnsOutcome::ImprovedCurrent);
+  assert(fb.step() && fb.last_outcome() == LnsOutcome::ImprovedBest);
   options.time_limit_ms = 1.0;
   options.iteration_limit = std::numeric_limits<std::uint64_t>::max();
   LargeNeighborhoodSearch<SequenceProblem<int>> expired(empty, {0}, 0, options);

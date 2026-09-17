@@ -11,6 +11,7 @@
 | 領域再構築SA | AHC001 Advertisement | `ahc001_official_benchmark.py` | 旧practiceと公式score比較、公開システムseedで1位との差を記録 |
 | destroy/repair焼きなまし | AHC002 Walking on Tiles | 下記公式入力用script | 既存直書き版とRunner版の公式score |
 | LNS（山登り/RRT/SA切替） | AHC059 / AHC002 | `lns_official_benchmark.py` | 旧解・受理方式・前計算/打ち切りON/OFFの公式score |
+| ALNS（近傍の適応選択） | AHC059 | `lns_official_benchmark.py` | 同じ5近傍の等確率/適応選択と、従来単一近傍の公式score |
 | apply/revert木上ビーム | AHC011 Sliding Tree Puzzle | 下記入力用script | 既存直書き版とRunner版の公式score |
 | 共通シナリオMonte Carlo | AHC015 Halloween Candy | `make benchmark-monte-carlo` | rollout数による最終公式score |
 | apply/revert木上ビーム | AHC021 Pyramid Sorting | `make benchmark-tree-beam` | 幅による操作数と最終公式score |
@@ -36,6 +37,16 @@ AHC059はSA設定を固定した未使用20ケースで、旧practiceの平均15
 AHC002への横展開は合法に動作しましたが、確認20ケースで旧practiceに届かず置き換えません。
 採用・不採用と固定反復診断を含む全460実行の条件・CSVは
 [`LNS_REPORT.md`](benchmarks/LNS_REPORT.md)にあります。
+
+## ALNS: AHC059の近傍選択
+
+[`AdaptiveOperatorSelector`](library/adaptive-operator-selector.hpp)と
+[TODO付きALNSフォーマット](template/search/adaptive-large-neighborhood-search.cpp)を追加。
+同じ5近傍を等確率/成果に応じて選ぶ版と、従来の単一近傍版を同一1.85秒枠で比較しました。
+未使用30ケース×2回の共通best比は従来2998.307447、等確率2998.059477、適応2997.896849 / 3000。
+適応版は反復数が増えても得点は改善せず、**AHC059の既定は変更しません**。
+選択器は問題ごとに検証して使う任意機能です。生得点・失敗した比較・再現手順は
+[`ALNS_REPORT.md`](benchmarks/ALNS_REPORT.md)に記録しています。
 
 ## AHC002: destroy/repair焼きなまし
 

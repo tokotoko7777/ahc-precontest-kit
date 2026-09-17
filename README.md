@@ -121,6 +121,7 @@ Problemへ渡します。超えないと証明できた候補だけ`nullopt`で�
 | [`best-keeper.hpp`](library/best-keeper.hpp) | best score と best state を保存 |
 | [`top-k.hpp`](library/top-k.hpp) | 良い候補を上位 K 個だけ保存 |
 | [`move-statistics.hpp`](library/move-statistics.hpp) | 近傍ごとの採用率・改善率を集計 |
+| [`adaptive-operator-selector.hpp`](library/adaptive-operator-selector.hpp) | 複数の近傍を成果に応じて選ぶ。学習OFF・探索確率下限付き |
 | [`route-utils.hpp`](library/route-utils.hpp) | 経路長と挿入・削除・区間反転の距離差分 |
 | [`debug-state-check.hpp`](library/debug-state-check.hpp) | 差分検査失敗時のseed・Move列・相違項目を記録 |
 
@@ -132,6 +133,7 @@ Problemへ渡します。超えないと証明できた候補だけ`nullopt`で�
 | [`time-based-simulated-annealing.hpp`](library/time-based-simulated-annealing.hpp) | タイマー内蔵の焼きなまし。問題分離Runner、閾値区間表の任意設定付き |
 | [`prefix-replay.hpp`](library/prefix-replay.hpp) | 行動列の変更部分からだけ再計算。仮評価と採用を分けるcheckpoint cache |
 | [`multi-start.hpp`](library/multi-start.hpp) | 回数または時間指定の多点スタート |
+| [`large-neighborhood-search.hpp`](library/large-neighborhood-search.hpp) | 部分破壊・再構築。山登り/RRT/SA、閾値打ち切り、近傍への成果通知 |
 | [`simple-beam-search.hpp`](library/simple-beam-search.hpp) | 状態をコピーする初心者向けビームサーチ |
 | [`action-beam-search.hpp`](library/action-beam-search.hpp) | Actionを先に上位N件へ絞るビーム。問題依存部分をまとめるRunner付き |
 | [`tree-beam-search.hpp`](library/tree-beam-search.hpp) | 1手1世代のapply / revert型ビームサーチ。問題分離Runner付き |

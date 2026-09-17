@@ -14,6 +14,9 @@
 // 解説の考え方から独自実装。第三者の提出コードは使用していない。
 
 enum class LnsAcceptance { HillClimbing, RecordToRecord, SimulatedAnnealing };
+// 直近のtrueを返したstep()の結果（採用とは限らない）。近傍への報酬などに使う。
+// Rejectedには修復失敗・閾値打ち切り・非有限scoreも含む。
+enum class LnsOutcome { Rejected, Accepted, ImprovedCurrent, ImprovedBest };
 
 struct LnsOptions {
   double time_limit_ms = 1900.0;
@@ -106,6 +109,7 @@ class LargeNeighborhoodSearch {
                   static_cast<double>(options_.iteration_limit);
     }
 
+    last_outcome_ = LnsOutcome::Rejected;
     const long double threshold = acceptance_threshold();
     const long double evaluation_threshold = options_.early_cutoff ? threshold :
         (options_.maximize ? -std::numeric_limits<long double>::infinity() :
@@ -121,6 +125,7 @@ class LargeNeighborhoodSearch {
     }
     const long double value = static_cast<long double>(*score);
     if (options_.maximize ? value < threshold : value > threshold) return true;
+    last_outcome_ = better(*score, current_score_) ? LnsOutcome::ImprovedCurrent : LnsOutcome::Accepted;
     using std::swap;
     swap(current_, candidate_);
     current_score_ = *score;
@@ -129,6 +134,7 @@ class LargeNeighborhoodSearch {
       best_ = current_;
       best_score_ = *score;
       ++improved_;
+      last_outcome_ = LnsOutcome::ImprovedBest;
     }
     return true;
   }
@@ -142,6 +148,7 @@ class LargeNeighborhoodSearch {
   std::uint64_t accepted() const { return accepted_; }
   std::uint64_t improved() const { return improved_; }
   std::uint64_t rejected_repairs() const { return rejected_repairs_; }
+  LnsOutcome last_outcome() const { return last_outcome_; }
   double progress() const { return progress_; }
   double elapsed_ms() const {
     return std::chrono::duration<double, std::milli>(Clock::now() - started_).count();
@@ -187,5 +194,6 @@ class LargeNeighborhoodSearch {
   std::uint64_t iterations_ = 0, accepted_ = 0, improved_ = 0, rejected_repairs_ = 0;
   int until_clock_ = 0;
   bool stopped_ = false;
+  LnsOutcome last_outcome_ = LnsOutcome::Rejected;
   double progress_ = 0, log_start_ = 0, log_end_ = 0;
 };

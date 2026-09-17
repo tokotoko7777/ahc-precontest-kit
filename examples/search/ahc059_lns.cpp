@@ -3,6 +3,7 @@ using namespace std;
 
 // 提出時はこのincludeをhpp全文に置換する。practice/ahc059には展開版を置く。
 #include "../../library/large-neighborhood-search.hpp"
+#include "../../library/adaptive-operator-selector.hpp"
 // Pre-contest public solver source (created with generative AI):
 // https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/examples/search/ahc059_lns.cpp
 // 問題: https://atcoder.jp/contests/ahc059/tasks/ahc059_a
@@ -27,6 +28,9 @@ using namespace std;
 #ifndef AHC059_LNS_SPAN
 #define AHC059_LNS_SPAN 15
 #endif
+#ifndef AHC059_ALNS_POLICY
+#define AHC059_ALNS_POLICY 0 // 0=従来の区間15のみ、1=5種類を等確率、2=成果から適応
+#endif
 
 struct CardPairProblem {
   // TODO(問題依存): Stateは「カードを取る順番」。要素は元のマス番号。
@@ -43,6 +47,7 @@ struct CardPairProblem {
   vector<int> removed; // 破壊・修復間だけ使う作業領域。最良解には不要。
   uint64_t seed = 0x123456789abcdefULL;
   bool precompute = AHC059_LNS_PRECOMPUTE;
+  int operator_id = -1; // -1=従来版、0..3=区間4/8/15/30、4=離れた4ペア
 
   void read_input(istream& input = cin) {
     input >> n;
@@ -145,13 +150,22 @@ struct CardPairProblem {
   void destroy(const State& current, State& candidate,
                mt19937_64& engine, double /* progress */) {
     const int size = static_cast<int>(current.order.size());
-    const int span = min(size, AHC059_LNS_SPAN);
-    const int left = static_cast<int>(engine() % static_cast<uint64_t>(size - span + 1));
     array<bool, 200> erase{};
     removed.clear();
-    for (int i = left; i < left + span; ++i) {
-      const int id = label[current.order[i]];
-      if (!erase[id]) { erase[id] = true; removed.push_back(id); }
+    if (operator_id == 4) {
+      // TODO(問題依存): 離れたペアを選ぶ別の壊し方。重複なしで最大4組。
+      while (static_cast<int>(removed.size()) < min(4, pairs)) {
+        const int id = static_cast<int>(engine() % static_cast<uint64_t>(pairs));
+        if (!erase[id]) { erase[id] = true; removed.push_back(id); }
+      }
+    } else {
+      constexpr int spans[] = {4, 8, 15, 30};
+      const int span = min(size, operator_id < 0 ? AHC059_LNS_SPAN : spans[operator_id]);
+      const int left = static_cast<int>(engine() % static_cast<uint64_t>(size - span + 1));
+      for (int i = left; i < left + span; ++i) {
+        const int id = label[current.order[i]];
+        if (!erase[id]) { erase[id] = true; removed.push_back(id); }
+      }
     }
     candidate.order.clear(); // capacityは捨てない。current全体もコピーしない。
     for (int cell : current.order) if (!erase[label[cell]]) candidate.order.push_back(cell);
@@ -218,7 +232,33 @@ int main() {
   options.iteration_limit = AHC059_LNS_ITERATIONS;
 #endif
   LargeNeighborhoodSearch<CardPairProblem> search(problem, std::move(initial), initial_cost, options);
-  search.run();
+  if constexpr (AHC059_ALNS_POLICY == 0) {
+    search.run();
+  } else {
+    AdaptiveOperatorOptions selection;
+    selection.adaptive = AHC059_ALNS_POLICY == 2;
+    AdaptiveOperatorSelector selector(5, selection);
+    // 選択用乱数は近傍・採用判定用と分ける。壊し方の内部変更と干渉させない。
+    mt19937_64 selection_rng(problem.seed ^ 0x8cb92baa3f3d8dd7ULL);
+    array<uint64_t, 5> tried{};
+    while (true) {
+      problem.operator_id = selector.select(selection_rng);
+      if (!search.step()) break; // 予算終了時は試行していないので報酬も記録しない。
+      ++tried[problem.operator_id];
+      double reward = 0;
+      switch (search.last_outcome()) {
+        case LnsOutcome::ImprovedBest: reward = 1.0; break;
+        case LnsOutcome::ImprovedCurrent: reward = 0.5; break;
+        case LnsOutcome::Accepted: reward = 0.1; break;
+        case LnsOutcome::Rejected: break;
+      }
+      selector.record(problem.operator_id, reward);
+    }
+    for (int id = 0; id < 5; ++id) {
+      cerr << "operator=" << id << " tried=" << tried[id]
+           << " probability=" << selector.probability(id) << '\n';
+    }
+  }
   assert(problem.is_valid(search.best_state()));
   problem.print_answer(search.best_state());
   cerr << "iterations=" << search.iterations() << " accepted=" << search.accepted()

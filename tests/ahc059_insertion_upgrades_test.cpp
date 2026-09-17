@@ -66,6 +66,7 @@ int main() {
     const auto original = state;
     CardPairProblem::State scratch;
     for (int j = 0; j < 30; ++j) {
+      problem.operator_id = j % 6 - 1; // 従来版と新しい5種類を全て検証。
       problem.destroy(state, scratch, rng, 0.5);
       const int lower_bound = scratch.cost;
       const auto rejected = problem.repair(scratch, rng, 0.5, lower_bound - 1);

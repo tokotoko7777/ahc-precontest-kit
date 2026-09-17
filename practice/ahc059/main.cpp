@@ -19,6 +19,9 @@ using namespace std;
 // 解説の考え方から独自実装。第三者の提出コードは使用していない。
 
 enum class LnsAcceptance { HillClimbing, RecordToRecord, SimulatedAnnealing };
+// 直近のtrueを返したstep()の結果（採用とは限らない）。近傍への報酬などに使う。
+// Rejectedには修復失敗・閾値打ち切り・非有限scoreも含む。
+enum class LnsOutcome { Rejected, Accepted, ImprovedCurrent, ImprovedBest };
 
 struct LnsOptions {
   double time_limit_ms = 1900.0;
@@ -111,6 +114,7 @@ class LargeNeighborhoodSearch {
                   static_cast<double>(options_.iteration_limit);
     }
 
+    last_outcome_ = LnsOutcome::Rejected;
     const long double threshold = acceptance_threshold();
     const long double evaluation_threshold = options_.early_cutoff ? threshold :
         (options_.maximize ? -std::numeric_limits<long double>::infinity() :
@@ -126,6 +130,7 @@ class LargeNeighborhoodSearch {
     }
     const long double value = static_cast<long double>(*score);
     if (options_.maximize ? value < threshold : value > threshold) return true;
+    last_outcome_ = better(*score, current_score_) ? LnsOutcome::ImprovedCurrent : LnsOutcome::Accepted;
     using std::swap;
     swap(current_, candidate_);
     current_score_ = *score;
@@ -134,6 +139,7 @@ class LargeNeighborhoodSearch {
       best_ = current_;
       best_score_ = *score;
       ++improved_;
+      last_outcome_ = LnsOutcome::ImprovedBest;
     }
     return true;
   }
@@ -147,6 +153,7 @@ class LargeNeighborhoodSearch {
   std::uint64_t accepted() const { return accepted_; }
   std::uint64_t improved() const { return improved_; }
   std::uint64_t rejected_repairs() const { return rejected_repairs_; }
+  LnsOutcome last_outcome() const { return last_outcome_; }
   double progress() const { return progress_; }
   double elapsed_ms() const {
     return std::chrono::duration<double, std::milli>(Clock::now() - started_).count();
@@ -192,9 +199,101 @@ class LargeNeighborhoodSearch {
   std::uint64_t iterations_ = 0, accepted_ = 0, improved_ = 0, rejected_repairs_ = 0;
   int until_clock_ = 0;
   bool stopped_ = false;
+  LnsOutcome last_outcome_ = LnsOutcome::Rejected;
   double progress_ = 0, log_start_ = 0, log_end_ = 0;
 };
 // END LIBRARY: large-neighborhood-search.hpp
+// BEGIN LIBRARY: adaptive-operator-selector.hpp
+#include <algorithm>
+#include <cmath>
+#include <cstdint>
+#include <random>
+#include <stdexcept>
+#include <vector>
+// Pre-contest public source (created with generative AI):
+// https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/adaptive-operator-selector.hpp
+// ALNSの着想（過去の成果に応じて近傍の選択頻度を変える）:
+// https://doi.org/10.1287/trsc.1050.0135
+// 概念を参考にした独自実装。論文の実験設定や第三者コードの再現ではない。
+
+struct AdaptiveOperatorOptions {
+  bool adaptive = true; // falseなら常に等確率。比較実験用。
+  int update_interval = 128; // この回数のrecordごとに重みを更新する。
+  double learning_rate = 0.2; // 0: 学習なし、1: 直近区間の平均報酬で置換。
+  double exploration = 0.1; // 選択確率のうち一様分布を混ぜる割合。(0,1]
+};
+
+// 少数個の近傍向け。選択O(近傍数)、通常の記録O(1)、区間更新O(近傍数)。
+// select/record中はメモリ確保しない。時計も盤面hashも一致判定も不要。
+// SA/LNS等から独立。select(rng)の戻り値0..size()-1で壊し方を選び、
+// 試行後にrecord(id, reward)へ「0以上1以下の成果」を渡す。
+// 失敗・枝刈りも報酬0で必ず記録する。成功だけ記録すると成功率を学べない。
+// 報酬は問題依存。採用数≠得点改善なので、設定は実問題scoreで検証する。
+class AdaptiveOperatorSelector {
+ public:
+  explicit AdaptiveOperatorSelector(int count, AdaptiveOperatorOptions options = {})
+      : options_(options) {
+    if (count <= 0 || options.update_interval <= 0 ||
+        !std::isfinite(options.learning_rate) || options.learning_rate < 0 || options.learning_rate > 1 ||
+        !std::isfinite(options.exploration) || options.exploration <= 0 || options.exploration > 1) {
+      throw std::invalid_argument("invalid adaptive operator options");
+    }
+    weights_.assign(count, 1.0);
+    rewards_.assign(count, 0.0);
+    used_.assign(count, 0);
+    probabilities_.resize(count);
+    cumulative_.resize(count);
+    rebuild();
+  }
+  int size() const { return static_cast<int>(weights_.size()); }
+  template <class Random> int select(Random& rng) const {
+    const double value = std::generate_canonical<double, 53>(rng); // [0,1)
+    for (int id = 0; id + 1 < size(); ++id) if (value < cumulative_[id]) return id;
+    return size() - 1; // 丸め誤差でも範囲外を返さない。
+  }
+  void record(int id, double reward) {
+    if (id < 0 || id >= size() || !std::isfinite(reward) || reward < 0 || reward > 1) {
+      throw std::invalid_argument("operator id/reward out of range");
+    }
+    if (!options_.adaptive) return;
+    rewards_[id] += reward;
+    ++used_[id];
+    if (++pending_ == options_.update_interval) update();
+  }
+  double probability(int id) const { return probabilities_.at(id); }
+  // 未完の区間を反映したい時のみ手動で呼ぶ。通常はrecordが自動実行する。
+  void update() {
+    if (!pending_) return;
+    for (int id = 0; id < size(); ++id) {
+      if (used_[id]) {
+        const double mean = rewards_[id] / used_[id];
+        weights_[id] = (1 - options_.learning_rate) * weights_[id] + options_.learning_rate * mean;
+      } // 未試行の近傍は「失敗」と見なさず、以前の重みを維持する。
+      used_[id] = 0;
+      rewards_[id] = 0;
+    }
+    pending_ = 0;
+    rebuild();
+  }
+ private:
+  void rebuild() {
+    double sum = 0;
+    for (double weight : weights_) sum += weight;
+    double cumulative = 0;
+    for (int id = 0; id < size(); ++id) {
+      const double learned = sum > 0 ? weights_[id] / sum : 1.0 / size();
+      probabilities_[id] = options_.adaptive ?
+          options_.exploration / size() + (1 - options_.exploration) * learned : 1.0 / size();
+      cumulative_[id] = cumulative += probabilities_[id];
+    }
+    cumulative_.back() = 1.0;
+  }
+  AdaptiveOperatorOptions options_;
+  std::vector<double> weights_, rewards_, probabilities_, cumulative_;
+  std::vector<int> used_;
+  int pending_ = 0;
+};
+// END LIBRARY: adaptive-operator-selector.hpp
 // Pre-contest public solver source (created with generative AI):
 // https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/examples/search/ahc059_lns.cpp
 // 問題: https://atcoder.jp/contests/ahc059/tasks/ahc059_a
@@ -219,6 +318,9 @@ class LargeNeighborhoodSearch {
 #ifndef AHC059_LNS_SPAN
 #define AHC059_LNS_SPAN 15
 #endif
+#ifndef AHC059_ALNS_POLICY
+#define AHC059_ALNS_POLICY 0 // 0=従来の区間15のみ、1=5種類を等確率、2=成果から適応
+#endif
 
 struct CardPairProblem {
   // TODO(問題依存): Stateは「カードを取る順番」。要素は元のマス番号。
@@ -235,6 +337,7 @@ struct CardPairProblem {
   vector<int> removed; // 破壊・修復間だけ使う作業領域。最良解には不要。
   uint64_t seed = 0x123456789abcdefULL;
   bool precompute = AHC059_LNS_PRECOMPUTE;
+  int operator_id = -1; // -1=従来版、0..3=区間4/8/15/30、4=離れた4ペア
 
   void read_input(istream& input = cin) {
     input >> n;
@@ -337,13 +440,22 @@ struct CardPairProblem {
   void destroy(const State& current, State& candidate,
                mt19937_64& engine, double /* progress */) {
     const int size = static_cast<int>(current.order.size());
-    const int span = min(size, AHC059_LNS_SPAN);
-    const int left = static_cast<int>(engine() % static_cast<uint64_t>(size - span + 1));
     array<bool, 200> erase{};
     removed.clear();
-    for (int i = left; i < left + span; ++i) {
-      const int id = label[current.order[i]];
-      if (!erase[id]) { erase[id] = true; removed.push_back(id); }
+    if (operator_id == 4) {
+      // TODO(問題依存): 離れたペアを選ぶ別の壊し方。重複なしで最大4組。
+      while (static_cast<int>(removed.size()) < min(4, pairs)) {
+        const int id = static_cast<int>(engine() % static_cast<uint64_t>(pairs));
+        if (!erase[id]) { erase[id] = true; removed.push_back(id); }
+      }
+    } else {
+      constexpr int spans[] = {4, 8, 15, 30};
+      const int span = min(size, operator_id < 0 ? AHC059_LNS_SPAN : spans[operator_id]);
+      const int left = static_cast<int>(engine() % static_cast<uint64_t>(size - span + 1));
+      for (int i = left; i < left + span; ++i) {
+        const int id = label[current.order[i]];
+        if (!erase[id]) { erase[id] = true; removed.push_back(id); }
+      }
     }
     candidate.order.clear(); // capacityは捨てない。current全体もコピーしない。
     for (int cell : current.order) if (!erase[label[cell]]) candidate.order.push_back(cell);
@@ -410,7 +522,33 @@ int main() {
   options.iteration_limit = AHC059_LNS_ITERATIONS;
 #endif
   LargeNeighborhoodSearch<CardPairProblem> search(problem, std::move(initial), initial_cost, options);
-  search.run();
+  if constexpr (AHC059_ALNS_POLICY == 0) {
+    search.run();
+  } else {
+    AdaptiveOperatorOptions selection;
+    selection.adaptive = AHC059_ALNS_POLICY == 2;
+    AdaptiveOperatorSelector selector(5, selection);
+    // 選択用乱数は近傍・採用判定用と分ける。壊し方の内部変更と干渉させない。
+    mt19937_64 selection_rng(problem.seed ^ 0x8cb92baa3f3d8dd7ULL);
+    array<uint64_t, 5> tried{};
+    while (true) {
+      problem.operator_id = selector.select(selection_rng);
+      if (!search.step()) break; // 予算終了時は試行していないので報酬も記録しない。
+      ++tried[problem.operator_id];
+      double reward = 0;
+      switch (search.last_outcome()) {
+        case LnsOutcome::ImprovedBest: reward = 1.0; break;
+        case LnsOutcome::ImprovedCurrent: reward = 0.5; break;
+        case LnsOutcome::Accepted: reward = 0.1; break;
+        case LnsOutcome::Rejected: break;
+      }
+      selector.record(problem.operator_id, reward);
+    }
+    for (int id = 0; id < 5; ++id) {
+      cerr << "operator=" << id << " tried=" << tried[id]
+           << " probability=" << selector.probability(id) << '\n';
+    }
+  }
   assert(problem.is_valid(search.best_state()));
   problem.print_answer(search.best_state());
   cerr << "iterations=" << search.iterations() << " accepted=" << search.accepted()
