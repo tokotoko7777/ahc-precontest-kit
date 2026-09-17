@@ -791,3 +791,94 @@ LNSの`last_outcome()`は`ImprovedBest` / `ImprovedCurrent` / `Accepted` / `Reje
 AHC059の比較結果は[`ALNS_REPORT.md`](benchmarks/ALNS_REPORT.md)に記録します。
 ALNSの着想は[Røpke・Pisingerの原論文](https://doi.org/10.1287/trsc.1050.0135)で、
 このコードは考え方を参考にした独自実装です。
+
+## chokudai / UCT / ILS
+
+3方式ともhppを貼り、対応する`template/search/*.cpp`の`Problem`だけを
+問題に合わせて埋めます。空の関数にも「何を書くか・何を返すか」のTODOがあります。
+追加しただけで既存のビームやSAより強いとはしません。同一時間の公式採点結果と
+採否は[`THREE_SEARCH_REPORT.md`](benchmarks/THREE_SEARCH_REPORT.md)を参照してください。
+
+### chokudai: 深さごとの候補を残して何度も潜る
+
+[`chokudai-search.hpp`](library/chokudai-search.hpp) /
+[`穴埋め`](template/search/chokudai-search.cpp) /
+[`AHC032の完成例`](examples/search/ahc032_chokudai.cpp)。
+各深さの候補を順位順に残し、浅い層から順に1個ずつ展開する探索です。
+後から別の枝を伸ばせる一方、順位値がよい問題では通常ビームの方が有利なこともあります。
+
+| 自分で書く関数 | 戻り値・意味 |
+|---|---|
+| `generate_actions(state)` | 合法な1手の一覧。空ならその枝はそこで終わる |
+| `evaluate_action(state, action)` | 適用後の**絶対順位値**。改善量ではない。同じ深さで比較する |
+| `apply_action(state, action)` | 盤面・cache・復元情報を更新する。戻り値なし |
+| `is_terminal(state)` | 出力可能な完成解ならtrue |
+| `final_score(state)` | 完成解の**本当の得点**。順位値とは別に比較する |
+
+`Score`は整数/浮動小数点の数値型、`State`は独立にコピーできる値型です。
+最大化/最小化は`options.maximize`で設定します。初期状態の順位値もconstructorへ渡します。
+`max_depth`は完成までの最大遷移数、`capacity_per_depth`は**層ごと**の待ち候補上限です。
+容量不足では悪い候補を捨てる近似で、完全探索ではありません。重複除去は行いません。
+
+容量に入らない子はStateをコピーせず棄却します。ただし残す候補は盤面全体を持ち、
+順序集合の管理費用もあります。巨大なStateにはapply/revert木上ビームも検討してください。
+時計は親の展開前と64候補ごとに確認します。1回のcallbackが長ければ超過し得るため、
+重い処理は問題側でも短くしてください。
+
+`best_state()`は完成解がなければ`nullopt`。合法なfallbackを先に作り、
+必要なら探索で見つかった完成解と本当の得点を比較して良い方を出力します。
+AHC032例は同じ行動集合・順位値のgreedyをfallbackに使います。
+
+### UCT: 未知の結果を抽選し、観測結果ごとの木を育てる
+
+[`monte-carlo-tree-search.hpp`](library/monte-carlo-tree-search.hpp) /
+[`穴埋め`](template/search/monte-carlo-tree-search.cpp) /
+[`AHC015の完成例`](examples/search/ahc015_uct.cpp)。
+探索中は平均報酬と探索項の和で手を選び、最後は訪問回数最大の手を返します。
+同数なら平均報酬で比較します。0反復なら最初の合法手、終局/合法手なしなら`nullopt`です。
+
+| 自分で書く関数 | 戻り値・意味 |
+|---|---|
+| `generate_actions(state)` | 合法手一覧。未試行の手はこの順で試す |
+| `is_terminal(state)` | 終局ならtrue |
+| `sample_transition(state, action, rng)` | 手と抽選結果をstateへ反映し、結果の正確な`uint64_t` IDを返す |
+| `rollout(state, rng)` | 軽い方策で仮実行し、有限の**[0,1]の絶対評価値**を返す。終局stateにも対応する |
+
+同じ親・同じ手から違う状態になった時は、必ず違う結果IDにします。
+AHC015なら次の飴を置く空きマス順位、決定的な遷移なら0です。
+このIDは単なる重複除去hashではなく、**観測後の意思決定を分けるために必要な情報**です。
+衝突を無視して別状態を混ぜるopen-loop探索とは異なります。
+内部では結果IDを線形に検索するため、多数の確率分岐がある問題では費用も増えます。
+
+`exploration`は[0,1]の評価値に対する探索の強さです。値域が違う点数をそのまま渡さず、
+問題側で正規化してください。最小化も同じ値域で`maximize=false`にします。
+`max_nodes`以降は新しいノードを作らずrolloutし、既存の辺の統計は更新します。
+`max_depth=1`は根の手だけを学ぶバンディットであり、深い木を使った効果とは区別します。
+
+木に盤面は保存せず、1試行ごとにrootをコピーして遷移を再現します。
+`choose_action`ごとに木を作り直すため、実ターンをまたぐ木の再利用はありません。
+時計は試行間で確認します。長いrolloutには問題側で手数上限を設けてください。
+対話問題では**その時点で公開された情報だけ**を読み、未来は分布から抽選します。
+AHC015の評価器も実際に1ターンずつ入力し、先の配置順位は渡しません。
+
+### ILS: 大きく変更してから小さい改善を詰める
+
+[`iterated-local-search.hpp`](library/iterated-local-search.hpp) /
+[`穴埋め`](template/search/iterated-local-search.cpp) /
+[`AHC059の完成例`](examples/search/ahc059_ils.cpp)。
+
+| 自分で書く関数 | 戻り値・意味 |
+|---|---|
+| `perturb(current, candidate, rng, budget)` | currentを変えずcandidateへ大きい変更を書く。戻る時点で合法な完成解にする |
+| `local_search(candidate, rng, budget)` | 小さい改善を重ね、その場でcandidateを更新し、完成解の**絶対スコア**を返す |
+
+最初は初期解を局所探索し、その後は摂動→局所探索を繰り返します。
+通常は現在値以上の候補を採用し、`accept_worse=true`なら悪化候補からも続行します。
+最良解は別に保存します。`restart_after`回、最良更新がない時は最良解へ戻り、
+0なら再開を無効にします。この回数は**外側の反復数**です。
+
+局所探索の内側でも`budget.expired()`を確認します。締切で途中の不正状態を返さず、
+最後の合法な候補・整合したcache・その絶対スコアを返してください。
+前計算ON/OFFや、改善不能と証明できた時の閾値打ち切りは問題側の独立した機能です。
+AHC059は区間30の摂動、区間4の局所改善、Manhattan距離の安全な打ち切りを使います。
+摂動の強さ・局所探索の停止条件・悪化採用の有無は実問題スコアで決めます。

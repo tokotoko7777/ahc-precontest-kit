@@ -12,6 +12,9 @@
 | destroy/repair焼きなまし | AHC002 Walking on Tiles | 下記公式入力用script | 既存直書き版とRunner版の公式score |
 | LNS（山登り/RRT/SA切替） | AHC059 / AHC002 | `lns_official_benchmark.py` | 旧解・受理方式・前計算/打ち切りON/OFFの公式score |
 | ALNS（近傍の適応選択） | AHC059 | `lns_official_benchmark.py` | 同じ5近傍の等確率/適応選択と、従来単一近傍の公式score |
+| chokudai | AHC032 | `three_search_benchmark.py --task 032` | 同じ行動・順位評価の幅9000ビームと層別キュー探索 |
+| UCT（結果ごとに分岐） | AHC015 | `three_search_benchmark.py --task 015` | 同時間・同方策のflat MC、根のバンディット、深いMCTS |
+| ILS（摂動＋局所改善） | AHC059 | `three_search_benchmark.py --task 059` | 既存LNS+SAと、大区間で摂動・小区間で局所改善する方式 |
 | apply/revert木上ビーム | AHC011 Sliding Tree Puzzle | 下記入力用script | 既存直書き版とRunner版の公式score |
 | 共通シナリオMonte Carlo | AHC015 Halloween Candy | `make benchmark-monte-carlo` | rollout数による最終公式score |
 | apply/revert木上ビーム | AHC021 Pyramid Sorting | `make benchmark-tree-beam` | 幅による操作数と最終公式score |
@@ -47,6 +50,16 @@ AHC002への横展開は合法に動作しましたが、確認20ケースで旧
 適応版は反復数が増えても得点は改善せず、**AHC059の既定は変更しません**。
 選択器は問題ごとに検証して使う任意機能です。生得点・失敗した比較・再現手順は
 [`ALNS_REPORT.md`](benchmarks/ALNS_REPORT.md)に記録しています。
+
+## chokudai / UCT / ILS
+
+chokudai / UCT / ILSの条件・失敗した調整・未使用入力での確認は
+[`THREE_SEARCH_REPORT.md`](benchmarks/THREE_SEARCH_REPORT.md)にまとめています。
+それぞれ独立したhppとTODOフォーマットを持ち、採用判断は探索回数でなく公式得点で行います。
+AHC015は未知の配置を先読みさせず、1ターンずつ対話で入力します。
+設定固定後の新規20入力×2回では、chokudaiは既存ビームへ−2.096271 / 2000、
+深さ8のUCTは同時間flat MCへ−477.210461 / 2000、ILSはLNS+SAへ−0.778072 / 2000。
+計410実行のうち確認320実行は全合法・時間内ですが、既存practiceは置き換えません。
 
 ## AHC002: destroy/repair焼きなまし
 

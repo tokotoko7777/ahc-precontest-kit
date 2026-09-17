@@ -10,6 +10,9 @@
 | [`ahc002_destroy_repair_sa.cpp`](ahc002_destroy_repair_sa.cpp) | `TimeBasedAnnealingRunner` | AHC002 | 可変長経路の末尾再構築と区間DFS修復をProblemへ分離。採用時のbuffer移動と最良解からの再開を使用 |
 | [`ahc002_destroy_repair_lns.cpp`](ahc002_destroy_repair_lns.cpp) | `LargeNeighborhoodSearch` | AHC002 | 既存の末尾/区間修復をdestroy/repairへ分離。得点最大化と、採用前のcache再構築省略の例 |
 | [`ahc059_lns.cpp`](ahc059_lns.cpp) | `LargeNeighborhoodSearch` + `AdaptiveOperatorSelector`（任意） | AHC059 | ペアを削除しO(n)最良再挿入。SA/RRT/山登り、前計算、打ち切り。単一近傍/等確率/適応選択を比較可能 |
+| [`ahc059_ils.cpp`](ahc059_ils.cpp) | `IteratedLocalSearch` | AHC059 | 区間30の摂動と区間4の局所改善を分離。局所探索の連続失敗上限・受理方式を比較 |
+| [`ahc032_chokudai.cpp`](ahc032_chokudai.cpp) | `ChokudaiSearch` | AHC032 | Actionビームと同じProblem・評価。層別キュー巡回、容量制限、合法な初期回答 |
+| [`ahc015_uct.cpp`](ahc015_uct.cpp) | `MonteCarloTreeSearch` | AHC015 | 1手ずつ対話入力。未知の配置順位を抽選し、その結果ごとに木を分岐。共通未来flat MCとも比較 |
 | [`ahc006_sa.cpp`](ahc006_sa.cpp) | `TimeBasedAnnealingRunner` | AHC006 | `DeliveryProblem`へState・Move・近傍・差分・反映を分離。固定長Routeで毎試行のvector確保を避ける |
 | [`ahc011_tree_beam.cpp`](ahc011_tree_beam.cpp) | `TreeBeamRunner` | AHC011 | 最大4手をFixedVectorで列挙。盤面1個をapply/revertし、差分hash、同一局面除去、全候補からの最良解復元を使用 |
 | [`ahc015_common_rollout.cpp`](ahc015_common_rollout.cpp) | `CommonScenarioRolloutRunner` | AHC015 | 4方向を同じ未来配置で比較。盤面操作・Scenario・rollout評価と共通乱数処理の境界を明示 |
