@@ -1,7 +1,9 @@
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <cmath>
 #include <cstddef>
+#include <cstdint>
 #include <functional>
 #include <limits>
 #include <numeric>
@@ -508,9 +510,7 @@ struct ActionBeamSearch {
         return candidate_is_better(a, b);
       };
       if (kept < candidates_.size()) {
-        std::nth_element(candidates_.begin(),
-                         candidates_.begin() + (sorted ? kept : kept - 1),
-                         candidates_.end(), better);
+        select_small_candidates(sorted ? kept : kept - 1, better);
       } else if (!sorted) {
         std::iter_swap(candidates_.end() - 1,
                       std::max_element(candidates_.begin(), candidates_.end(), better));
@@ -546,6 +546,54 @@ struct ActionBeamSearch {
     candidates_.swap(scratch_candidates_);
     scratch_candidates_.clear();
     candidate_ids_.clear();
+  }
+
+  // 整数Scoreなら順位を変えず、分布の1 byteで境界bucketを先に絞る。
+  // 同じbucket内だけ比較選抜する。同点は従来どおり生成順で決定する。
+  // 少数候補・bool・浮動小数・独自Scoreはstd::nth_elementへ戻す。
+  template <class Better>
+  void select_small_candidates(std::size_t nth, Better better) {
+    auto first = candidates_.begin();
+    auto last = candidates_.end();
+    if constexpr (std::is_integral_v<Score> &&
+                  !std::is_same_v<Score, bool> && sizeof(Score) <= 8) {
+      if (candidates_.size() >= 1024) {
+        using Unsigned = std::make_unsigned_t<Score>;
+        const auto ordered_key = [&](const Candidate& candidate) {
+          Unsigned key = static_cast<Unsigned>(candidate.score);
+          if constexpr (std::is_signed_v<Score>) {
+            key ^= Unsigned(1) << (std::numeric_limits<Unsigned>::digits - 1);
+          }
+          return maximize_ ? static_cast<Unsigned>(~key) : key;
+        };
+        Unsigned low = ordered_key(*first), high = low;
+        for (const Candidate& candidate : candidates_) {
+          const Unsigned key = ordered_key(candidate);
+          low = std::min(low, key);
+          high = std::max(high, key);
+        }
+        std::uintmax_t different = static_cast<Unsigned>(low ^ high);
+        if (different != 0) {
+          unsigned shift = 0;
+          while (different > 255) { different >>= 1; ++shift; }
+          const auto bucket = [&](const Candidate& candidate) {
+            return static_cast<unsigned>((ordered_key(candidate) >> shift) & Unsigned(255));
+          };
+          std::array<std::size_t, 256> counts{};
+          for (const Candidate& candidate : candidates_) ++counts[bucket(candidate)];
+          std::size_t prefix = 0;
+          unsigned boundary = 0;
+          while (prefix + counts[boundary] <= nth) prefix += counts[boundary++];
+          first = std::partition(first, last, [&](const Candidate& candidate) {
+            return bucket(candidate) < boundary;
+          });
+          last = std::partition(first, last, [&](const Candidate& candidate) {
+            return bucket(candidate) == boundary;
+          });
+        }
+      }
+    }
+    std::nth_element(first, candidates_.begin() + nth, last, better);
   }
 
   // candidate_ids_で指定した候補だけを、現在のID順で残す。
