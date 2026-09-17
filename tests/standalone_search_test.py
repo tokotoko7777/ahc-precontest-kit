@@ -10,6 +10,7 @@ def main():
         ("021", "ahc021_tree_beam.cpp", ["tree-beam-search.hpp", "radix-heap.hpp"]),
         ("032", "ahc032_action_beam.cpp", ["action-beam-search.hpp"]),
         ("058", "ahc058_prefix_sa.cpp", ["deterministic-rollout.hpp", "prefix-replay.hpp", "time-based-simulated-annealing.hpp"]),
+        ("071", "ahc071_action_beam.cpp", ["action-beam-search.hpp", "simulated-annealing.hpp"]),
     ]
     for task, example, headers in entries:
         expected = (ROOT / "examples/search" / example).read_text()

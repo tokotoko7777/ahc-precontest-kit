@@ -350,6 +350,10 @@ bitset、状態hashを組み合わせた探索です。この例にもbitsetと�
 
 ## AHC071: Action先行ビーム＋区間LNS
 
+2026-09-17の共通コア再利用実験は[別レポート](benchmarks/AHC071_ALLOCATION_REPORT.md)。
+問題側を固定した新旧比較で、追加30ケース×3回の同幅scoreは全て同点でした。
+メモリ再利用による速度・探索数の変化だけでは採用せず、この試作はマージ保留です。
+
 [`ahc071_action_beam.cpp`](examples/search/ahc071_action_beam.cpp)は、上から下へ1段ずつ
 行DPの候補を作り、次段へ必要な中心bitsetだけをStateに持ちます。候補Actionの費用を
 先に比較してから採用分だけStateを作り、同じ中心bitsetは最安の1件へまとめます。
