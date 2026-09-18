@@ -43,6 +43,9 @@ void test_route_helpers() {
   assert(route_reverse_delta(points, 1, 2, dist) == 0.0);
   auto pair = best_ordered_pair_insertion(points, 1.0, 3.0, dist);
   assert(pair.delta == 0.0);
+  auto narrow_distance = [](double a, double b) { return static_cast<short>(abs(a - b)); };
+  static_assert(is_same_v<decltype(route_relocate_delta(points, 1, 2, narrow_distance)), short>);
+  assert(route_relocate_delta(points, 1, 2, narrow_distance) == 0);
 }
 
 void check_state(const DeliveryProblem& p, const DeliveryProblem::State& s) {

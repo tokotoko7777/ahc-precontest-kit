@@ -74,9 +74,9 @@ auto route_relocate_delta(const Route& route, int from, int to, Distance distanc
   if (from == to) return Cost{};
   const int left = to < from ? to - 1 : to;
   const int right = left + 1;
-  return route_removal_delta(route, from, distance) +
+  return static_cast<Cost>(route_removal_delta(route, from, distance) +
          distance(route[left], route[from]) + distance(route[from], route[right]) -
-         distance(route[left], route[right]);
+         distance(route[left], route[right]));
 }
 
 // 2点交換の差分。隣接時に同じ辺を二重計上しない。非対称距離にも対応、O(1)。
