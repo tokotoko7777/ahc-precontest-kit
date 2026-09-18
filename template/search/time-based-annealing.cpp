@@ -19,6 +19,8 @@ struct Problem {
 
   struct Move {
     // TODO: 近傍1回分を書く。例: swapする2添字、変更前後の値。
+    // 候補Stateを丸ごとコピーせず「何を変えるか」だけ持つのが差分版の基本。
+    // 既に差分が計算できる近傍なら、その数値をここへ保存してもよい。
   };
 
   // TODO: 得点型を選ぶ。Runnerでは大きいほど良い値にする。
@@ -29,6 +31,7 @@ struct Problem {
   optional<Move> propose_move(
       const State&, mt19937_64&, double /* progress */) const {
     // TODO: 次に試す近傍を1個返す。作れない試行はnulloptを返す。
+    // State/cacheを変えない。制約判定も変更箇所だけで済むよう位置等をcacheする。
     return nullopt;
   }
 
@@ -39,6 +42,9 @@ struct Problem {
     // TODO: 評価を書く場所はこの1個だけ。Moveによる正確な改善量を返す。
     // 最大化なら変更後-変更前、最小化なら変更前cost-変更後cost。正なら良化。
     // State全体を作り直さず、変更箇所だけから計算すると速い。
+    // 例: 経路のswapなら、触れる高々4本の辺の「旧距離-新距離」。
+    // 隣接swapでは共有辺を二重計上しない。route_swap_deltaは新-旧なので符号を反転。
+    // 全計算した候補costを引くだけでは高速な差分評価にはならない。
     // 閾値を使わない問題ならacceptance_thresholdを無視して全計算でよい。
     // 打ち切りOFF時にはライブラリが-infを渡す。不合法手は常にnulloptでよい。
     //
@@ -67,6 +73,8 @@ struct Problem {
 
   void apply_move(State&, Move&) const {
     // TODO: 採用されたMoveだけをStateへ反映する。cacheも忘れず更新する。
+    // 例: 順列のswapなら2要素・2つの逆引き位置・保持しているcostだけ更新。
+    // 不採用ならStateを変更していないのでundoは不要。
     // Moveにvector等で次状態を作った場合は、ここでmoveしてよい。
   }
 };
@@ -79,6 +87,7 @@ Problem::State make_initial_state(const Problem&) {
 Problem::Score calculate_initial_score(
     const Problem&, const Problem::State&) {
   // TODO: 初期解の得点を全計算して返す。
+  // デバッグ時は適用後の差分cacheも、この全計算と照合する。提出時の内側ループでは呼ばない。
   return 0;
 }
 

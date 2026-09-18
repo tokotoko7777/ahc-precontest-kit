@@ -35,6 +35,13 @@
 安全な上限が作れない場合は閾値を無視して全差分を計算してください。
 途中打ち切りOFFでは、別関数へ切り替えず同じ関数に`-∞`を渡します。
 
+差分更新の具体例は[`AHC006`](../../examples/search/ahc006_sa.cpp)です。
+`State`にイベントの逆引き位置と現在距離、`Move`に変更位置と辺差分だけを置きます。
+移動・交換はO(1)評価、反転は境界2辺の評価＋反転区間内だけの制約検査です。
+採用時だけ経路とcacheを更新し、不採用時にはコピーもundoも行いません。
+注文の2点再挿入は`ordered-pair-insertion.hpp`でO(n)にしています。
+差分値を全再計算と照合するテストも[`tests`](../../tests/ahc006_delta_upgrades_test.cpp)にあります。
+
 LNSは[`large-neighborhood-search.cpp`](large-neighborhood-search.cpp)を使います。
 `destroy`で候補だけを壊し、`repair`で完成させて**絶対スコア**を返します。
 SA Runnerの「改善量」と混同しないでください。距離を最小化するなら

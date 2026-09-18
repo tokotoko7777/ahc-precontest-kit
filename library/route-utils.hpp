@@ -3,9 +3,10 @@
 // Pre-contest public source (created with generative AI):
 // https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/route-utils.hpp
 
-// 経路の長さと、挿入・削除・区間反転の差分を計算する。
+// 経路の長さと、挿入・削除・移動・交換・区間反転の差分を計算する。
 // Route は vector<int>、vector<pair<int, int>> など自由に選べる。
 // distance(a, b) は2点間の距離を返す関数にする。
+// 差分には負の値もあるため、距離の戻り値には符号付き整数や浮動小数点型を使う。
 //
 // 使い方:
 // auto distance = [](Point a, Point b) { ... };
@@ -61,4 +62,40 @@ auto route_reverse_delta(
          distance(route[left], route[right + 1]) -
          distance(route[left - 1], route[left]) -
          distance(route[right], route[right + 1]);
+}
+
+// route[from]を抜き、最終的に添字toへ置く差分。端点は固定する。
+// from/toは変更前/変更後の添字。非対称距離にも対応、経路を変更せずO(1)。
+template <class Route, class Distance>
+auto route_relocate_delta(const Route& route, int from, int to, Distance distance) {
+  using Cost = std::decay_t<decltype(distance(route[0], route[0]))>;
+  assert(0 < from && from + 1 < static_cast<int>(route.size()));
+  assert(0 < to && to + 1 < static_cast<int>(route.size()));
+  if (from == to) return Cost{};
+  const int left = to < from ? to - 1 : to;
+  const int right = left + 1;
+  return route_removal_delta(route, from, distance) +
+         distance(route[left], route[from]) + distance(route[from], route[right]) -
+         distance(route[left], route[right]);
+}
+
+// 2点交換の差分。隣接時に同じ辺を二重計上しない。非対称距離にも対応、O(1)。
+template <class Route, class Distance>
+auto route_swap_delta(const Route& route, int first, int second, Distance distance) {
+  using Cost = std::decay_t<decltype(distance(route[0], route[0]))>;
+  assert(0 < first && first + 1 < static_cast<int>(route.size()));
+  assert(0 < second && second + 1 < static_cast<int>(route.size()));
+  const int edges[] = {first - 1, first, second - 1, second};
+  const auto after = [&](int i) -> decltype(auto) {
+    return route[i == first ? second : i == second ? first : i];
+  };
+  Cost delta{};
+  for (int k = 0; k < 4; ++k) {
+    bool duplicate = false;
+    for (int j = 0; j < k; ++j) duplicate |= edges[j] == edges[k];
+    if (duplicate) continue;
+    const int i = edges[k];
+    delta += distance(after(i), after(i + 1)) - distance(route[i], route[i + 1]);
+  }
+  return delta;
 }

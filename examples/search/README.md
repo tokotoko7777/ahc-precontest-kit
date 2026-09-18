@@ -13,7 +13,7 @@
 | [`ahc059_ils.cpp`](ahc059_ils.cpp) | `IteratedLocalSearch` | AHC059 | 区間30の摂動と区間4の局所改善を分離。局所探索の連続失敗上限・受理方式を比較 |
 | [`ahc032_chokudai.cpp`](ahc032_chokudai.cpp) | `ChokudaiSearch` | AHC032 | Actionビームと同じProblem・評価。層別キュー巡回、容量制限、合法な初期回答 |
 | [`ahc015_uct.cpp`](ahc015_uct.cpp) | `MonteCarloTreeSearch` | AHC015 | 1手ずつ対話入力。未知の配置順位を抽選し、その結果ごとに木を分岐。共通未来flat MCとも比較 |
-| [`ahc006_sa.cpp`](ahc006_sa.cpp) | `TimeBasedAnnealingRunner` | AHC006 | `DeliveryProblem`へState・Move・近傍・差分・反映を分離。固定長Routeで毎試行のvector確保を避ける |
+| [`ahc006_sa.cpp`](ahc006_sa.cpp) | `TimeBasedAnnealingRunner` | AHC006 | 辺差分＋逆引き位置cache。候補経路コピーなし、採用時だけ更新。最良2点挿入O(n)、距離前計算ON/OFF |
 | [`ahc011_tree_beam.cpp`](ahc011_tree_beam.cpp) | `TreeBeamRunner` | AHC011 | 最大4手をFixedVectorで列挙。盤面1個をapply/revertし、差分hash、同一局面除去、全候補からの最良解復元を使用 |
 | [`ahc015_common_rollout.cpp`](ahc015_common_rollout.cpp) | `CommonScenarioRolloutRunner` | AHC015 | 4方向を同じ未来配置で比較。盤面操作・Scenario・rollout評価と共通乱数処理の境界を明示 |
 | [`ahc026_deterministic_rollout.cpp`](ahc026_deterministic_rollout.cpp) | `DeterministicRolloutRunner` | AHC026 | 全先読み幅を最後まで同じ貪欲で仮実行。山操作・候補幅・完走評価と最小値選択の境界を明示 |
