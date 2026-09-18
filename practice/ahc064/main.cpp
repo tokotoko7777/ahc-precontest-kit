@@ -1,6 +1,10 @@
+// GCC提出用の最適化。診断時は -DAHC_DISABLE_GCC_OPTIMIZE で無効化。
+#if defined(__GNUC__) && !defined(__clang__) && !defined(AHC_DISABLE_GCC_OPTIMIZE)
+#pragma GCC optimize("O3")
+#endif
+
 // AHC064: move contiguous blocks of cars with a beam search.
 // This file is self-contained: paste it into AtCoder as main.cpp.
-#pragma GCC optimize("O3,unroll-loops")
 
 #include <algorithm>
 #include <array>

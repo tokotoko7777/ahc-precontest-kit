@@ -87,6 +87,7 @@ def test_git_copy_and_fixed_urls(temp: Path) -> None:
       b"int main() { return FirstPart{}.value + SecondPart{}.value - 3; }\n"
   )
   rendered = copy_part.render_parts(parts, main_source)
+  assert rendered.startswith(copy_part.GCC_OPTIMIZATION_PROLOGUE)
   assert b'#include "../../library/first.hpp"' not in rendered
   assert b'# include "library/second.hpp"' not in rendered
   assert b'#include "../library/not-selected.hpp"' in rendered
@@ -160,6 +161,7 @@ def test_offline_bundle(temp: Path) -> None:
   )
   assert result.returncode == 0, result.stderr.decode()
   generated = output.read_bytes()
+  assert generated.startswith(copy_part.GCC_OPTIMIZATION_PROLOGUE)
   assert first in generated
   assert commit.encode() in generated
   assert b"int main()" in generated

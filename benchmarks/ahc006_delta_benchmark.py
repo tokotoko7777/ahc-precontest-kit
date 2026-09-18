@@ -96,6 +96,9 @@ def sources(ref, iterations=None):
               "delta_table": "#define AHC006_STATS\n#define AHC006_PRECOMPUTE_DISTANCE 1\n" + current}
     if not iterations:
         result["legacy_practice"] = expanded("practice/ahc006/main.cpp", ref)
+    # 同じ差分SAのままpragmaだけを切り替える。通常の比較版名とは分けて記録。
+    result["gcc_o3"] = result["delta_table"]
+    result["gcc_disabled"] = "#define AHC_DISABLE_GCC_OPTIMIZE\n" + result["delta_table"]
     return result
 
 

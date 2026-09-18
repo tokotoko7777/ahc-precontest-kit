@@ -1,3 +1,8 @@
+// GCC提出用の最適化。診断時は -DAHC_DISABLE_GCC_OPTIMIZE で無効化。
+#if defined(__GNUC__) && !defined(__clang__) && !defined(AHC_DISABLE_GCC_OPTIMIZE)
+#pragma GCC optimize("O3")
+#endif
+
 // 実戦例のProblemとRunnerをそのまま使い、独自生成入力で幅を比較する。
 #define main ahc021_submission_main
 #include "../examples/search/ahc021_tree_beam.cpp"
