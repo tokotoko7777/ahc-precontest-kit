@@ -1,5 +1,5 @@
 CXX ?= g++
-CXXFLAGS ?= -std=c++17 -O2 -Wall -Wextra -pedantic
+CXXFLAGS ?= -std=c++17 -O3 -Wall -Wextra -pedantic
 HEADERS := $(wildcard library/*.hpp)
 PRACTICE_SOLVERS := $(wildcard practice/ahc*/main.cpp)
 SEARCH_EXAMPLES := $(wildcard examples/search/*.cpp)
@@ -8,7 +8,7 @@ SCORE_BENCHMARKS := $(wildcard benchmarks/*_score_benchmark.cpp)
 UPGRADE_TESTS := $(wildcard tests/*_upgrades_test.cpp)
 SANITIZER_TESTS := tests/parts_test.cpp tests/search_engines_test.cpp $(UPGRADE_TESTS)
 SANITIZER_FLAGS := -std=c++17 -O1 -g -Wall -Wextra -pedantic \
-	-fsanitize=address,undefined -fno-omit-frame-pointer
+	-fsanitize=address,undefined -fno-omit-frame-pointer -DAHC_DISABLE_GCC_OPTIMIZE
 
 .PHONY: verify verify-practice verify-copy verify-debug verify-sanitize \
 	benchmark-search benchmark-search-speed \
@@ -49,6 +49,7 @@ verify-copy:
 	python3 tests/copy_part_test.py
 	python3 tests/source_url_test.py
 	python3 tests/standalone_search_test.py
+	python3 tests/gcc_optimization_test.py
 	python3 tests/ahc001_gap_test.py
 	python3 tests/beam_score_benchmark_test.py
 	python3 tests/tree_score_benchmark_test.py

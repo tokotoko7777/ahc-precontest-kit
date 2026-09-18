@@ -1,3 +1,8 @@
+// GCC提出用の最適化。診断時は -DAHC_DISABLE_GCC_OPTIMIZE で無効化。
+#if defined(__GNUC__) && !defined(__clang__) && !defined(AHC_DISABLE_GCC_OPTIMIZE)
+#pragma GCC optimize("O3")
+#endif
+
 #include <algorithm>
 #include <cmath>
 #include <cstdint>

@@ -3,6 +3,51 @@
 AHCでは、同じ制限時間で評価できる候補数が増えること自体が改善につながります。
 ただし、速そうな部品へ無条件に置き換えるのではなく、次の順で考えます。
 
+## 標準のコンパイル最適化
+
+提出用`practice/*/main.cpp`、`template/`、`examples/`、C++ベンチマークには、
+先頭に`#pragma GCC optimize("O3")`を置きます。`unroll-loops`や`Ofast`は付けません。
+AHC069はこの一括変更の対象外で、既存の設定を保持しています。
+Makefileの通常ビルドも`-O3`です。
+
+pragmaは**それ以降の関数定義**へ作用するため、hppを貼る位置より前に置きます。
+各hppへは重複して埋め込まず、`tools/copy_part.py`の出力先頭にも同じブロックを付けます。
+オンライン・オフラインとも共通です。手動でhppだけを使う場合もmain.cppの先頭へ置いてください。
+詳細は[GCC公式のpragma仕様](https://gcc.gnu.org/onlinedocs/gcc/Function-Specific-Option-Pragmas.html)。
+
+GCC以外（Clangなど）ではガードによりこのpragmaを使いません。
+診断時は`-DAHC_DISABLE_GCC_OPTIMIZE`でpragmaを無効化できます。
+`make verify-sanitize`はこの指定と`-O1`を使い、通常テストはO3で検査します。
+性能比較では両版のコンパイラオプションとソース内pragmaを揃えてください。
+過去CSVのコンパイル条件・得点を遡って書き換えることはしません。
+
+### O3 pragmaの確認（AHC006）
+
+同じ差分SA・距離表ON・1850ms枠で、pragmaのON/OFFだけを比較しました。
+公式入力seed 40–49、各2回、順序を巡回した40実行すべてが合法・公式/独立採点一致・2秒以内。
+この比較だけは共通フラグを`-std=c++17 -O2 -DNDEBUG -Wall -Wextra`に固定し、
+OFFは従来のO2、ONはソース先頭のO3 pragmaを有効にしています。
+通常のMakefileビルド（全体-O3）とは区別してください。
+
+| 版 | 共通best比 / 1000 | 平均率 | 平均公式得点（副指標） |
+|---|---:|---:|---:|
+| pragma OFF | 981.435945 | 98.143594% | 21649.35 |
+| O3 pragma ON | 979.014860 | 97.901486% | 21595.80 |
+
+この小規模比較ではONが相対点−2.421085 / 1000で、得点改善は確認できませんでした。
+時間制限型の探索は実行ごとに軌跡が変わるため、この差から一般的な優劣も断定しません。
+既定O3という指定は反映し、結果に合わせた温度・近傍の再調整はしていません。
+全比較版・全repeatの時間内合法runを入力ごとの共通bestに含め、repeat平均を合計しています。
+同一入力の既存AHC006記録はありません。速度や生得点合計だけで優劣を決めていません。
+
+[生CSV](benchmarks/results/gcc_o3_ahc006.csv)、
+[再現harness](benchmarks/ahc006_delta_benchmark.py)の
+`--first-seed 40 --cases 10 --repeats 2 --variants gcc_disabled gcc_o3`で比較できます。
+入力・公式ツールの用意と環境は[AHC006レポート](benchmarks/AHC006_DELTA_REPORT.md)と同じです。
+計測ソースはこの変更の`examples/search/ahc006_sa.cpp`とhppを展開したもの。
+CSVの`reference_commit`はharnessの旧版取得用既定値であり、この2版には使っていません。
+各実行の実際のsource SHA・tool SHA・コンパイラ・フラグもCSVに保存しています。
+
 ## 1. 計算そのものを減らす
 
 - 状態全体を再計算せず、変更箇所だけから得点差を求める。

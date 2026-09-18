@@ -1,3 +1,8 @@
+// GCC提出用の最適化。診断時は -DAHC_DISABLE_GCC_OPTIMIZE で無効化。
+#if defined(__GNUC__) && !defined(__clang__) && !defined(AHC_DISABLE_GCC_OPTIMIZE)
+#pragma GCC optimize("O3")
+#endif
+
 // BEGIN ahc-precontest-kit: library/action-beam-search.hpp
 // Source: https://github.com/tokotoko7777/ahc-precontest-kit/blob/ef1ad633dbb4053ce2b91acefe0da7e35a6acfd3/library/action-beam-search.hpp
 // SHA-256: ab4749354e16e1d9182d7324983279d09ce4586f1123b26a894ffb844932d75e

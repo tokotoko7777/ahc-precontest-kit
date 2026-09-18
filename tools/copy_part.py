@@ -18,6 +18,12 @@ from urllib.parse import quote
 DEFAULT_REPOSITORY_URL = "https://github.com/tokotoko7777/ahc-precontest-kit"
 FULL_COMMIT_PATTERN = re.compile(r"[0-9a-f]{40}")
 BUNDLE_FORMAT_VERSION = 1
+GCC_OPTIMIZATION_PROLOGUE = (
+    '// GCC提出用の最適化。診断時は -DAHC_DISABLE_GCC_OPTIMIZE で無効化。\n'
+    '#if defined(__GNUC__) && !defined(__clang__) && !defined(AHC_DISABLE_GCC_OPTIMIZE)\n'
+    '#pragma GCC optimize("O3")\n'
+    '#endif\n\n'
+).encode("utf-8")
 LOCAL_INCLUDE_PATTERN = re.compile(
     rb'(?m)^[ \t]*#[ \t]*include[ \t]*"([^"\r\n]+)"'
     rb'[ \t]*(?://[^\r\n]*)?\r?\n?'
@@ -194,7 +200,8 @@ def strip_selected_part_includes(
 
 def render_parts(parts: Iterable[FrozenPart], main_source: Optional[bytes] = None) -> bytes:
   parts = tuple(parts)
-  output = bytearray()
+  # hppの関数定義より前に置く。各hpp自体の内容・SHAは変えない。
+  output = bytearray(GCC_OPTIMIZATION_PROLOGUE)
   for part in parts:
     output.extend(f"// BEGIN ahc-precontest-kit: {part.path}\n".encode())
     output.extend(f"// Source: {part.source_url}\n".encode())
@@ -204,6 +211,8 @@ def render_parts(parts: Iterable[FrozenPart], main_source: Optional[bytes] = Non
       output.extend(b"\n")
     output.extend(f"// END ahc-precontest-kit: {part.path}\n\n".encode())
   if main_source is not None:
+    # kitテンプレートに付いている同じ先頭ブロックは1個にまとめる。
+    main_source = main_source.removeprefix(GCC_OPTIMIZATION_PROLOGUE)
     main_source = strip_selected_part_includes(
         main_source, (part.path for part in parts)
     )

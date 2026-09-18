@@ -1,10 +1,13 @@
+// GCC提出用の最適化。診断時は -DAHC_DISABLE_GCC_OPTIMIZE で無効化。
+#if defined(__GNUC__) && !defined(__clang__) && !defined(AHC_DISABLE_GCC_OPTIMIZE)
+#pragma GCC optimize("O3")
+#endif
+
 // AHC063: a full-depth beam search for the colored snake.
 // Matching the target prefix is the main objective.  Distance to the next
 // required food is used only as a tie-break.  Similar snake shapes in the
 // same depth layer are merged to spend time on different futures.
 
-#pragma GCC optimize("O3")
-#pragma GCC optimize("unroll-loops")
 #include <bits/stdc++.h>
 
 using namespace std;
