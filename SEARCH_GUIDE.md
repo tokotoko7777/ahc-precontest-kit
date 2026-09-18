@@ -206,6 +206,17 @@ MyState answer = runner.best_state();
 AHC001の長方形配置をこの境界で解き、同じ近傍の山登りと比較する実例は
 [`ahc001_annealing_score_benchmark.cpp`](benchmarks/ahc001_annealing_score_benchmark.cpp)です。
 
+経路の差分更新は[`AHC006`](examples/search/ahc006_sa.cpp)を参照してください。
+候補経路を全コピーしてから距離を引くのではなく、`Move`は変更位置と辺差分だけを持ち、
+採用時だけ経路・逆引き位置・保持距離を更新します。移動と交換は評価O(1)、
+反転は境界2辺＋区間内の先行制約だけ確認します。
+[`route-utils.hpp`](library/route-utils.hpp)と
+[`ordered-pair-insertion.hpp`](library/ordered-pair-insertion.hpp)は別問題にもコピーできます。
+後者はpickup→deliveryのような2点の最良挿入位置をO(n)で探します。
+距離表の前計算は`AHC006_PRECOMPUTE_DISTANCE=0/1`で切り替えられます。
+全計算との照合・同じ乱数での軌跡一致・公式スコア比較は
+[`AHC006_DELTA_REPORT.md`](benchmarks/AHC006_DELTA_REPORT.md)に記録します。
+
 ### 行動列の途中から再計算する焼きなまし
 
 購入順序やスケジュールのように、1箇所の変更が後続のsimulationへ影響する場合は

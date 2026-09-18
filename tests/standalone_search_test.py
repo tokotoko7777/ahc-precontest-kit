@@ -6,6 +6,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def main():
     entries = [
+        ("006", "ahc006_sa.cpp", ["time-based-simulated-annealing.hpp", "route-utils.hpp", "ordered-pair-insertion.hpp"]),
         ("001", "ahc001_region_sa.cpp", ["batched-timer.hpp", "random.hpp", "axis-aligned-rectangle.hpp", "largest-empty-rectangle.hpp", "time-based-simulated-annealing.hpp", "scope-profiler.hpp"]),
         ("021", "ahc021_tree_beam.cpp", ["tree-beam-search.hpp", "radix-heap.hpp"]),
         ("032", "ahc032_action_beam.cpp", ["action-beam-search.hpp"]),

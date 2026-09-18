@@ -122,7 +122,8 @@ Problemへ渡します。超えないと証明できた候補だけ`nullopt`で�
 | [`top-k.hpp`](library/top-k.hpp) | 良い候補を上位 K 個だけ保存 |
 | [`move-statistics.hpp`](library/move-statistics.hpp) | 近傍ごとの採用率・改善率を集計 |
 | [`adaptive-operator-selector.hpp`](library/adaptive-operator-selector.hpp) | 複数の近傍を成果に応じて選ぶ。学習OFF・探索確率下限付き |
-| [`route-utils.hpp`](library/route-utils.hpp) | 経路長と挿入・削除・区間反転の距離差分 |
+| [`route-utils.hpp`](library/route-utils.hpp) | 経路長と挿入・削除・移動・交換・区間反転の距離差分 |
+| [`ordered-pair-insertion.hpp`](library/ordered-pair-insertion.hpp) | 先行制約のある2点の最良挿入位置をO(n)、追加メモリO(1)で探索 |
 | [`debug-state-check.hpp`](library/debug-state-check.hpp) | 差分検査失敗時のseed・Move列・相違項目を記録 |
 
 ### 探索
