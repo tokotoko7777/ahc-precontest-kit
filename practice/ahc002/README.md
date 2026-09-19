@@ -4,6 +4,13 @@
 
 `main.cpp` だけで提出できる、過去AHCを使ったライブラリ実戦例です。
 
+2026-09-19: [5回の改善比較](../../benchmarks/AHC002_FIVE_ROUNDS_REPORT.md)後の
+`TimeBasedAnnealingRunner`版へ更新しました。編集用原本は
+[`ahc002_destroy_repair_sa.cpp`](../../examples/search/ahc002_destroy_repair_sa.cpp)。
+内部区間の修復を80%で試し、残り歩数・最大点・偶奇の上界でDFSを打ち切ります。
+設定固定後の別20ケースは、従来practiceの平均56,800.75から57,519.15へ改善。
+以下の古い56,702.0という測定は旧版・別入力集合の記録です。
+
 ## 問題の要点
 
 50×50の盤面を開始マスから上下左右へ進みます。同じタイルIDは二度使えません。
@@ -12,10 +19,7 @@
 
 ## 使用したパーツ
 
-- `BatchedTimer`
-- `Random`
-- `SimulatedAnnealing`
-- `BestKeeper`
+- `TimeBasedAnnealingRunner`: 時間・温度・採否・最良解管理。中身は通常編集不要。
 
 パーツはローカルヘッダとして参照せず、`main.cpp` の上部へ直接貼っています。
 
@@ -36,8 +40,11 @@
 
 - `grow_tail`: 袋小路を避けながら末尾を作る
 - `SegmentRepair`: 外した区間をDFSで修復する
-- `current_path`: 焼きなましで現在探索している経路
-- `best`: 最後に必ず出力できる最高得点経路
+- `TilePathProblem::State`: 経路・使用済みタイル・prefix score
+- `propose_move`: 合法な修復候補を作る。作れなければ`nullopt`
+- `evaluate_move`: 変更後−変更前の差分得点を返す
+- `apply_move`: 採用された候補だけStateへ反映し、cacheを更新する
+- `runner.best_state()`: 最後に出力する最高得点経路
 
 この「一部を外して、制約を守る小さな探索で直す」形は、経路や順序の問題で使える
 destroy/repair（破壊・再構築）の基本形です。
@@ -60,4 +67,4 @@ destroy/repair（破壊・再構築）の基本形です。
 - 公式入力のタイルIDは最大でもマス数未満なので、使用済み配列を2500要素にしています。
 - 最高得点コードの移植ではなく、一般的な多点スタート、焼きなまし、破壊・再構築を
   この問題向けに組み直した実装です。
-- この練習では新しい汎用ヘッダを増やさず、既存4パーツの組み合わせを試しています。
+- 新しい汎用ヘッダは増やさず、局所探索の基本フォーマットを使用しています。

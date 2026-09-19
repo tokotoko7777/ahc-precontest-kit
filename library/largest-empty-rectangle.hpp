@@ -15,10 +15,19 @@
 // 計算量O(M^2 + M log M)、追加メモリO(M)。Mは障害物数。
 // AHC001のような、点を含む広告の再配置で使える。
 // 最大「面積」であり、任意の評価関数を最大化する関数ではない。
+// 繰り返し使う場合だけ用意するscratch。問題のStateに入れずProblem側に1個置く。
+// 同時実行では共有しない。obstaclesへのpointerは次の呼び出しで必ず破棄する。
+template <class Rect>
+struct LargestEmptyRectangleWorkspace {
+  std::vector<decltype(Rect::left)> lefts;
+  std::vector<const Rect*> rights;
+};
+
 template <class Rect>
 Rect largest_empty_rectangle(const Rect& bounds, decltype(Rect::left) x,
                              decltype(Rect::bottom) y,
-                             const std::vector<Rect>& obstacles) {
+                             const std::vector<Rect>& obstacles,
+                             LargestEmptyRectangleWorkspace<Rect>& workspace) {
   using Coordinate = decltype(Rect::left);
   if (!(bounds.left <= x && x < bounds.right &&
         bounds.bottom <= y && y < bounds.top)) {
@@ -36,8 +45,12 @@ Rect largest_empty_rectangle(const Rect& bounds, decltype(Rect::left) x,
       else throw std::invalid_argument("anchor cell is blocked");
     }
   }
-  std::vector<Coordinate> lefts{low};
-  std::vector<const Rect*> rights;
+  auto& lefts = workspace.lefts;
+  auto& rights = workspace.rights;
+  lefts.clear();
+  rights.clear();
+  lefts.push_back(low);
+  lefts.reserve(obstacles.size() + 1);
   rights.reserve(obstacles.size());
   for (const auto& o : obstacles) {
     if (low < o.right && o.right <= x) lefts.push_back(o.right);
@@ -50,6 +63,9 @@ Rect largest_empty_rectangle(const Rect& bounds, decltype(Rect::left) x,
   });
   Rect best{x, y, static_cast<Coordinate>(x + 1), static_cast<Coordinate>(y + 1)};
   for (Coordinate left : lefts) {
+    // 障害物を無視した最大面積でも更新不能。以降のleftはさらに右なので打ち切れる。
+    const Rect optimistic{left, bounds.bottom, high, bounds.top};
+    if (optimistic.area() <= best.area()) break;
     Coordinate bottom = bounds.bottom, top = bounds.top;
     const auto restrict_y = [&](const Rect& o) {
       if (o.top <= y) bottom = std::max(bottom, o.top);
@@ -69,4 +85,13 @@ Rect largest_empty_rectangle(const Rect& bounds, decltype(Rect::left) x,
     consider(high);
   }
   return best;
+}
+
+// 一度だけ使う場合は従来の4引数でもよい。返す長方形と同点の選び方は同じ。
+template <class Rect>
+Rect largest_empty_rectangle(const Rect& bounds, decltype(Rect::left) x,
+                             decltype(Rect::bottom) y,
+                             const std::vector<Rect>& obstacles) {
+  LargestEmptyRectangleWorkspace<Rect> workspace;
+  return largest_empty_rectangle(bounds, x, y, obstacles, workspace);
 }

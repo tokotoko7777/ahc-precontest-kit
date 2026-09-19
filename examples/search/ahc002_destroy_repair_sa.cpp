@@ -185,7 +185,13 @@ struct TilePathProblem {
     void search(int current, int used_edges, int score) {
       if (++expansions > expansion_limit) return;
       const int remaining = max_edges - used_edges;
-      if (distance(current, target) > remaining) return;
+      const int shortest = distance(current, target);
+      if (shortest > remaining) return;
+      // TODO(AHC002): 1マス最大99点。終点の点は固定部分に含まれるので数えない。
+      // グリッドの偶奇で到達歩数の上限を1だけ縮められる場合もある。
+      // この上限以下しか取れない枝は、現在のbest_middleを改善できない。
+      const int additional_cells = remaining - 1 - ((remaining - shortest) & 1);
+      if (score + 99 * additional_cells <= best_score) return;
 
       array<CandidateCell, 4> candidates{};
       int candidate_count = 0;
@@ -274,14 +280,14 @@ struct TilePathProblem {
   }
 
   // TODO(AHC002): 近傍を作る場所。
-  // 70%は末尾を大きく作り直し、30%は内部区間をDFSでつなぎ直す。
+  // 20%は末尾を作り直し、80%は内部区間をDFSでつなぎ直す。
   optional<Move> propose_move(
       const State& state, mt19937_64& engine, double progress) const {
     if (state.path.size() <= 1) return nullopt;
     Move move;
     const int path_size = static_cast<int>(state.path.size());
 
-    if (path_size < 4 || random_int(engine, 10) < 7) {
+    if (path_size < 4 || random_int(engine, 10) < 2) {
       // TODO(AHC002): 序盤ほど大きく壊し、終盤ほど小さくする。
       const int changing_limit = min(
           path_size - 1,
@@ -425,4 +431,5 @@ int main() {
 
   assert(problem.is_valid(runner.best_state()));
   problem.print_answer(runner.best_state());
+  return 0;
 }

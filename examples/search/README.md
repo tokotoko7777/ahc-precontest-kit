@@ -34,12 +34,18 @@ LNSのような部分破壊・再構築も近傍として扱います。
 
 ## 局所探索（焼きなまし・山登り）
 
+AHC001〜003の5回改善記録: [001](../../benchmarks/AHC001_FIVE_ROUNDS_REPORT.md)、
+[002](../../benchmarks/AHC002_FIVE_ROUNDS_REPORT.md)、[003](../../benchmarks/AHC003_FIVE_ROUNDS_REPORT.md)。
+[AHC003の山登り推定](ahc003_online_fit.cpp)は、同じ基本フォーマットを未知コストモデルの
+差分更新に使う例です。方式ごとのテンプレート追加はしていません。
+
 [穴埋めテンプレート](../../template/search/local-search/README.md)
 
 | ファイル | 使う探索 | 題材 | 確認したこと |
 |---|---|---|---|
 | [`ahc001_region_sa.cpp`](ahc001_region_sa.cpp) | `TimeBasedAnnealingRunner` | AHC001 | 境界押し移動と1・2領域再構築。単調な損失の閾値打ち切り、仮変更buffer、整数サイズ仕上げをProblemへ分離 |
 | [`ahc002_destroy_repair_sa.cpp`](ahc002_destroy_repair_sa.cpp) | `TimeBasedAnnealingRunner` | AHC002 | 可変長経路の末尾再構築と区間DFS修復をProblemへ分離。採用時のbuffer移動と最良解からの再開を使用 |
+| [`ahc003_online_fit.cpp`](ahc003_online_fit.cpp) | `TimeBasedAnnealingRunner`（山登り） | AHC003 | 観測履歴の正則化モデルを座標更新し、関係する観測の予測値だけ差分更新 |
 | [`ahc006_sa.cpp`](ahc006_sa.cpp) | `TimeBasedAnnealingRunner` | AHC006 | 辺差分＋逆引き位置cache。候補経路コピーなし、採用時だけ更新。最良2点挿入O(n)、距離前計算ON/OFF |
 | [`ahc002_destroy_repair_lns.cpp`](ahc002_destroy_repair_lns.cpp) | `LargeNeighborhoodSearch` | AHC002 | 既存の末尾/区間修復をdestroy/repairへ分離。得点最大化と、採用前のcache再構築省略の例 |
 | [`ahc059_lns.cpp`](ahc059_lns.cpp) | `LargeNeighborhoodSearch` + `AdaptiveOperatorSelector`（任意） | AHC059 | ペアを削除しO(n)最良再挿入。SA/RRT/山登り、前計算、打ち切り。単一近傍/等確率/適応選択を比較可能 |

@@ -1,0 +1,96 @@
+--- a/solver.cpp
++++ b/solver.cpp
+@@ -777,16 +777,15 @@
+         int target_arg,
+         int max_edges_arg,
+         int expansion_limit_arg,
+-        int old_score,
+-        vector<int> old_middle)
++        int /* old_score */,
++        vector<int> /* old_middle */)
+         : problem(problem_arg),
+           engine(engine_arg),
+           used(used_arg),
+           target(target_arg),
+           max_edges(max_edges_arg),
+           expansion_limit(expansion_limit_arg),
+-          best_score(old_score),
+-          best_middle(std::move(old_middle)) {
++          best_score(-1) {
+       route.reserve(static_cast<size_t>(max_edges));
+     }
+ 
+@@ -796,7 +795,7 @@
+     }
+ 
+     void search(int current, int used_edges, int score) {
+-      if (++expansions > expansion_limit) return;
++      if (++expansions > expansion_limit || best_score >= 0) return;
+       const int remaining = max_edges - used_edges;
+       if (distance(current, target) > remaining) return;
+ 
+@@ -805,11 +804,10 @@
+       for (int index = 0; index < problem.next_count[current]; ++index) {
+         const int to = problem.next[current][index];
+         if (to == target) {
+-          if (score > best_score) {
+-            best_score = score;
+-            best_middle = route;
+-          }
+-          continue;
++          // 最初の合法な修復を候補にする。悪化の採否は外側のSAへ任せる。
++          best_score = score;
++          best_middle = route;
++          return;
+         }
+         if (used_edges + 1 >= max_edges || used[problem.tile[to]]) continue;
+         const int noise = TilePathProblem::random_int(engine, 120);
+@@ -827,7 +825,7 @@
+       }
+ 
+       for (int index = 0; index < candidate_count; ++index) {
+-        if (expansions >= expansion_limit) break;
++        if (expansions >= expansion_limit || best_score >= 0) break;
+         const int to = candidates[index].cell;
+         used[problem.tile[to]] = 1;
+         route.push_back(to);
+@@ -887,14 +885,14 @@
+   }
+ 
+   // TODO(AHC002): 近傍を作る場所。
+-  // 70%は末尾を大きく作り直し、30%は内部区間をDFSでつなぎ直す。
++  // 20%は末尾を作り直し、80%は内部区間をDFSでつなぎ直す。
+   optional<Move> propose_move(
+       const State& state, mt19937_64& engine, double progress) const {
+     if (state.path.size() <= 1) return nullopt;
+     Move move;
+     const int path_size = static_cast<int>(state.path.size());
+ 
+-    if (path_size < 4 || random_int(engine, 10) < 7) {
++    if (path_size < 4 || random_int(engine, 10) < 2) {
+       // TODO(AHC002): 序盤ほど大きく壊し、終盤ほど小さくする。
+       const int changing_limit = min(
+           path_size - 1,
+@@ -944,6 +942,7 @@
+         *this, engine, used, state.path[right], edge_limit, expansion_limit,
+         old_middle_score, std::move(old_middle));
+     repair.search(state.path[left], 0, 0);
++    if (repair.best_score < 0) return nullopt;  // 予算内で修復できなければ変更しない。
+ 
+     move.next_path.assign(
+         state.path.begin(), state.path.begin() + left + 1);
+@@ -1024,7 +1023,7 @@
+   TimeBasedAnnealingRunner<TilePathProblem> runner(
+       problem, std::move(initial), initial_score,
+       annealing_ms,
+-      2400.0, 8.0,  // TODO(AHC002): 開始温度、終了温度。
++      500.0, 1.0,  // TODO(AHC002): 開始温度、終了温度。
+       problem.seed ^ 0x123456789abcdef0ULL,
+       16);  // TODO(AHC002): 時計確認間隔。近傍が重いので小さめにする。
+ 
+@@ -1038,4 +1037,5 @@
+ 
+   assert(problem.is_valid(runner.best_state()));
+   problem.print_answer(runner.best_state());
++  return 0;
+ }

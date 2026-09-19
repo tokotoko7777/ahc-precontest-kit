@@ -3,6 +3,20 @@
 #undef main
 
 int main() {
+  {
+    // x方向に押すと相手の点を失うが、相手の下辺を上げれば両方の点を残せる。
+    vector<Request> input{{1, 1, 100}, {11, 8, 100}};
+    RegionProblem clipping(input);
+    auto initial = clipping.make_state({{0,0,10,5}, {10,0,20,10}});
+    RegionProblem::Move move{0, 0, 1, 15, 0, 0};
+    const auto delta = clipping.evaluate_move(initial, move, -numeric_limits<double>::infinity());
+    assert(delta);
+    const double before = clipping.score(initial);
+    clipping.apply_move(initial, move);
+    clipping.validate(initial);
+    assert(initial.regions[1].bottom == 5);
+    assert(abs(clipping.score(initial) - before - *delta) < 1e-12);
+  }
   // 領域内の最終サイズ選択を小さい全探索と照合する。
   for (int w = 1; w <= 15; ++w) for (int h = 1; h <= 15; ++h) {
     for (int desired = 1; desired <= 225; desired += 7) {

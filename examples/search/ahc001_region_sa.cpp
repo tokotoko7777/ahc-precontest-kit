@@ -275,6 +275,7 @@ struct RegionProblem {
   vector<vector<int>> neighbors;
   vector<Change> pending; // 仮変更。Stateではないので、不採用で現在解は壊れない。
   vector<Rect> obstacles; // 再配置用scratchを再利用する。
+  LargestEmptyRectangleWorkspace<Rect> rectangle_workspace; // 探索全体で容量を再利用する。
   // TODO: 【診断時だけ】-DAHC_ENABLE_PROFILINGで処理別時間を測る。
   ScopeProfiler evaluation_profile{"evaluation (including rebuild)"};
   ScopeProfiler rebuild_profile{"rebuild"};
@@ -334,6 +335,14 @@ struct RegionProblem {
       if (pick(4) == 0) amount = -amount;
       const auto& r = state.regions[id];
       const auto& p = requests[id];
+      // TODO: 1/4の手では要求面積にちょうど届く辺長を狙う。
+      // 余分な領域は評価を下げずに縮め、不足領域は不足量だけ広げる。
+      if (pick(4) == 0) {
+        const int span = move.side < 2 ? r.height() : r.width();
+        const int length = move.side < 2 ? r.width() : r.height();
+        const int target = static_cast<int>((p.desired_area + span - 1) / span);
+        if (target != length) amount = target - length;
+      }
       if (move.side == 0) move.coordinate = clamp(r.left - amount, 0, p.x);
       if (move.side == 1) move.coordinate = clamp(r.right + amount, p.x + 1, 10000);
       if (move.side == 2) move.coordinate = clamp(r.bottom - amount, 0, p.y);
@@ -364,11 +373,20 @@ struct RegionProblem {
       pending.push_back({id, next, quality(id, next)});
       for (int j = 0; j < n; ++j) if (j != id && next.overlaps(state.regions[j])) {
         auto other = state.regions[j];
-        if (move.side == 0) other.right = next.left;
-        if (move.side == 1) other.left = next.right;
-        if (move.side == 2) other.top = next.bottom;
-        if (move.side == 3) other.bottom = next.top;
-        if (!legal(j, other)) return nullopt;
+        // TODO: 相手の点を残せる切り方を4方向から選ぶ。縮小だけなので差分の上界は不変。
+        array<Rect, 4> trimmed{{other, other, other, other}};
+        trimmed[0].right = min(other.right, next.left);
+        trimmed[1].left = max(other.left, next.right);
+        trimmed[2].top = min(other.top, next.bottom);
+        trimmed[3].bottom = max(other.bottom, next.top);
+        long long best_area = -1;
+        for (const auto& candidate : trimmed) {
+          if (legal(j, candidate) && candidate.area() > best_area) {
+            best_area = candidate.area();
+            other = candidate;
+          }
+        }
+        if (best_area < 0) return nullopt;
         const double q = quality(j, other);
         delta += q - state.quality[j];
         if (delta <= threshold) return nullopt;
@@ -383,7 +401,7 @@ struct RegionProblem {
     }
     if (move.kind == 1) {
       const Rect next = largest_empty_rectangle(Rect{0,0,10000,10000},
-                                                requests[id].x, requests[id].y, obstacles);
+                                                requests[id].x, requests[id].y, obstacles, rectangle_workspace);
       const double q = quality(id, next);
       pending.push_back({id, next, q});
       return q - state.quality[id];
@@ -405,8 +423,8 @@ struct RegionProblem {
       Rect left{0,0,10000,10000}, right = left;
       if (axis == 0) { left.right = cut; right.left = cut; }
       else { left.top = cut; right.bottom = cut; }
-      const auto a = largest_empty_rectangle(left, requests[first].x, requests[first].y, obstacles);
-      const auto b = largest_empty_rectangle(right, requests[second].x, requests[second].y, obstacles);
+      const auto a = largest_empty_rectangle(left, requests[first].x, requests[first].y, obstacles, rectangle_workspace);
+      const auto b = largest_empty_rectangle(right, requests[second].x, requests[second].y, obstacles, rectangle_workspace);
       const double delta = quality(first, a) + quality(second, b) -
                            state.quality[first] - state.quality[second];
       if (delta > best_delta) { best_delta = delta; best_a = a; best_b = b; }
