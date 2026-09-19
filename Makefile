@@ -52,6 +52,9 @@ verify-copy:
 	python3 tests/gcc_optimization_test.py
 	python3 tests/search_layout_test.py
 	python3 tests/ahc001_gap_test.py
+	python3 tests/ahc001_improvement_test.py
+	python3 tests/ahc002_improvement_test.py
+	python3 tests/ahc003_improvement_test.py
 	python3 tests/beam_score_benchmark_test.py
 	python3 tests/tree_score_benchmark_test.py
 	python3 tests/lns_benchmark_test.py

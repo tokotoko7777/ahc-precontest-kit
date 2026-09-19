@@ -1,0 +1,25 @@
+--- a/solver.cpp
++++ b/solver.cpp
+@@ -887,14 +887,14 @@
+   }
+ 
+   // TODO(AHC002): 近傍を作る場所。
+-  // 70%は末尾を大きく作り直し、30%は内部区間をDFSでつなぎ直す。
++  // 20%は末尾を作り直し、80%は内部区間をDFSでつなぎ直す。
+   optional<Move> propose_move(
+       const State& state, mt19937_64& engine, double progress) const {
+     if (state.path.size() <= 1) return nullopt;
+     Move move;
+     const int path_size = static_cast<int>(state.path.size());
+ 
+-    if (path_size < 4 || random_int(engine, 10) < 7) {
++    if (path_size < 4 || random_int(engine, 10) < 2) {
+       // TODO(AHC002): 序盤ほど大きく壊し、終盤ほど小さくする。
+       const int changing_limit = min(
+           path_size - 1,
+@@ -1038,4 +1038,5 @@
+ 
+   assert(problem.is_valid(runner.best_state()));
+   problem.print_answer(runner.best_state());
++  return 0;
+ }

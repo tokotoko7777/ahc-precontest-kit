@@ -1,5 +1,17 @@
 # 公式スコア比較の生データ
 
+## 2026-09-19: AHC003の5回改善
+
+`ahc003-five-rounds-{1..5}-dev.csv`と`ahc003-five-rounds-confirmation.csv`は
+公式対話tester・visualizer・独立検査の3つで照合した測定です。
+[採否・共通分母集計・再現手順](../AHC003_FIVE_ROUNDS_REPORT.md)を参照してください。
+
+## 2026-09-19: AHC002の5回改善
+
+`ahc002-five-rounds-{1..5}-dev.csv`と`ahc002-five-rounds-confirmation.csv`は
+公式採点と独立採点の一致を確認した逐次測定です。
+[採否・共通分母集計・再現手順](../AHC002_FIVE_ROUNDS_REPORT.md)を参照してください。
+
 ## chokudai / UCT / ILS
 
 `ahc032-chokudai-*`、`ahc015-uct-*`、`ahc059-ils-*`は3方式の追加比較です。
@@ -153,3 +165,9 @@ source hashは原本.cppのものです。依存ヘッダはこの結果を追�
 
 集計と再実行手順は[`REAL_PROBLEM_BENCHMARKS.md`](../../REAL_PROBLEM_BENCHMARKS.md)
 を参照してください。入力本体・第三者提出コード・公式ツール本体は同梱していません。
+# 2026-09-19: フォーマットによる5回改善
+
+AHC001の`ahc001-five-rounds-{1..5}-dev.csv`と
+`ahc001-five-rounds-confirmation.csv`は、公式採点・独立採点・合法性を照合した逐次測定です。
+全版を入力SHAごとの共通の過去最高で再計算しています。
+[比較・採否・再現手順](../AHC001_FIVE_ROUNDS_REPORT.md)を参照してください。

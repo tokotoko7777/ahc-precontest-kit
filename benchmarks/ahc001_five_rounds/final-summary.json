@@ -1,0 +1,211 @@
+{
+  "rounds": {
+    "round1-dev": {
+      "baseline": {
+        "relative": 997.5191497902983,
+        "average_percent": 99.75191497902983,
+        "mean_score": 988918799.2,
+        "cases": 10,
+        "runs": 10,
+        "failures": 0
+      },
+      "round1": {
+        "relative": 996.9065917831717,
+        "average_percent": 99.69065917831718,
+        "mean_score": 988309319.3,
+        "cases": 10,
+        "runs": 10,
+        "failures": 0
+      }
+    },
+    "round2-dev": {
+      "baseline": {
+        "relative": 996.7054107574181,
+        "average_percent": 99.67054107574181,
+        "mean_score": 988110214.7,
+        "cases": 10,
+        "runs": 10,
+        "failures": 0
+      },
+      "round2": {
+        "relative": 997.2596353989608,
+        "average_percent": 99.72596353989607,
+        "mean_score": 988661249.7,
+        "cases": 10,
+        "runs": 10,
+        "failures": 0
+      }
+    },
+    "round3-dev": {
+      "round2": {
+        "relative": 997.4232048633378,
+        "average_percent": 99.74232048633378,
+        "mean_score": 988822330.3,
+        "cases": 10,
+        "runs": 10,
+        "failures": 0
+      },
+      "round3": {
+        "relative": 998.7041877862952,
+        "average_percent": 99.87041877862951,
+        "mean_score": 990093277.2,
+        "cases": 10,
+        "runs": 10,
+        "failures": 0
+      }
+    },
+    "round4-dev": {
+      "round3": {
+        "relative": 998.4920791635606,
+        "average_percent": 99.84920791635605,
+        "mean_score": 989883276.8,
+        "cases": 10,
+        "runs": 10,
+        "failures": 0
+      },
+      "round4": {
+        "relative": 998.8789430874407,
+        "average_percent": 99.88789430874407,
+        "mean_score": 990266917.4,
+        "cases": 10,
+        "runs": 10,
+        "failures": 0
+      }
+    },
+    "round5-dev": {
+      "round4": {
+        "relative": 999.4030796701688,
+        "average_percent": 99.94030796701688,
+        "mean_score": 990786556.2,
+        "cases": 10,
+        "runs": 10,
+        "failures": 0
+      },
+      "round5": {
+        "relative": 998.4112457715526,
+        "average_percent": 99.84112457715526,
+        "mean_score": 989803069.8,
+        "cases": 10,
+        "runs": 10,
+        "failures": 0
+      }
+    }
+  },
+  "historical_files": [
+    "ahc001-five-rounds-1-dev.csv",
+    "ahc001-five-rounds-2-dev.csv",
+    "ahc001-five-rounds-3-dev.csv",
+    "ahc001-five-rounds-4-dev.csv",
+    "ahc001-five-rounds-5-dev.csv",
+    "ahc001-region-development-10.csv",
+    "ahc001-region-system-100.csv",
+    "ahc001-single-evaluator-cutoff-0-dev-2.csv",
+    "ahc001-single-evaluator-cutoff-1-dev-2.csv",
+    "ahc001-switches-cutoff-0-dev-2.csv",
+    "ahc001-switches-cutoff-1-dev-2.csv",
+    "ahc001-threshold-window-dev-10.csv",
+    "ahc001-threshold-window-system-20.csv"
+  ],
+  "all_development": {
+    "baseline": {
+      "relative": 997.1122802738582,
+      "average_percent": 99.71122802738583,
+      "mean_score": 988514506.95,
+      "cases": 10,
+      "runs": 20,
+      "failures": 0
+    },
+    "round1": {
+      "relative": 996.9065917831717,
+      "average_percent": 99.69065917831718,
+      "mean_score": 988309319.3,
+      "cases": 10,
+      "runs": 10,
+      "failures": 0
+    },
+    "round2": {
+      "relative": 997.3414201311493,
+      "average_percent": 99.73414201311493,
+      "mean_score": 988741790.0,
+      "cases": 10,
+      "runs": 20,
+      "failures": 0
+    },
+    "round3": {
+      "relative": 998.5981334749279,
+      "average_percent": 99.85981334749279,
+      "mean_score": 989988277.0,
+      "cases": 10,
+      "runs": 20,
+      "failures": 0
+    },
+    "round4": {
+      "relative": 999.1410113788048,
+      "average_percent": 99.91410113788048,
+      "mean_score": 990526736.8,
+      "cases": 10,
+      "runs": 20,
+      "failures": 0
+    },
+    "round5": {
+      "relative": 998.4112457715526,
+      "average_percent": 99.84112457715526,
+      "mean_score": 989803069.8,
+      "cases": 10,
+      "runs": 10,
+      "failures": 0
+    }
+  },
+  "best_by_input": {
+    "2c9075622c10fa4cc10ad9588071a67182ca63e3be43c2cc96f366d00c0e183b": 991575241,
+    "59e41d5efd873d5a781c1bea06ae3d213ce4a1751dfe75032a1809e6c58a42b9": 993358180,
+    "60976bfc3d7e906f352e461173091f9b4edd41708c96f38028b1de60a9a264ef": 993480845,
+    "767ed163cd1496f5128334ca1b9e2bfac02b7bec42944d2ea2997e20a09de397": 992016794,
+    "8a9466968e2e1a113cf4fa851f7cf2db5266368d66162af8794717b8a95853fe": 991423759,
+    "c723d73b38294e54a0c7d1962636be184eab7e7142688a70f8d9a7247266f943": 993590447,
+    "e22872bbc91dcc2f3ce93ac5bc53609eb11cd85ccf497119d9ead9c58cbdf149": 993692510,
+    "e78cf419dc608585999d7e14a94d8ea675ec1f88563b617b64eb00a3a6822f96": 994514103,
+    "f114df9a4af559c23dcd55efb7ee24fec7fdb1c307623c6355e6bc133a5d6aaf": 981845977,
+    "fa353fa39b04a9cb5b8573344cc1dd482ba7d401d1994a2e98504c323e7bf3cd": 988284913
+  },
+  "confirmation": {
+    "baseline": {
+      "relative": 1994.7587968817697,
+      "average_percent": 99.73793984408849,
+      "mean_score": 985088989.8,
+      "cases": 20,
+      "runs": 20,
+      "failures": 0
+    },
+    "round4": {
+      "relative": 1999.8483989829797,
+      "average_percent": 99.99241994914898,
+      "mean_score": 987606315.9,
+      "cases": 20,
+      "runs": 20,
+      "failures": 0
+    }
+  },
+  "confirmation_best_by_input": {
+    "92d22fb5265c7b77813eb625ef66ea768ea1dfaaff0307e86cc5dee491b280ab": 990112363,
+    "838a4acb7a989bceb3b2e3c129e7dd01a3c3266eba003af87921f102e37bab1e": 984770898,
+    "947ad2c039da61d5b4ffb653eb63e278103524a7a62a92857bbab0e9309bc41b": 988050069,
+    "d2c2036bbedf36b84f2a60e4f5f1e7be9737801877c40a8b19263fd02ae27ca4": 973834993,
+    "27d40c400a211f4e425b7509cca1694d76c4a2c62e536163bb1bbd3dd8cfe693": 979293859,
+    "adc80e1e0ca556bffb95c634148ec17ade467ea552dd168a3edd7837ab865883": 991723332,
+    "121869fcdbb6479bc6ef7e6bdeffbe7bab101c3781f3b488e7c79cc02cc7c43a": 976848518,
+    "51774bf88b2dbdb431f8339d6033a54b240c5fc8434f14d317a432cd06b5c8bf": 993828362,
+    "dcc6161ceb8021a3dd63dfec02aa8e5e213c0ed59d58bf04e8fcb9e21a880388": 978446950,
+    "72aa8dded352209e43d139d3bbedeedf52660651a6f0d4003e8387ecd193af85": 990195843,
+    "bf51391d3ea171561dc9c929f24ea592b6307a6d9e2a513a3362f3bf0a561f82": 981504776,
+    "8efc6544abe460ce850a3d691350df785da0e1ca20adfe17e305abee9b6643c4": 992206638,
+    "fd0dc31c656631e520c31985d17d9188543d9a0ea8b7834028e731e8d1f446a4": 990635500,
+    "29ddaf26fa639099557c63a41ce3e494bfbcd69d879267b307519f51f792ea64": 995035097,
+    "9f24a954390292236a2e993d011a31c464a654256e654f2b0c869aadffb3026f": 990615159,
+    "5c2b89d7b5ed068a13e625f167089225744247a4a8144cda02c0b6268d60f9f4": 986539656,
+    "59a10c93ee6258f712fd24e666ac69809c12867d00eb853fa850a489bda82c69": 995162267,
+    "028edd26011d31d5aab23caf9b4b99f490a2f47faf1733a00ffb0c3f19dfb690": 994119052,
+    "05c40e747fa57a061154d32091edb19166fa71bc68a453706262542f8a1fc8c0": 992033362,
+    "9900bd8452f0050dc70149abbd8db4586288588eb5c137bd9bb0f77855cc3340": 988661521
+  }
+}

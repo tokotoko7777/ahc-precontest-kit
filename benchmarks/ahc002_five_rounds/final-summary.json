@@ -1,0 +1,208 @@
+{
+  "rounds": {
+    "round1-dev": {
+      "baseline": {
+        "relative": 969.7426079970171,
+        "average_percent": 96.97426079970171,
+        "mean_score": 56943.9,
+        "cases": 10,
+        "runs": 10,
+        "failures": 0
+      },
+      "round1": {
+        "relative": 961.3633239781257,
+        "average_percent": 96.13633239781257,
+        "mean_score": 56462.8,
+        "cases": 10,
+        "runs": 10,
+        "failures": 0
+      }
+    },
+    "round2-dev": {
+      "baseline": {
+        "relative": 963.7727210288054,
+        "average_percent": 96.37727210288054,
+        "mean_score": 56598.5,
+        "cases": 10,
+        "runs": 10,
+        "failures": 0
+      },
+      "round2": {
+        "relative": 967.1671710488209,
+        "average_percent": 96.7167171048821,
+        "mean_score": 56801.0,
+        "cases": 10,
+        "runs": 10,
+        "failures": 0
+      }
+    },
+    "round3-dev": {
+      "round2": {
+        "relative": 979.316359401204,
+        "average_percent": 97.9316359401204,
+        "mean_score": 57518.0,
+        "cases": 10,
+        "runs": 10,
+        "failures": 0
+      },
+      "round3": {
+        "relative": 922.8556853020534,
+        "average_percent": 92.28556853020534,
+        "mean_score": 54202.4,
+        "cases": 10,
+        "runs": 10,
+        "failures": 0
+      }
+    },
+    "round4-dev": {
+      "round2": {
+        "relative": 978.1603307424144,
+        "average_percent": 97.81603307424145,
+        "mean_score": 57440.2,
+        "cases": 10,
+        "runs": 10,
+        "failures": 0
+      },
+      "round4": {
+        "relative": 979.9388664465882,
+        "average_percent": 97.99388664465883,
+        "mean_score": 57551.1,
+        "cases": 10,
+        "runs": 10,
+        "failures": 0
+      }
+    },
+    "round5-dev": {
+      "round4": {
+        "relative": 981.4470713296981,
+        "average_percent": 98.14470713296981,
+        "mean_score": 57636.2,
+        "cases": 10,
+        "runs": 10,
+        "failures": 0
+      },
+      "round5": {
+        "relative": 978.1251193727516,
+        "average_percent": 97.81251193727516,
+        "mean_score": 57436.1,
+        "cases": 10,
+        "runs": 10,
+        "failures": 0
+      }
+    }
+  },
+  "historical_files": [
+    "ahc002-lns-dev-10.csv",
+    "ahc002-lns-holdout-20.csv"
+  ],
+  "all_development": {
+    "baseline": {
+      "relative": 966.7576645129113,
+      "average_percent": 96.67576645129114,
+      "mean_score": 56771.2,
+      "cases": 10,
+      "runs": 20,
+      "failures": 0
+    },
+    "round1": {
+      "relative": 961.3633239781257,
+      "average_percent": 96.13633239781257,
+      "mean_score": 56462.8,
+      "cases": 10,
+      "runs": 10,
+      "failures": 0
+    },
+    "round2": {
+      "relative": 974.8812870641465,
+      "average_percent": 97.48812870641464,
+      "mean_score": 57253.066666666666,
+      "cases": 10,
+      "runs": 30,
+      "failures": 0
+    },
+    "round3": {
+      "relative": 922.8556853020534,
+      "average_percent": 92.28556853020534,
+      "mean_score": 54202.4,
+      "cases": 10,
+      "runs": 10,
+      "failures": 0
+    },
+    "round4": {
+      "relative": 980.6929688881431,
+      "average_percent": 98.0692968888143,
+      "mean_score": 57593.65,
+      "cases": 10,
+      "runs": 20,
+      "failures": 0
+    },
+    "round5": {
+      "relative": 978.1251193727516,
+      "average_percent": 97.81251193727516,
+      "mean_score": 57436.1,
+      "cases": 10,
+      "runs": 10,
+      "failures": 0
+    }
+  },
+  "best_by_input": {
+    "0092eab402729a1067b39a6cd204fe869327610739139109e0a73dbef0fd7ae2": 60243,
+    "2a1d2205d0ce408a3057c121d0025a552782a2b4d219954d9331ed20c84b3f61": 57403,
+    "2e07b50f46a252441013b42c6b4c833ec697aabf4dd132f20d7ae11b1c1405ec": 58903,
+    "4d373a994ec603d3fbcb22a36858c92950387ab7f10b574e8f821cefa84e2119": 58663,
+    "6e60e43f5c5c4f6e7e497d7e2379592a4cae8ece05043e76fb21655cc5990c53": 58067,
+    "9123d67b2794a90595293f6c4a3b0145c52c31067a3fa8b2b7e132a30616e731": 59120,
+    "b9cf03185cb7ca19212a7378ab83c79a0af846c014836e48ce2b7ff183c465dc": 58084,
+    "c3200204d1e980c7f75c45b717775aa816b07df687e761a4a7adc48fa8fd0fe1": 58494,
+    "cec4ef43682e6207dc6059d7db8a6666d85d08c3533819b40387d91374d1be01": 59160,
+    "d6f9b89d76c536c5c924fc38ccc891aa0c5d13861131c2baa7943f0ae47aa55d": 59129
+  },
+  "confirmation": {
+    "baseline": {
+      "relative": 1952.711484096183,
+      "average_percent": 97.63557420480916,
+      "mean_score": 56618.7,
+      "cases": 20,
+      "runs": 20,
+      "failures": 0
+    },
+    "round4": {
+      "relative": 1983.6192116926563,
+      "average_percent": 99.18096058463281,
+      "mean_score": 57519.15,
+      "cases": 20,
+      "runs": 20,
+      "failures": 0
+    },
+    "legacy": {
+      "relative": 1959.3464571839456,
+      "average_percent": 97.96732285919728,
+      "mean_score": 56800.75,
+      "cases": 20,
+      "runs": 20,
+      "failures": 0
+    }
+  },
+  "confirmation_best_by_input": {
+    "707fe1287b73580b453595c2b884f543a42bd7f5d26ae08f503a3fa283f0dbfc": 57783,
+    "6e5a3a414d4cbf104a2e01473259aeb67b3b2ebc12d6fb9a81d95c787e778e32": 59252,
+    "548a19bbc2b5c5420b3ac0fe9557debba6e04829bdb0ee92c7cd464531ea020d": 57962,
+    "3ad7141434266d5f042a3f2d54f3ff0b5cfd68f71804577c9275351499871a83": 56200,
+    "4b1409d1c8fd431208d251176fae9e13ae654fc5bb4cdc6d3a974ec225b2201a": 57059,
+    "d01100edbdaa6b388e9323d6f9dbf050ea4ab3599efe93a9d7ee991794b446b0": 55872,
+    "213c87596cf9a8c6e4e12f3016e6394392ab60aeb0b29b0c251cd1663dfaa3a5": 56166,
+    "bd4aae0a9669a217d088402e65e38deb8cac21ea515f69af6b655c26f84343d7": 56399,
+    "4d53b38c70a9d554003f23fa8307ece231169235ddb0b66e8660336e4c8ef2c6": 60173,
+    "710207e7ad886f641854164b52633e2467bc65b53c603be0d4b956630fd2a5d7": 60256,
+    "de700cedfb2d70bbf6633904fc550f8674f1a76dff9fcf737a4fd463c24ccdbb": 58499,
+    "3204b19fb15c22706ad3f82f2fef91781811032a8f2ae3870bd1bb8f870acffd": 57869,
+    "b28f598e7bac74b05fe1b071ac42033509dacfe9b677eed4819df03d54cfe7ec": 57276,
+    "dc170aaac265cff36715ef928b8a184110d9a8307a6487efe301295388a00ae8": 58897,
+    "4ff719d41e01e306e232b18648ba41ad7acbe546f06e6592dfc9355e9c2daa02": 58069,
+    "cff82bff57169d23e04794b66ff75c376a95261db96fc58daebe88ca32c058a9": 58121,
+    "4aabda29282bd32d0371939dfd993795d25eabaa93ef25d9dc1ca440dab28b50": 60567,
+    "22b4b10ea97452e84e5d635abd7eb47670f30907facb47ca405ed2cde34b9b8b": 57513,
+    "24767b6c0395697a14743f2a03b7d6fcbe04bf9bf0a1e6532c4dc1c2d961970f": 58045,
+    "ff63e51f208fe5a947d77c2d6f4207e75c3bdafe1e5cb8a69dce4dbd6d5ed28c": 57840
+  }
+}

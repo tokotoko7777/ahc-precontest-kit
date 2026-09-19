@@ -1,0 +1,91 @@
+--- a/solver.cpp
++++ b/solver.cpp
+@@ -5,7 +5,6 @@
+ 
+ #include <bits/stdc++.h>
+ using namespace std;
+-// BEGIN LIBRARY: batched-timer.hpp
+ #include <algorithm>
+ #include <cassert>
+ #include <chrono>
+@@ -65,8 +64,7 @@
+     return std::clamp(last_elapsed_ms / time_limit_ms, 0.0, 1.0);
+   }
+ };
+-// END LIBRARY: batched-timer.hpp
+-// BEGIN LIBRARY: random.hpp
++
+ #include <algorithm>
+ #include <cassert>
+ #include <cstddef>
+@@ -144,8 +142,7 @@
+     return static_cast<int>(weights.size()) - 1;
+   }
+ };
+-// END LIBRARY: random.hpp
+-// BEGIN LIBRARY: axis-aligned-rectangle.hpp
++
+ #include <algorithm>
+ #include <cassert>
+ // Pre-contest public source (created with generative AI):
+@@ -191,8 +188,7 @@
+            std::max(bottom, other.bottom) < std::min(top, other.top);
+   }
+ };
+-// END LIBRARY: axis-aligned-rectangle.hpp
+-// BEGIN LIBRARY: largest-empty-rectangle.hpp
++
+ #include <algorithm>
+ #include <stdexcept>
+ #include <vector>
+@@ -265,8 +261,7 @@
+   }
+   return best;
+ }
+-// END LIBRARY: largest-empty-rectangle.hpp
+-// BEGIN LIBRARY: time-based-simulated-annealing.hpp
++
+ #include <algorithm>
+ #include <chrono>
+ #include <cmath>
+@@ -880,8 +875,7 @@
+   std::uint64_t restarts_ = 0;
+   std::uint64_t threshold_pruned_moves_ = 0;
+ };
+-// END LIBRARY: time-based-simulated-annealing.hpp
+-// BEGIN LIBRARY: scope-profiler.hpp
++
+ #include <chrono>
+ #include <cstdint>
+ #include <ostream>
+@@ -949,7 +943,7 @@
+ #endif
+   }
+ };
+-// END LIBRARY: scope-profiler.hpp
++
+ // Pre-contest public solver source (created with generative AI):
+ // https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/examples/search/ahc001_region_sa.cpp
+ // Official problem: https://atcoder.jp/contests/ahc001/tasks/ahc001_a
+@@ -1391,7 +1385,7 @@
+     const double remaining = AHC001_TIME_LIMIT_MS - elapsed();
+     if (remaining < 10 && AHC001_ITERATIONS == 0) break;
+     const double budget = AHC001_ITERATIONS > 0 ? 1e9 : remaining * (phase == 0 ? 0.84 : 0.98);
+-    // TODO: 代理評価の和に対する温度。後半はほぼ山登りで仕上げる。
++    // TODO: 前半は焼きなまし、後半は共通Runnerの厳密改善のみの山登りで仕上げる。
+     TimeBasedAnnealingRunner<RegionProblem> sa(problem, state, problem.score(state),
+         budget, phase == 0 ? 0.015 : 1e-8, phase == 0 ? 1e-6 : 1e-8,
+         seed + static_cast<uint64_t>(phase), 4);
+@@ -1400,8 +1394,10 @@
+         AHC001_THRESHOLD_TABLE_SIZE > 0 ? AHC001_THRESHOLD_TABLE_SIZE : 4096);
+     if (AHC001_ITERATIONS > 0) {
+       for (int i = 0; i < AHC001_ITERATIONS; ++i)
+-        sa.step_with_threshold(AHC001_SCORE_EARLY_STOP != 0);
+-    } else sa.run_with_threshold(AHC001_SCORE_EARLY_STOP != 0);
++        if (phase == 1) sa.step_hill_climbing();
++        else sa.step_with_threshold(AHC001_SCORE_EARLY_STOP != 0);
++    } else if (phase == 1) sa.run_hill_climbing();
++    else sa.run_with_threshold(AHC001_SCORE_EARLY_STOP != 0);
+     state = sa.best_state();
+     iterations += sa.iterations();
+     pruned += sa.threshold_pruned_moves();

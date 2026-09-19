@@ -7,6 +7,7 @@
 int main() {
   using Rect = AxisAlignedRectangle<int>;
   std::mt19937 random(1);
+  LargestEmptyRectangleWorkspace<Rect> workspace;
   for (int trial = 0; trial < 1200; ++trial) {
     const int width = 2 + static_cast<int>(random() % 7);
     const int height = 2 + static_cast<int>(random() % 7);
@@ -22,6 +23,9 @@ int main() {
       if (!r.contains(x, y)) obstacles.push_back(r);
     }
     const auto answer = largest_empty_rectangle(Rect{0, 0, width, height}, x, y, obstacles);
+    const auto reused = largest_empty_rectangle(Rect{0, 0, width, height}, x, y, obstacles, workspace);
+    assert(answer.left == reused.left && answer.bottom == reused.bottom &&
+           answer.right == reused.right && answer.top == reused.top);
     assert(answer.contains(x, y));
     for (const auto& o : obstacles) assert(!answer.overlaps(o));
     long long exact = 0;

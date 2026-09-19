@@ -1,0 +1,79 @@
+--- a/solver.cpp
++++ b/solver.cpp
+@@ -648,10 +648,10 @@
+     int score = 0;
+   };
+ 
+-  // TODO(AHC002): destroy/repairで作った次の合法経路を1個持つ。
+-  // 採用時はapply_moveがnext_pathをStateへmoveするため、余計な全体copyはない。
++  // TODO(AHC002): destroy/repairで置き換える区間と、その差分だけを持つ。
+   struct Move {
+-    vector<int> next_path;
++    int left = 0, right = 0;  // 置換する半開区間 [left, right)。
++    vector<int> middle;       // 新しい区間だけ。棄却する候補で全経路をcopyしない。
+     int next_score = 0;
+   };
+ 
+@@ -910,12 +910,11 @@
+           45 + static_cast<int>((1.0 - progress) * 260.0);
+       vector<int> tail = grow_tail(
+           state.path[cut], used, engine, noise_width);
+-      move.next_path.assign(
+-          state.path.begin(), state.path.begin() + cut + 1);
+-      move.next_path.insert(
+-          move.next_path.end(), tail.begin(), tail.end());
++      move.left = cut + 1;
++      move.right = path_size;
+       move.next_score = state.prefix_score[cut + 1];
+       for (int cell : tail) move.next_score += point[cell];
++      move.middle = std::move(tail);
+       return move;
+     }
+ 
+@@ -945,13 +944,9 @@
+         old_middle_score, std::move(old_middle));
+     repair.search(state.path[left], 0, 0);
+ 
+-    move.next_path.assign(
+-        state.path.begin(), state.path.begin() + left + 1);
+-    move.next_path.insert(
+-        move.next_path.end(),
+-        repair.best_middle.begin(), repair.best_middle.end());
+-    move.next_path.insert(
+-        move.next_path.end(), state.path.begin() + right, state.path.end());
++    move.left = left + 1;
++    move.right = right;
++    move.middle = std::move(repair.best_middle);
+     move.next_score =
+         state.score - old_middle_score + repair.best_score;
+     return move;
+@@ -964,11 +959,19 @@
+     return move.next_score - state.score;
+   }
+ 
+-  // 採用候補だけを反映する。next_pathのbuffer所有権をStateへ移す。
++  // TODO(AHC002): 採用時だけ区間を交換。使用tileは変更部分だけ更新する。
++  // prefix_scoreは変更位置から後ろだけ再計算し、scoreは差分計算済み値を使う。
+   void apply_move(State& state, Move& move) const {
+-    state.path = std::move(move.next_path);
+-    rebuild_cache(state);
+-    assert(state.score == move.next_score);
++    for (int i = move.left; i < move.right; ++i) state.used_tile[tile[state.path[i]]] = 0;
++    for (int cell : move.middle) state.used_tile[tile[cell]] = 1;
++    state.path.erase(state.path.begin() + move.left, state.path.begin() + move.right);
++    state.path.insert(state.path.begin() + move.left, move.middle.begin(), move.middle.end());
++    state.prefix_score.resize(state.path.size() + 1);
++    for (int i = move.left; i < static_cast<int>(state.path.size()); ++i) {
++      state.prefix_score[i + 1] = state.prefix_score[i] + point[state.path[i]];
++    }
++    state.score = move.next_score;
++    assert(state.prefix_score.back() == state.score);
+   }
+ 
+   bool is_valid(const State& state) const {
+@@ -1038,4 +1041,5 @@
+ 
+   assert(problem.is_valid(runner.best_state()));
+   problem.print_answer(runner.best_state());
++  return 0;
+ }
