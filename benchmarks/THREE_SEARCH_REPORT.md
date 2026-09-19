@@ -6,9 +6,9 @@ AHC069は今回の対象外。提出は行っていない。
 
 | 方式 | hpp | 穴埋め | 完成例 |
 |---|---|---|---|
-| chokudai | [本体](../library/chokudai-search.hpp) | [TODO](../template/search/chokudai-search.cpp) | [AHC032](../examples/search/ahc032_chokudai.cpp) |
-| UCT | [本体](../library/monte-carlo-tree-search.hpp) | [TODO](../template/search/monte-carlo-tree-search.cpp) | [AHC015](../examples/search/ahc015_uct.cpp) |
-| ILS | [本体](../library/iterated-local-search.hpp) | [TODO](../template/search/iterated-local-search.cpp) | [AHC059](../examples/search/ahc059_ils.cpp) |
+| chokudai | [本体](../library/chokudai-search.hpp) | [TODO](../template/search/beam/chokudai.cpp) | [AHC032](../examples/search/ahc032_chokudai.cpp) |
+| UCT | [本体](../library/monte-carlo-tree-search.hpp) | [TODO](../template/search/monte-carlo/tree-search.cpp) | [AHC015](../examples/search/ahc015_uct.cpp) |
+| ILS | [本体](../library/iterated-local-search.hpp) | [TODO](../template/search/local-search/iterated-local-search.cpp) | [AHC059](../examples/search/ahc059_ils.cpp) |
 
 APIと編集場所は[SEARCH_GUIDE](../SEARCH_GUIDE.md#chokudai--uct--ils)。
 着想は[chokudai氏の原記事](https://chokudai.hatenablog.com/entry/2017/04/12/055515)、

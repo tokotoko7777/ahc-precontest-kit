@@ -36,7 +36,9 @@ struct LnsOptions {
 };
 
 // 部分破壊・再構築の制御だけを担当する。これ1ファイルで使える。
-// Problemには次の2関数を書く（詳しいTODOはtemplate/searchにある）。
+// 焼きなまし/山登りで使う「部分破壊・再構築の近傍」を分けて書く形式。
+// TODO付き雛形: template/search/local-search/destroy-repair.cpp
+// Problemには次の2関数を書く。
 //   void destroy(const State& current, State& candidate,
 //                std::mt19937_64& rng, double progress);
 //     currentを変更せず、candidateを「一部壊れた状態」に上書きする。

@@ -44,7 +44,7 @@ AHC002への横展開は合法に動作しましたが、確認20ケースで旧
 ## ALNS: AHC059の近傍選択
 
 [`AdaptiveOperatorSelector`](library/adaptive-operator-selector.hpp)と
-[TODO付きALNSフォーマット](template/search/adaptive-large-neighborhood-search.cpp)を追加。
+[TODO付きALNSフォーマット](template/search/local-search/adaptive-destroy-repair.cpp)を追加。
 同じ5近傍を等確率/成果に応じて選ぶ版と、従来の単一近傍版を同一1.85秒枠で比較しました。
 未使用30ケース×2回の共通best比は従来2998.307447、等確率2998.059477、適応2997.896849 / 3000。
 適応版は反復数が増えても得点は改善せず、**AHC059の既定は変更しません**。

@@ -6,7 +6,7 @@
 ## 読む場所・編集する場所
 
 ヘッダ分離版は[`ahc058_prefix_sa.cpp`](../../examples/search/ahc058_prefix_sa.cpp)。
-汎用の空欄入り雛形は[`prefix-replay-annealing.cpp`](../../template/search/prefix-replay-annealing.cpp)です。
+汎用の空欄入り雛形は[`prefix-replay-annealing.cpp`](../../template/search/local-search/prefix-replay.cpp)です。
 
 `BEGIN LIBRARY`〜`END LIBRARY`は通常編集しません。
 `TODO(AHC058)`以降に初期解用の`ProductionProblem`、

@@ -3,6 +3,8 @@
 #pragma GCC optimize("O3")
 #endif
 
+// ビームの発展形。まずはsimple.cppから使う。
+
 #include <bits/stdc++.h>
 using namespace std;
 #include "library/chokudai-search.hpp" // 提出時はhpp全文をここに貼る。

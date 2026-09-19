@@ -28,6 +28,7 @@ OPTIONAL_DOCUMENTS = [
     "USAGE.md",
     "ALGORITHM_SELECTION.md",
     "SEARCH_GUIDE.md",
+    "SEARCH_REFERENCE.md",
     "PERFORMANCE.md",
     "PRECONTEST.md",
 ]

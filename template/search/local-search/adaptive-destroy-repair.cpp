@@ -3,6 +3,8 @@
 #pragma GCC optimize("O3")
 #endif
 
+// 部分破壊・再構築の壊し方を適応的に選ぶ局所探索。採否は焼きなまし/山登りを選べる。
+
 #include <bits/stdc++.h>
 using namespace std;
 
@@ -90,7 +92,7 @@ int main() {
   LnsOptions search_options;
   search_options.time_limit_ms = 1800; // TODO: 入力・前計算・出力分は別に余裕を残す。
   search_options.maximize = true; // TODO: コスト最小化ならfalse。符号反転は不要。
-  search_options.acceptance = LnsAcceptance::SimulatedAnnealing;
+  search_options.acceptance = LnsAcceptance::SimulatedAnnealing; // TODO: 山登りならHillClimbing（同点も採用）。
   search_options.start_temperature = 10; // TODO: Scoreと同じ単位。
   search_options.end_temperature = 0.1;
   search_options.early_cutoff = true; // TODO: 前計算とは独立にON/OFF可能。

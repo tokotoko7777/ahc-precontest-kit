@@ -3,6 +3,8 @@
 #pragma GCC optimize("O3")
 #endif
 
+// 操作列を変更した位置からだけ再計算する焼きなまし。
+
 #include <bits/stdc++.h>
 #include "library/prefix-replay.hpp"
 #include "library/time-based-simulated-annealing.hpp"

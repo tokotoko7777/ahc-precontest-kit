@@ -3,7 +3,7 @@ CXXFLAGS ?= -std=c++17 -O3 -Wall -Wextra -pedantic
 HEADERS := $(wildcard library/*.hpp)
 PRACTICE_SOLVERS := $(wildcard practice/ahc*/main.cpp)
 SEARCH_EXAMPLES := $(wildcard examples/search/*.cpp)
-SEARCH_STARTERS := $(wildcard template/search/*.cpp)
+SEARCH_STARTERS := $(wildcard template/search/*/*.cpp template/advanced/*.cpp)
 SCORE_BENCHMARKS := $(wildcard benchmarks/*_score_benchmark.cpp)
 UPGRADE_TESTS := $(wildcard tests/*_upgrades_test.cpp)
 SANITIZER_TESTS := tests/parts_test.cpp tests/search_engines_test.cpp $(UPGRADE_TESTS)
@@ -50,6 +50,7 @@ verify-copy:
 	python3 tests/source_url_test.py
 	python3 tests/standalone_search_test.py
 	python3 tests/gcc_optimization_test.py
+	python3 tests/search_layout_test.py
 	python3 tests/ahc001_gap_test.py
 	python3 tests/beam_score_benchmark_test.py
 	python3 tests/tree_score_benchmark_test.py

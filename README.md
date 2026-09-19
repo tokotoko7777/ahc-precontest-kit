@@ -21,33 +21,29 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 考え方は [Luzhiled's Library](https://ei1333.github.io/library/) のような、必要な実装を
 探して自分のコードへ取り込める競技プログラミング用ライブラリを参考にしています。
 
-## まずはこの4つ
+## 探索は手法別のフォルダから選ぶ
 
-初めて使うなら、次の4ファイルだけ見れば十分です。
+| フォルダ | 個別に置いている形式 |
+|---|---|
+| [ビーム](template/search/beam/README.md) | 通常・差分評価・木上・世代飛ばし木上・chokudai・枝刈り設定・多点スタート |
+| [局所探索（焼きなまし・山登り）](template/search/local-search/README.md) | 共通の基本形・部分破壊再構築・近傍選択・反復局所探索・途中再生・前後DP |
+| [モンテカルロ](template/search/monte-carlo/README.md) | 共通未来rollout・木探索（UCT） |
 
-- [`timer.hpp`](library/timer.hpp) — 時間切れ判定と進捗率
-- [`random.hpp`](library/random.hpp) — 整数・小数・shuffle・重み付き抽選
-- [`time-based-simulated-annealing.hpp`](library/time-based-simulated-annealing.hpp) —
-  タイマー内蔵の焼きなまし
-- [`best-keeper.hpp`](library/best-keeper.hpp) — 今までで一番良い解を保存
+フォルダ内のcppを1つmain.cppにコピーし、TODOを埋めます。
+書くのは状態・候補や近傍・評価・更新・入出力です。
+焼きなましと山登りは[basic.cpp](template/search/local-search/basic.cpp)にまとめ、
+USE_ANNEALINGで採否だけを切り替えます。
 
-各ファイルの先頭にも、短い使い方例を書いてあります。もう少し長い例は
-[`USAGE.md`](USAGE.md) にあります。
-似たアルゴリズムの使い分けは [`ALGORITHM_SELECTION.md`](ALGORITHM_SELECTION.md) の
-早見表から選べます。
-焼きなましと4種類のビームサーチは [`SEARCH_GUIDE.md`](SEARCH_GUIDE.md) に
-最小例と安全な使い方をまとめています。
-それぞれを単体で実際の問題へ使った完全な `main.cpp` は
-[`examples/search/`](examples/search/README.md) にあります。
-AHC002・006・011・015・021・026・032・058・059・061は、問題固有処理を`Problem`へ集めたRunner形式で、
-destroy/repair焼きなまし・経路焼きなまし・共通未来Monte Carlo・木上ビーム・
-決定的rollout・Actionビームを比較できます。
-探索ヘッダ内で`TODO:`を検索すると、`State`、候補生成、差分評価、状態更新など、
-自分の`main.cpp`側へ何を書くかを順番に確認できます。`TODO:`の付いていない探索
-エンジン本体は、通常は変更しません。
-コメントだけでなく、空の関数が正しい位置に置かれた穴埋め用`main.cpp`は
-[`template/search/`](template/search/README.md)にあります。使う方式を1つ選び、
-`TODO:`を上から埋めれば探索エンジンへ接続できます。
+LNSは独立した大分類ではなく、局所探索内の「部分破壊・再構築」として置いています。
+[destroy-repair.cpp](template/search/local-search/destroy-repair.cpp)は山登りが初期設定で、
+焼きなましにも切り替えられます。各方式のバリエーションは削らず、同じフォルダに並べます。
+乱数を使わない[決定的な先読み](template/advanced/README.md)は別に残しています。
+既存のhpp・実問題例・計測履歴は維持しています。
+
+[短いガイド](SEARCH_GUIDE.md) / [実問題の完成例](examples/search/README.md) /
+[詳細API](SEARCH_REFERENCE.md)。
+時間・乱数などの補助部品は下の一覧から必要なものだけ選びます。
+短い使用例は各hppの先頭、長い使用例は[USAGE.md](USAGE.md)にあります。
 
 コンテスト前に公開版を固定し、commit固定URL付きでコピーする方法と
 オフラインbundleの作り方は [`PRECONTEST.md`](PRECONTEST.md) にあります。
@@ -72,36 +68,18 @@ destroy/repair焼きなまし・経路焼きなまし・共通未来Monte Carlo�
 [`REAL_PROBLEM_BENCHMARKS.md`](REAL_PROBLEM_BENCHMARKS.md)、一括実行は
 `make benchmark-real-search`です。
 
-## 探索コア5本
+## ビームの選び方
 
-| 問題の形 | 最初に使うパーツ |
+| 条件 | パーツ |
 |---|---|
-| 1つの解を局所変更する | `time-based-simulated-annealing.hpp` |
-| 各手で1世代進み、状態コピーが軽い | `simple-beam-search.hpp` |
-| 次状態を作らずActionの順位を差分計算できる | `action-beam-search.hpp` |
-| 各手で1世代進み、状態コピーが重い | `tree-beam-search.hpp` |
-| 行動ごとに到着世代が飛ぶ | `cost-tree-beam-search.hpp` |
+| まず使う通常版。状態コピーが軽い | [simple-beam-search.hpp](library/simple-beam-search.hpp) |
+| Actionから子の順位を差分計算できる | [action-beam-search.hpp](library/action-beam-search.hpp) |
+| 状態コピーが重く、apply/revertを書ける | [tree-beam-search.hpp](library/tree-beam-search.hpp) |
+| 行動ごとに到着世代が飛ぶ | [cost-tree-beam-search.hpp](library/cost-tree-beam-search.hpp) |
 
-ビームの`evaluate`は候補の順位用であり、提出得点と同じでなくても
-構いません。最終解は問題本来の得点で別に比較し、早く終了した
-terminalも`step_and_observe`で生成直後に保存します。
-
-`ActionBeamSearch`のobserverは、全候補のStateコピーを避けるため
-`parent + action`を渡します。他の3ビームは生成済みchild Stateを渡します。
-問題依存コードを明確に分けたい場合は各`Runner<Problem>`を使います。
-焼きなまし、Action先行ビーム、apply/revert木上ビーム、2種類のrolloutで、
-人が書く型・候補生成・評価・更新を1個の`Problem` structへまとめ、時計・採否・
-上位N件選抜・共通未来sampleなどはライブラリ側へ隠せます。
-
-重い評価を部分計算できる場合、Actionビームの`run_with_threshold()`は現在の上位N件の
-境界を、焼きなましの`run_with_threshold()`はその試行の採用に必要な最小改善量を
-Problemへ渡します。超えないと証明できた候補だけ`nullopt`で落とせるため、探索分布を
-変えずに枝刈りできます。書く関数と注意点は[`SEARCH_GUIDE.md`](SEARCH_GUIDE.md)に
-まとめています。
-
-`SimpleBeamSearch`は通常の`step`に加え、一時コンテナを作らない`step_each`、
-生成数・重複除去後の数・採用数を調べるカウンタを持ちます。木上2種類も
-幅で落ちる候補をobserverで回収でき、探索途中で幅を縮められます。
+評価値はビーム内の順位で、焼きなましの「改善量」とは違います。
+詳しい戻り値・任意の重複除去や枝刈りは[リファレンス](SEARCH_REFERENCE.md)へ。
+基本フォーマットでは、未使用の高速化用関数を埋める必要はありません。
 
 ## パーツ一覧
 
@@ -126,30 +104,37 @@ Problemへ渡します。超えないと証明できた候補だけ`nullopt`で�
 | [`ordered-pair-insertion.hpp`](library/ordered-pair-insertion.hpp) | 先行制約のある2点の最良挿入位置をO(n)、追加メモリO(1)で探索 |
 | [`debug-state-check.hpp`](library/debug-state-check.hpp) | 差分検査失敗時のseed・Move列・相違項目を記録 |
 
-### 探索
+### 基本の探索
+
+焼きなまし・山登りは同じhpp、ビームは用途別、モンテカルロは共通未来で比較する版から始めます。
 
 | ファイル | できること |
 |---|---|
-| [`simulated-annealing.hpp`](library/simulated-annealing.hpp) | 外部から進捗率を渡す焼きなまし |
-| [`time-based-simulated-annealing.hpp`](library/time-based-simulated-annealing.hpp) | タイマー内蔵の焼きなまし。問題分離Runner、閾値区間表の任意設定付き |
-| [`prefix-replay.hpp`](library/prefix-replay.hpp) | 行動列の変更部分からだけ再計算。仮評価と採用を分けるcheckpoint cache |
-| [`multi-start.hpp`](library/multi-start.hpp) | 回数または時間指定の多点スタート |
-| [`large-neighborhood-search.hpp`](library/large-neighborhood-search.hpp) | 部分破壊・再構築。山登り/RRT/SA、閾値打ち切り、近傍への成果通知 |
-| [`iterated-local-search.hpp`](library/iterated-local-search.hpp) | 大きな摂動＋小さい局所探索を繰り返すILS。共有締切・最良解への再開 |
-| [`chokudai-search.hpp`](library/chokudai-search.hpp) | 深さ別に候補を残して巡回する時間制限型探索。Action先行評価・容量上限 |
-| [`monte-carlo-tree-search.hpp`](library/monte-carlo-tree-search.hpp) | 確率的な結果ごとの枝を保持するUCT。試行配分・訪問回数・報酬更新 |
+| [`time-based-simulated-annealing.hpp`](library/time-based-simulated-annealing.hpp) | 焼きなまし・山登り。状態・近傍・差分評価・更新は共通 |
 | [`simple-beam-search.hpp`](library/simple-beam-search.hpp) | 状態をコピーする初心者向けビームサーチ |
 | [`action-beam-search.hpp`](library/action-beam-search.hpp) | Actionを先に上位N件へ絞るビーム。問題依存部分をまとめるRunner付き |
 | [`tree-beam-search.hpp`](library/tree-beam-search.hpp) | 1手1世代のapply / revert型ビームサーチ。問題分離Runner付き |
 | [`cost-tree-beam-search.hpp`](library/cost-tree-beam-search.hpp) | 1手の進み幅が異なるapply / revert型ビームサーチ |
 | [`common-scenario-average.hpp`](library/common-scenario-average.hpp) | 全候補を同じ未来sampleで比較するrollout。問題分離Runner付き |
+
+<details>
+<summary>各方式のバリエーションを支える部品・専用Runner</summary>
+
+以下は各方式を組み立てる補助部品や専用Runnerです。
+対応する形式は[手法別フォルダ](template/search/README.md)で選べます。必要なものだけ使ってください。
+
+| ファイル | できること |
+|---|---|
+| [`simulated-annealing.hpp`](library/simulated-annealing.hpp) | 外部から進捗率を渡す焼きなまし |
+| [`prefix-replay.hpp`](library/prefix-replay.hpp) | 行動列の変更部分からだけ再計算。仮評価と採用を分けるcheckpoint cache |
+| [`multi-start.hpp`](library/multi-start.hpp) | 回数・時間指定の多点スタート。共有締切・未完成試行の破棄・合法fallback付きAPIも選択可 |
+| [`large-neighborhood-search.hpp`](library/large-neighborhood-search.hpp) | 部分破壊・再構築。山登り/RRT/SA、閾値打ち切り、近傍への成果通知 |
+| [`iterated-local-search.hpp`](library/iterated-local-search.hpp) | 大きな摂動＋小さい局所探索を繰り返すILS。共有締切・最良解への再開 |
+| [`chokudai-search.hpp`](library/chokudai-search.hpp) | 深さ別に候補を残して巡回する時間制限型探索。Action先行評価・容量上限 |
+| [`monte-carlo-tree-search.hpp`](library/monte-carlo-tree-search.hpp) | 確率的な結果ごとの枝を保持するUCT。試行配分・訪問回数・報酬更新 |
 | [`deterministic-rollout.hpp`](library/deterministic-rollout.hpp) | 全候補を決定的方策で仮実行して比較するrollout。問題分離Runner付き |
 
-ビームサーチを初めて使う場合は `simple-beam-search.hpp` から始めてください。
-Stateが大きくてもActionから次の順位を計算できるなら`action-beam-search.hpp`、
-完全な`apply / revert`を書けるなら`tree-beam-search.hpp`が発展版です。
-1行動で2世代以上進む場合があるなら `cost-tree-beam-search.hpp` を使います。
-どちらの木上版も`step_with_key`で同一世代の重複状態を1件に絞れます。
+</details>
 
 ### 探索状態・候補管理
 
@@ -253,6 +238,7 @@ Stateが大きくてもActionから次の順位を計算できるなら`action-b
 | ファイル | できること |
 |---|---|
 | [`probability-move-dp.hpp`](library/probability-move-dp.hpp) | 成功時に遷移、失敗時に停止する状態確率を1手更新 |
+| [`forward-backward-dp.hpp`](library/forward-backward-dp.hpp) | 前後DPで固定長操作列の1操作変更を評価。採用時だけ前後の影響範囲を更新 |
 
 ### 幾何
 

@@ -99,7 +99,7 @@ double temperature =
 
 ### 前計算とスコア途中打ち切りを別々にON/OFFする
 
-時間焼きなましの[穴埋めテンプレート](template/search/time-based-annealing.cpp)では、
+時間焼きなましの[任意設定付きテンプレート](template/search/local-search/annealing-options.cpp)では、
 先頭の2つの設定だけを変えます。4通りすべて使えます。
 
 ```cpp
@@ -231,7 +231,7 @@ if (end.value > replay.current_end().value) replay.commit();
 乱数状態もSimulationかActionへ含めます。
 
 空の関数と返り値の説明を置いた雛形は
-[`prefix-replay-annealing.cpp`](template/search/prefix-replay-annealing.cpp)、
+[`prefix-replay.cpp`](template/search/local-search/prefix-replay.cpp)、
 実問題例は[`AHC058`](practice/ahc058/README.md)です。
 
 ## 進捗率を外から渡す焼きなまし

@@ -6,7 +6,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-// 提出時は次の1行を、このhppの全文へ置き換える。
+// 提出時はライブラリのincludeをhpp全文へ置き換える。
 #include "library/common-scenario-average.hpp"
 
 // ============================================================================

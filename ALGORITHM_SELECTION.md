@@ -117,24 +117,19 @@ Alias Tableの作成自体に `O(N)` かかるため、重みを毎回作り直�
 `min-cost-flow.hpp` に追加できるのはコスト0以上の辺だけで、同じインスタンスの
 `flow` は1回だけ呼びます。
 
-## AHC探索コア
+## AHC探索は手法別フォルダから選ぶ
 
-| 状況 | パーツ | 必要な条件 |
-|---|---|---|
-| 1つの解の局所変更を繰り返す | `time-based-simulated-annealing.hpp` | 得点差を正しく計算できる |
-| 手数ごとに複数候補を残し、状態が小さい | `simple-beam-search.hpp` | 子の`State`コピーが十分軽い |
-| 状態は大きいが、Actionから次の順位を差分計算できる | `action-beam-search.hpp` | 順位計算とapplyの結果が対応する |
-| 全行動で1世代ずつ進み、状態が大きい | `tree-beam-search.hpp` | `apply / revert`が完全に逆操作 |
-| 行動ごとに到着世代が異なる | `cost-tree-beam-search.hpp` | `apply / revert`に加え、`advance > 0` |
-| Kが小さく、候補を1件ずつ追加 | `top-k.hpp` | 局所的な上位K件だけ必要 |
-| ビーム以外で同keyの最良候補だけ保存 | `best-by-key.hpp` | keyが将来に必要な状態を区別できる |
+| やりたいこと | 入口 |
+|---|---|
+| 複数候補を残しながら構築 | [ビーム](template/search/beam/README.md) |
+| 1つの解を変更して改善する | [局所探索：焼きなまし・山登り](template/search/local-search/README.md) |
+| 未知の未来を仮実行して候補を比べる | [モンテカルロ：rollout・木探索](template/search/monte-carlo/README.md) |
 
-木上版は状態コピーを避けられますが、`apply / revert`の実装ミスは探索全体を
-壊します。まず`SimpleBeamSearch`で形を作り、コピーが実際に重い時に移行すると
-安全です。
+ビームは通常・Action差分評価・木上・世代飛ばし木上のバリエーションがあります。
+状態コピーが軽ければ通常版から始め、必要になってから差分化します。
+焼きなまし・山登りは同じ基本形で採否を切り替えます。
+局所探索フォルダには部分破壊・再構築、ILS、途中再生、前後DPなども個別に置いています。
 
-`evaluate`はビーム内の順位用であり、問題本来の最終得点とは分けます。
-早くterminalに到達する状態は`step_and_observe`で生成直後に別保存します。
-同一世代の重複が多い時だけ`step_with_key`を使い、keyには残り資源など
-将来に必要な情報も含めます。最小例は
-[`SEARCH_GUIDE.md`](SEARCH_GUIDE.md) にあります。
+最初に書く場所は[短いガイド](SEARCH_GUIDE.md)、
+枝刈り・重複除去などは[詳細API](SEARCH_REFERENCE.md)へ。
+top-kや同key候補の選抜といった補助部品は必要なときだけ使います。

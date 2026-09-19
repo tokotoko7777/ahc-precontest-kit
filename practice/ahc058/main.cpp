@@ -17,7 +17,7 @@
 // 未来が現在状態とActionから全て決まる問題にはこちらを使う。
 //
 // 【使う人がmain.cpp側へ書く場所】
-// 空関数を配置済みの雛形: template/search/deterministic-rollout.cpp
+// 空関数を配置済みの雛形: template/advanced/deterministic-rollout.cpp
 //
 //   struct Problem {
 //     using State = ...;   // TODO: 現在の実状態。
@@ -121,7 +121,7 @@ struct DeterministicRolloutRunner {
 // evaluate全体を必ずO(変更数)にするものではない。
 // stepを呼ぶ範囲は、最初の相違点以前の直近checkpointから新しい列の末尾まで。
 // 戻り値の参照は次のevaluate/commit/discardまで有効と考える。
-// 空関数入りの使用例: template/search/prefix-replay-annealing.cpp
+// 空関数入りの使用例: template/search/local-search/prefix-replay.cpp
 // ↓↓↓ ライブラリ本体。通常は編集しない。↓↓↓
 template <class State, class Action>
 class PrefixReplay {
@@ -581,7 +581,7 @@ struct TimeBasedSimulatedAnnealing {
 //
 // 【使う人がmain.cpp側へ書く場所】
 // 次のTODOだけを自分の問題に合わせる。Runner本体は通常変更しない。
-// 空関数を配置済みの雛形: template/search/time-based-annealing.cpp
+// 空関数を配置済みの雛形: template/search/local-search/basic.cpp
 //
 //   TODO: 【問題ごと】Stateへ現在解1個と差分更新用cacheを書く。
 //   using State = ...;
@@ -678,6 +678,33 @@ struct TimeBasedAnnealingRunner {
                                    : step_threshold_impl<false>();
   }
 
+  // 山登り。Problemは焼きなましと同じで、改善量>0の手だけ採用する。
+  // 同点・悪化・非有限値は棄却。evaluate_moveへ渡す閾値は0。
+  // 温度による採否や受理乱数は使わない。時計・近傍・最良解管理は共通。
+  bool step_hill_climbing() {
+    if (annealing_.is_over()) return false;
+    ++iterations_;
+    std::optional<Move> move = problem_.propose_move(
+        static_cast<const State&>(current_state_), move_engine_,
+        annealing_.cached_progress());
+    if (!move) return true;
+    ++valid_moves_;
+    const std::optional<Score> improvement = problem_.evaluate_move(
+        static_cast<const State&>(current_state_), *move, 0.0);
+    if (!improvement) { ++threshold_pruned_moves_; return true; }
+    if (!std::isfinite(static_cast<long double>(*improvement)) ||
+        !(*improvement > Score{0})) return true;
+    problem_.apply_move(current_state_, *move);
+    current_score_ += *improvement;
+    ++accepted_moves_;
+    if (best_score_ < current_score_) {
+      best_score_ = current_score_;
+      best_state_ = current_state_;
+      ++best_updates_;
+    }
+    return true;
+  }
+
  private:
   template <bool EnableScoreEarlyStop>
   bool step_threshold_impl() {
@@ -716,6 +743,11 @@ struct TimeBasedAnnealingRunner {
   std::uint64_t run() {
     while (step()) {
     }
+    return iterations_;
+  }
+
+  std::uint64_t run_hill_climbing() {
+    while (step_hill_climbing()) {}
     return iterations_;
   }
 

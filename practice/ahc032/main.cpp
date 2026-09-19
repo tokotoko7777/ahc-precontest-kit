@@ -34,7 +34,7 @@ using namespace std;
 //
 // 問題ごとのコードを1か所にまとめる使い方。
 // 下のコメントは、その項目に「何を入れ、何を返すか」を示している。
-// 空関数を配置済みの雛形: template/search/action-beam.cpp
+// 空関数を配置済みの雛形: template/search/beam/action.cpp
 // struct Problem {
 //   // TODO: 【問題ごと】探索途中の解1個を表すStateを書く。
 //   // State = 探索途中の解を1個だけ表す型。
@@ -133,6 +133,41 @@ struct ActionBeamSearch {
       Apply&& apply) {
     return step_with_threshold_impl(
         expand, evaluate_action_with_threshold, apply);
+  }
+
+  // 候補を1個ずつ生成し、生成前にも採用境界を問い合わせる版。
+  // enumerate(parent, emit, can_improve)を書くだけでよい。
+  //   emit(action, exact_score): 子の絶対評価値を渡す（差分ではない）。
+  //   can_improve(optimistic_score): 最大化では上限、最小化では下限を渡す。
+  // falseなら、そのboundで楽観評価された候補を生成しなくてよい。同点は先着優先。
+  // 残り候補すべてのboundと証明できる場合だけ、列挙全体をbreakしてよい。
+  // boundがNaNなら安全側のtrue。境界未確定・batched OFF時もtrue。
+  // emit/can_improveを保存したり、再入・並列呼び出しをしてはいけない。
+  // key/bucket重複除去とは併用しない。省略しない同じ列挙順のtop-Nと一致する。
+  // last_generated_countは実際にemitした件数（生成しなかった候補は含まない）。
+  template <class Enumerate, class Apply>
+  bool step_with_generator(Enumerate&& enumerate, Apply&& apply) {
+    begin_step();
+    const std::size_t width = static_cast<std::size_t>(beam_width_);
+    std::size_t order = 0;
+    const auto can_improve = [&](const Score& bound) {
+      return !batched_selection_ || !cutoff_ready_ || score_is_nan(bound) ||
+             score_is_better(bound, candidates_[width - 1].score);
+    };
+    for (std::size_t parent = 0; parent < beam_.size(); ++parent) {
+      const auto emit = [&](Action action, Score score) {
+        ++last_generated_count_;
+        add_unkeyed_candidate(
+            Candidate{parent, std::move(action), std::move(score), order++});
+        if (batched_selection_ && !cutoff_ready_ && candidates_.size() >= width) {
+          keep_best_candidates(width, false);
+          cutoff_ready_ = true;
+        }
+      };
+      enumerate(static_cast<const State&>(beam_[parent]), emit, can_improve);
+    }
+    last_unique_count_ = last_generated_count_;
+    return finish_step(apply);
   }
 
   // on_generated(parent_rank, parent, action, rank_score)を全候補へ
@@ -832,6 +867,16 @@ struct ActionBeamRunner {
         });
   }
 
+  // Problem::enumerate_actions(state, emit, can_improve)で候補を逐次生成。
+  // この方式だけを使うProblemにはgenerate_actions/evaluate_actionは不要。
+  bool step_with_generator() {
+    return beam_.step_with_generator(
+        [&](const State& state, const auto& emit, const auto& can_improve) {
+          problem_.enumerate_actions(state, emit, can_improve);
+        },
+        [&](State& state, Action& action) { problem_.apply_action(state, action); });
+  }
+
   // observer(parent_rank, parent, action, rank_score)を全候補へ呼ぶ。
   template <class OnGenerated>
   bool step_and_observe(OnGenerated&& observer) {
@@ -899,6 +944,13 @@ struct ActionBeamRunner {
     }
     int advanced = 0;
     while (advanced < turns && step_with_threshold()) ++advanced;
+    return advanced;
+  }
+
+  int run_with_generator(int turns) {
+    if (turns < 0) throw std::invalid_argument("turns must be non-negative");
+    int advanced = 0;
+    while (advanced < turns && step_with_generator()) ++advanced;
     return advanced;
   }
 

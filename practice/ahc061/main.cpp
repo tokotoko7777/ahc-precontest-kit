@@ -57,7 +57,7 @@ std::vector<long double> common_scenario_average(
 //
 // 【使う人がmain.cpp側へ書く場所】
 // 次のTODOだけを自分の問題に合わせる。Runner本体は通常変更しない。
-// 空関数を配置済みの雛形: template/search/monte-carlo-rollout.cpp
+// 空関数を配置済みの雛形: template/search/monte-carlo/rollout.cpp
 //
 //   TODO: 【問題ごと】現在情報、今の1手、未知の未来、評価値の型を書く。
 //   using State, Action, Scenario, Score
