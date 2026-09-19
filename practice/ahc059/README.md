@@ -17,7 +17,7 @@
 | `main`の`LnsOptions` | 制限時間、最小化、受理方式、温度・許容幅を選ぶ |
 
 `LargeNeighborhoodSearch`の中身は問題に合わせて編集しません。
-別問題への穴埋め用は[large-neighborhood-search.cpp](../../template/search/large-neighborhood-search.cpp)です。
+別問題への穴埋め用は[large-neighborhood-search.cpp](../../template/search/local-search/destroy-repair.cpp)です。
 
 ## 解法
 
@@ -84,7 +84,7 @@ Manhattan距離では、カードを挿入しても経路の長さは減りま�
 最良更新1、現在値改善0.5、同点/悪化採用0.1、棄却0の報酬で、128試行ごとに重みを更新。
 選択確率の10%を一様分布にし、一度苦手と判定した近傍も再試行します。
 SAの温度・時間枠・修復処理は従来版と同じです。
-初心者用の[ALNS穴埋め版](../../template/search/adaptive-large-neighborhood-search.cpp)と
+初心者用の[ALNS穴埋め版](../../template/search/local-search/adaptive-destroy-repair.cpp)と
 [比較報告](../../benchmarks/ALNS_REPORT.md)を用意しています。
 未使用30ケース×2回では適応版の平均得点15345.5333に対し従来版15347.6333で、
 改善は確認できませんでした。したがって既定は`POLICY=0`のままです。

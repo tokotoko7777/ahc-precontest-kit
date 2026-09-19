@@ -3,7 +3,7 @@
 ## 何を分離して比べるか
 
 - `library/adaptive-operator-selector.hpp`: 近傍の選択と、区間平均報酬による重み更新。
-- `template/search/adaptive-large-neighborhood-search.cpp`: 問題側の壊し方・修復・報酬をTODOで説明。
+- `template/search/local-search/adaptive-destroy-repair.cpp`: 問題側の壊し方・修復・報酬をTODOで説明。
 - LNSの`last_outcome()`で、最良更新・現在値改善・同点/悪化採用・棄却を区別。
 - AHC059は区間長4/8/15/30と、離れたランダム4ペアの5近傍を同じ修復処理で試す。
 

@@ -3,6 +3,8 @@
 #pragma GCC optimize("O3")
 #endif
 
+// 大きな変更と局所改善を繰り返す局所探索。perturbとlocal_searchを分けて書く。
+
 #include <bits/stdc++.h>
 using namespace std;
 #include "library/iterated-local-search.hpp" // 提出時はhpp全文を貼る。

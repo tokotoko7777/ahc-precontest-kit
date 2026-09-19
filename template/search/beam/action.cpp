@@ -6,7 +6,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-// 提出時は次の1行を、このhppの全文へ置き換える。
+// 提出時はライブラリのincludeをhpp全文へ置き換える。
 #include "library/action-beam-search.hpp"
 
 // ============================================================================
@@ -37,20 +37,6 @@ struct Problem {
     // TODO: Action適用後の「子Stateの順位値そのもの」を返す。
     // 全候補に呼ばれるので、Stateを変更せず差分計算する。
     return 0;
-  }
-
-  optional<Score> evaluate_action_with_threshold(
-      const State& state,
-      const Action& action,
-      const Score* threshold) const {
-    // TODO: 【任意・高速化】重い順位計算を少しずつ行う。
-    // threshold==nullptr の間は上位N件の境界が未確定なので、必ず正確な
-    // Scoreを返す。非nullなら、最大化では「残りを全部足しても
-    // *thresholdを超えない」と証明できた時だけnulloptを返してよい。
-    // 最小化なら大小を逆に考える。証明できなければ正確なScoreを返す。
-    // 下の実装は枝刈りしない安全な初期形。まずこれで動かしてよい。
-    (void)threshold;
-    return evaluate_action(state, action);
   }
 
   void apply_action(State&, Action&) const {
@@ -86,7 +72,6 @@ int main() {
   Problem::State initial = problem.make_initial_state();
   ActionBeamRunner<Problem> beam(
       problem, initial, problem.initial_score(initial), BEAM_WIDTH);
-  // evaluate_actionが十分軽いならbeam.run(MAX_TURN)でもよい。
-  beam.run_with_threshold(MAX_TURN);
+  beam.run(MAX_TURN); // 枝刈りなどの任意設定は同じフォルダのaction-options.cppへ。
   print_answer(problem, beam.best());
 }

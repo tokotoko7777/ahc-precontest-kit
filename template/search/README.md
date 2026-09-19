@@ -1,67 +1,32 @@
-# 探索ライブラリの穴埋めテンプレート
+# 手法ごとの探索フォーマット
 
-各ファイルは、ライブラリを読み込んだ直後に問題依存コードをまとめた`main.cpp`の
-雛形です。コメントだけのAPI一覧ではなく、実際に埋める型と関数がコンパイル可能な
-位置に置かれています。
+手法のフォルダを開き、その中から問題に合うバリエーションを選びます。
+焼きなましと山登りは「局所探索」にまとめています。種類を減らすための分類ではありません。
 
-1. 使いたい方式のファイルを`main.cpp`へコピーする。
-2. `TODO:`を上から順に埋める。
-3. 開発中はリポジトリ直下で`#include "library/....hpp"`を使用する。
-4. 提出時はその`#include`を、使用したhppの全文へ置き換える。
+| フォルダ | 中にあるバリエーション |
+|---|---|
+| [beam/](beam/README.md) | 通常、差分評価、木上、世代飛ばし木上、chokudai、枝刈り設定、多点スタート |
+| [local-search/](local-search/README.md) | 焼きなまし・山登り共通、部分破壊・再構築、適応的な近傍選択、反復局所探索、途中再生、前後DP |
+| [monte-carlo/](monte-carlo/README.md) | 共通未来のrollout、木探索（UCT） |
 
-| ファイル | 方式 | 主に埋める関数 |
-|---|---|---|
-| [`time-based-annealing.cpp`](time-based-annealing.cpp) | 時間焼きなまし | `propose_move`、`evaluate_move`、`apply_move` |
-| [`large-neighborhood-search.cpp`](large-neighborhood-search.cpp) | 部分破壊・再構築（LNS）。山登り/RRT/SAを切替 | `destroy`、`repair`。完成候補の絶対スコアを返す |
-| [`adaptive-large-neighborhood-search.cpp`](adaptive-large-neighborhood-search.cpp) | 複数の壊し方を適応的に選ぶALNS | `operator_id`ごとの`destroy`、`repair`、任意の`reward` |
-| [`iterated-local-search.cpp`](iterated-local-search.cpp) | 大きい変更と小さい改善を分けるILS | `perturb`、`local_search`。絶対得点を返し、共有締切を内側でも確認 |
-| [`chokudai-search.cpp`](chokudai-search.cpp) | 深さ別の候補を残して巡回するchokudai | `generate_actions`、`evaluate_action`、`apply_action`、`is_terminal`、`final_score` |
-| [`monte-carlo-tree-search.cpp`](monte-carlo-tree-search.cpp) | 確率遷移のある探索木を育てるUCT | `sample_transition`は結果ID、`rollout`は正規化した[0,1]の評価を返す |
-| [`prefix-replay-annealing.cpp`](prefix-replay-annealing.cpp) | 行動列の途中から再生する焼きなまし | `advance`、`evaluate_end`、`propose_move`。仮cacheの確定まで配置済み |
-| [`simple-beam.cpp`](simple-beam.cpp) | 通常ビーム | `expand`、`evaluate` |
-| [`action-beam.cpp`](action-beam.cpp) | Action差分ビーム | `generate_actions`、`evaluate_action`、`apply_action` |
-| [`tree-beam.cpp`](tree-beam.cpp) | apply/revert木上ビーム | `generate_moves`、`apply_move`、`revert_move`、`evaluate` |
-| [`variable-cost-tree-beam.cpp`](variable-cost-tree-beam.cpp) | 世代飛ばし木上ビーム | 上記に加えて`get_advance` |
-| [`monte-carlo-rollout.cpp`](monte-carlo-rollout.cpp) | 共通シナリオMonte Carlo | `generate_scenario`、`evaluate_action`、`apply_real_action` |
-| [`deterministic-rollout.cpp`](deterministic-rollout.cpp) | 決定的な完走・先読み評価 | `generate_actions`、`evaluate_action`、`apply_real_action` |
+1. 選んだcppをmain.cppへコピーする。
+2. TODOを上から埋める。関数の位置・引数・戻り値は配置済み。
+3. 提出時はincludeを対応hppの全文へ置き換える。main.cppだけで動かす。
 
-`TODO: 【重複除去する場合だけ】`のように書かれた項目は任意です。まずhashなしで
-動かし、同一局面が多いと確認できてから追加できます。
+開発中のincludeを使う場合は、リポジトリ直下から次のようにコンパイルできます。
 
-時間焼きなましは、先頭の`PRECOMPUTE_ACCEPTANCE`（対数表）と
-`STOP_SCORE_EARLY`（スコア途中打ち切り）を独立に`true / false`で選べます。
-前計算OFFでも途中打ち切り可能です。評価関数は`evaluate_move(state, move, threshold)`の
-1個だけです。何を計算し、いつ`nullopt`を返してよいかの例をコメントで置いています。
-安全な上限が作れない場合は閾値を無視して全差分を計算してください。
-途中打ち切りOFFでは、別関数へ切り替えず同じ関数に`-∞`を渡します。
+```sh
+g++ -std=c++17 -O3 -I. template/search/local-search/basic.cpp -o main
+```
 
-差分更新の具体例は[`AHC006`](../../examples/search/ahc006_sa.cpp)です。
-`State`にイベントの逆引き位置と現在距離、`Move`に変更位置と辺差分だけを置きます。
-移動・交換はO(1)評価、反転は境界2辺の評価＋反転区間内だけの制約検査です。
-採用時だけ経路とcacheを更新し、不採用時にはコピーもundoも行いません。
-注文の2点再挿入は`ordered-pair-insertion.hpp`でO(n)にしています。
-差分値を全再計算と照合するテストも[`tests`](../../tests/ahc006_delta_upgrades_test.cpp)にあります。
+[局所探索の基本形](local-search/basic.cpp)はUSE_ANNEALINGをtrueにすると焼きなまし、
+falseにすると山登りです。状態・近傍・差分評価・更新は同じものを使います。
+LNSも独立した大分類にはせず、[部分破壊・再構築の形式](local-search/destroy-repair.cpp)として
+同じフォルダに置いています。各形式の戻り値や同点の扱いはフォルダ内の説明を参照してください。
 
-LNSは[`large-neighborhood-search.cpp`](large-neighborhood-search.cpp)を使います。
-`destroy`で候補だけを壊し、`repair`で完成させて**絶対スコア**を返します。
-SA Runnerの「改善量」と混同しないでください。距離を最小化するなら
-`options.maximize=false`にし、距離を正のまま返せます。
-修復失敗・閾値未達が確定した場合は`nullopt`。途中値を完成スコアとして返しません。
-山登り/RRT/SAの切替、時計、採否、最良解保存はhpp側が担当します。
-RRTは「最良値からの悪化許容幅」であり、現在値からの幅ではありません。
-具体例はAHC059（最小化）とAHC002（最大化）。詳細は
-[`SEARCH_GUIDE.md`](../../SEARCH_GUIDE.md#部分破壊再構築lns)を参照してください。
+基本形も設定付きの形式も同じ手法のフォルダで探せます。
+未知の未来を乱数で試さない[決定的な先読み](../advanced/README.md)は、モンテカルロとは別に残しています。
+既存のhppの場所とAPI、実問題例、ベンチマーク履歴は維持しています。
+何も埋めていない雛形はコンパイル確認用で、問題の解答を出すものではありません。
 
-複数の壊し方を使いたい場合はALNSの穴埋め版を使えます。`operator_count`と
-`destroy`内の分岐を編集してください。選択確率の更新はhpp側にあります。
-`reward`は絶対スコアではなく、試行の成果を表す0〜1の値です。修復失敗・枝刈りも
-0で記録します。自動調整が常に強いわけではないので、`adaptive=false`の
-等確率版・最も強い単一近傍版とも同じ時間枠で比較します。
-AHC059の確認30ケースでは改善を確認できず、practiceでは既定OFFです。
-結果は[`ALNS_REPORT.md`](../../benchmarks/ALNS_REPORT.md)に残しています。
-
-この配置は、変更しない探索ライブラリと、問題ごとに実装する`Action`・`State`・
-状態遷移関数を視覚的に分離する
-[thun-cさんの差分更新ビームサーチライブラリ](https://qiita.com/thun-c/items/a29c80f7ba54b271a6c7)
-の考え方を参考にしています。このkitでは同じ見た目を焼きなまし、通常ビーム、
-Action差分ビーム、2種類の木上ビーム、Monte Carlo、決定的rolloutへ揃えています。
+[短いガイド](../../SEARCH_GUIDE.md) / [実問題の完成例](../../examples/search/README.md)

@@ -3,7 +3,7 @@
 ## 追加したものと比較の範囲
 
 - `library/large-neighborhood-search.hpp`: destroy/repair、最大化/最小化、山登り/RRT/SA、閾値打ち切り、時間/反復予算、最良解保存。
-- `template/search/large-neighborhood-search.cpp`: 実際の編集関数と戻り値をTODOで説明した穴埋め用。
+- `template/search/local-search/destroy-repair.cpp`: 実際の編集関数と戻り値をTODOで説明した穴埋め用。
 - `examples/search/ahc059_lns.cpp`: 一般の非交差ペア回収順を部分破壊・O(n)再挿入で探索。
 - `examples/search/ahc002_destroy_repair_lns.cpp`: 既存の末尾再構築/区間DFSを同じLNSへ横展開。
 - `practice/ahc059/main.cpp`: hppを展開した単一ファイル。原本一致をCIで検査。

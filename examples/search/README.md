@@ -4,22 +4,26 @@
 小さなAPI例ではなく、入力、状態、近傍または遷移、得点計算、
 解の保存、出力まで含みます。差分更新が有効な例では、その実装も確認できます。
 
+## まず読む例
+
+| 入口 | 最初の例 |
+|---|---|
+| ビーム | [通常版](intro_heuristics_simple_beam.cpp)、[木上版](ahc021_tree_beam.cpp) |
+| 局所探索 | [AHC006の差分更新](ahc006_sa.cpp)。[基本形](../../template/search/local-search/basic.cpp)で焼きなまし／山登りを切替 |
+| モンテカルロ | [AHC015](ahc015_common_rollout.cpp) |
+
+LNSのような部分破壊・再構築も近傍として扱います。
+[AHC002](ahc002_destroy_repair_sa.cpp)では焼きなましのProblem内に実装しています。
+この整理は既存の実問題解法・測定結果を変更するものではありません。
+
+## ビーム
+
+[穴埋めテンプレート](../../template/search/beam/README.md)
+
 | ファイル | 使う探索 | 題材 | 確認したこと |
 |---|---|---|---|
-| [`ahc001_region_sa.cpp`](ahc001_region_sa.cpp) | `TimeBasedAnnealingRunner` | AHC001 | 境界押し移動と1・2領域再構築。単調な損失の閾値打ち切り、仮変更buffer、整数サイズ仕上げをProblemへ分離 |
-| [`ahc002_destroy_repair_sa.cpp`](ahc002_destroy_repair_sa.cpp) | `TimeBasedAnnealingRunner` | AHC002 | 可変長経路の末尾再構築と区間DFS修復をProblemへ分離。採用時のbuffer移動と最良解からの再開を使用 |
-| [`ahc002_destroy_repair_lns.cpp`](ahc002_destroy_repair_lns.cpp) | `LargeNeighborhoodSearch` | AHC002 | 既存の末尾/区間修復をdestroy/repairへ分離。得点最大化と、採用前のcache再構築省略の例 |
-| [`ahc059_lns.cpp`](ahc059_lns.cpp) | `LargeNeighborhoodSearch` + `AdaptiveOperatorSelector`（任意） | AHC059 | ペアを削除しO(n)最良再挿入。SA/RRT/山登り、前計算、打ち切り。単一近傍/等確率/適応選択を比較可能 |
-| [`ahc059_ils.cpp`](ahc059_ils.cpp) | `IteratedLocalSearch` | AHC059 | 区間30の摂動と区間4の局所改善を分離。局所探索の連続失敗上限・受理方式を比較 |
 | [`ahc032_chokudai.cpp`](ahc032_chokudai.cpp) | `ChokudaiSearch` | AHC032 | Actionビームと同じProblem・評価。層別キュー巡回、容量制限、合法な初期回答 |
-| [`ahc015_uct.cpp`](ahc015_uct.cpp) | `MonteCarloTreeSearch` | AHC015 | 1手ずつ対話入力。未知の配置順位を抽選し、その結果ごとに木を分岐。共通未来flat MCとも比較 |
-| [`ahc006_sa.cpp`](ahc006_sa.cpp) | `TimeBasedAnnealingRunner` | AHC006 | 辺差分＋逆引き位置cache。候補経路コピーなし、採用時だけ更新。最良2点挿入O(n)、距離前計算ON/OFF |
 | [`ahc011_tree_beam.cpp`](ahc011_tree_beam.cpp) | `TreeBeamRunner` | AHC011 | 最大4手をFixedVectorで列挙。盤面1個をapply/revertし、差分hash、同一局面除去、全候補からの最良解復元を使用 |
-| [`ahc015_common_rollout.cpp`](ahc015_common_rollout.cpp) | `CommonScenarioRolloutRunner` | AHC015 | 4方向を同じ未来配置で比較。盤面操作・Scenario・rollout評価と共通乱数処理の境界を明示 |
-| [`ahc026_deterministic_rollout.cpp`](ahc026_deterministic_rollout.cpp) | `DeterministicRolloutRunner` | AHC026 | 全先読み幅を最後まで同じ貪欲で仮実行。山操作・候補幅・完走評価と最小値選択の境界を明示 |
-| [`ahc058_deterministic_rollout.cpp`](ahc058_deterministic_rollout.cpp) | `DeterministicRolloutRunner` | AHC058 | 固定長状態を3手先読み。合法手・投資・生産式はProblemへ、候補比較はRunnerへ分離 |
-| [`ahc058_prefix_sa.cpp`](ahc058_prefix_sa.cpp) | `TimeBasedAnnealingRunner`＋`PrefixReplay` | AHC058 | 3手先読みを初期解に購入順序をSA。途中再生・待機一括更新を使い、公式100ケースで平均約6.24%改善 |
-| [`ahc061_common_rollout.cpp`](ahc061_common_rollout.cpp) | `CommonScenarioRolloutRunner` | AHC061 | 相手の粒子推定と衝突simulationを問題側へ分離。独自乱数・double加算・近似同点を保存 |
 | [`intro_heuristics_simple_beam.cpp`](intro_heuristics_simple_beam.cpp) | `SimpleBeamSearch` | Introduction to Heuristics Contest A | 365日入力を最後まで構築し、出力日数・番号範囲・得点計算を確認した |
 | [`intro_heuristics_action_beam.cpp`](intro_heuristics_action_beam.cpp) | `ActionBeamRunner` | Introduction to Heuristics Contest A | 問題依存コードを1 structへ分離。State・Action・Scoreと3関数へ何を書き何を返すか、行ごとのコメント付き |
 | [`ahc021_tree_beam.cpp`](ahc021_tree_beam.cpp) | `TreeBeamRunner`＋`RadixHeap` | AHC021 | 前線マスへの最短路で球を1個ずつ確定。候補生成を高速化し、完成候補の巡回で正式scoreを最大化。practice・採点と同じProblemを共有 |
@@ -27,6 +31,39 @@
 | [`variable_cost_beam.cpp`](variable_cost_beam.cpp) | `CostTreeBeamRunner` | 締切付き宝集め | Problem型へ可変長行動を分離。1、2、3世代進む行動と再訪を扱い、200ランダムケースを厳密DPと照合した |
 | [`ahc038_variable_cost_beam.cpp`](ahc038_variable_cost_beam.cpp) | `CostTreeBeamRunner` | AHC038 | 「次の把持・解放」まで1手で世代を飛ばす。問題側は候補・apply/revert・評価・進行量・keyだけを書き、公式seed 0--99を全て合法に完了した |
 | [`ahc071_action_beam.cpp`](ahc071_action_beam.cpp) | `ActionBeamRunner` | AHC071 | 上段から必要な支持位置を渡す行DP。全体構築と区間再構築を同じProblem型で行い、同じ次段条件をkeyでまとめる |
+
+## 局所探索（焼きなまし・山登り）
+
+[穴埋めテンプレート](../../template/search/local-search/README.md)
+
+| ファイル | 使う探索 | 題材 | 確認したこと |
+|---|---|---|---|
+| [`ahc001_region_sa.cpp`](ahc001_region_sa.cpp) | `TimeBasedAnnealingRunner` | AHC001 | 境界押し移動と1・2領域再構築。単調な損失の閾値打ち切り、仮変更buffer、整数サイズ仕上げをProblemへ分離 |
+| [`ahc002_destroy_repair_sa.cpp`](ahc002_destroy_repair_sa.cpp) | `TimeBasedAnnealingRunner` | AHC002 | 可変長経路の末尾再構築と区間DFS修復をProblemへ分離。採用時のbuffer移動と最良解からの再開を使用 |
+| [`ahc006_sa.cpp`](ahc006_sa.cpp) | `TimeBasedAnnealingRunner` | AHC006 | 辺差分＋逆引き位置cache。候補経路コピーなし、採用時だけ更新。最良2点挿入O(n)、距離前計算ON/OFF |
+| [`ahc002_destroy_repair_lns.cpp`](ahc002_destroy_repair_lns.cpp) | `LargeNeighborhoodSearch` | AHC002 | 既存の末尾/区間修復をdestroy/repairへ分離。得点最大化と、採用前のcache再構築省略の例 |
+| [`ahc059_lns.cpp`](ahc059_lns.cpp) | `LargeNeighborhoodSearch` + `AdaptiveOperatorSelector`（任意） | AHC059 | ペアを削除しO(n)最良再挿入。SA/RRT/山登り、前計算、打ち切り。単一近傍/等確率/適応選択を比較可能 |
+| [`ahc059_ils.cpp`](ahc059_ils.cpp) | `IteratedLocalSearch` | AHC059 | 区間30の摂動と区間4の局所改善を分離。局所探索の連続失敗上限・受理方式を比較 |
+| [`ahc058_prefix_sa.cpp`](ahc058_prefix_sa.cpp) | `TimeBasedAnnealingRunner`＋`PrefixReplay` | AHC058 | 3手先読みを初期解に購入順序をSA。途中再生・待機一括更新を使い、公式100ケースで平均約6.24%改善 |
+
+## モンテカルロ
+
+[穴埋めテンプレート](../../template/search/monte-carlo/README.md)
+
+| ファイル | 使う探索 | 題材 | 確認したこと |
+|---|---|---|---|
+| [`ahc015_common_rollout.cpp`](ahc015_common_rollout.cpp) | `CommonScenarioRolloutRunner` | AHC015 | 4方向を同じ未来配置で比較。盤面操作・Scenario・rollout評価と共通乱数処理の境界を明示 |
+| [`ahc061_common_rollout.cpp`](ahc061_common_rollout.cpp) | `CommonScenarioRolloutRunner` | AHC061 | 相手の粒子推定と衝突simulationを問題側へ分離。独自乱数・double加算・近似同点を保存 |
+| [`ahc015_uct.cpp`](ahc015_uct.cpp) | `MonteCarloTreeSearch` | AHC015 | 1手ずつ対話入力。未知の配置順位を抽選し、その結果ごとに木を分岐。共通未来flat MCとも比較 |
+
+## 決定的な先読み
+
+[穴埋めテンプレート](../../template/advanced/README.md)
+
+| ファイル | 使う探索 | 題材 | 確認したこと |
+|---|---|---|---|
+| [`ahc026_deterministic_rollout.cpp`](ahc026_deterministic_rollout.cpp) | `DeterministicRolloutRunner` | AHC026 | 全先読み幅を最後まで同じ貪欲で仮実行。山操作・候補幅・完走評価と最小値選択の境界を明示 |
+| [`ahc058_deterministic_rollout.cpp`](ahc058_deterministic_rollout.cpp) | `DeterministicRolloutRunner` | AHC058 | 固定長状態を3手先読み。合法手・投資・生産式はProblemへ、候補比較はRunnerへ分離 |
 
 数値はライブラリの適用確認用で、AtCoder上の順位やスコアを主張するものでは
 ありません。乱数seedは固定ですが、壁時計で終了するAHC006例の反復回数と結果は

@@ -3,6 +3,8 @@
 #pragma GCC optimize("O3")
 #endif
 
+// モンテカルロ木探索。試行を木の枝へ配分するUCT版。
+
 #include <bits/stdc++.h>
 using namespace std;
 #include "library/monte-carlo-tree-search.hpp" // 提出時はhpp全文を貼る。

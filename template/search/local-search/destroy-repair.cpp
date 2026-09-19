@@ -3,6 +3,8 @@
 #pragma GCC optimize("O3")
 #endif
 
+// 部分破壊・再構築を近傍にした局所探索。初期設定は山登り、焼きなましにも切替可能。
+
 #include <bits/stdc++.h>
 using namespace std;
 
@@ -71,10 +73,11 @@ int main() {
   LnsOptions options;
   options.time_limit_ms = 1800; // TODO: 入力・前計算・出力時間の余裕を残す。
   options.maximize = true; // TODO: 距離の最小化ならfalse。Scoreの符号反転は不要。
-  options.acceptance = LnsAcceptance::RecordToRecord;
-  // HillClimbing: 現在値以上だけ採用。RecordToRecord: 最良値から一定幅まで許す。
+  options.acceptance = LnsAcceptance::HillClimbing; // TODO: 焼きなましならSimulatedAnnealing。
+  // HillClimbing: 悪化しない解を採用。同点も採用する点はbasic.cppと異なる。
+  // RecordToRecord: 最良値から一定幅まで許す。必要ならこの方式も選べる。
   // SimulatedAnnealing: 現在値からの悪化を温度に応じた確率で許す。
-  options.start_margin = options.end_margin = 2; // TODO: RRTの悪化許容幅。
+  options.start_margin = options.end_margin = 2; // TODO(任意): RRTを選んだ時だけ使う許容幅。
   options.start_temperature = 10; // TODO: SAを選んだ場合の開始温度。
   options.end_temperature = 0.1;  // TODO: SAを選んだ場合の終了温度。
   options.early_cutoff = true;   // TODO: 閾値打ち切りを使うか。前計算とは独立。

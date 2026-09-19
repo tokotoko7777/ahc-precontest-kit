@@ -6,20 +6,20 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-// 提出時は次の1行を、このhppの全文へ置き換える。
-#include "library/cost-tree-beam-search.hpp"
+// 提出時はライブラリのincludeをhpp全文へ置き換える。
+#include "library/tree-beam-search.hpp"
 
 // ============================================================================
 // ここから問題ごとに編集する。
 // ============================================================================
+
 struct Problem {
   struct State {
     // TODO: DFS中に1個だけ持つ全状態と差分更新用cacheを書く。
   };
 
   struct Move {
-    // TODO: 1手、revert用情報、何世代進むかを書く。
-    int advance = 1;
+    // TODO: 1手と、revertに必要な変更前の情報を書く。
   };
 
   // TODO: 候補順位の型を選ぶ。既定では大きいほど良い。
@@ -34,6 +34,7 @@ struct Problem {
 
   void apply_move(State&, Move&) const {
     // TODO: Moveを1手進め、盤面・score・hash・cacheを差分更新する。
+    // revert用の旧値が必要ならMoveへ保存してよい。
   }
 
   void revert_move(State&, const Move&) const {
@@ -43,11 +44,6 @@ struct Problem {
   Score evaluate(const State&) const {
     // TODO: 現在Stateの順位値そのものを返す。
     return 0;
-  }
-
-  int get_advance(const Move& move) const {
-    // TODO: このMoveで進む正の世代数を返す。
-    return move.advance;
   }
 
   uint64_t make_key(const State&) const {
@@ -68,22 +64,22 @@ void print_answer(const Problem&, const vector<Problem::Move>&) {
 // ============================================================================
 // ここまでが主な編集場所。下は探索の呼び出し。
 // ============================================================================
+
 int main() {
   ios::sync_with_stdio(false);
   cin.tie(nullptr);
 
-  constexpr int BEAM_WIDTH = 100;      // TODO: ビーム幅。
-  constexpr int MAX_GENERATION = 100;  // TODO: 最大到着世代。
-  constexpr bool USE_KEY = false;      // TODO: hash重複除去を使うか。
-  Problem problem;                     // TODO: 必要なら入力を読んで渡す。
+  constexpr int BEAM_WIDTH = 100;  // TODO: ビーム幅。
+  constexpr int MAX_TURN = 100;    // TODO: 最大世代数。
+  constexpr bool USE_KEY = false;  // TODO: hash重複除去を使うか。
+  Problem problem;                 // TODO: 必要なら入力を読んで渡す。
   Problem::State initial = problem.make_initial_state();
-  CostTreeBeamRunner<Problem> beam(
-      problem, initial, problem.evaluate(initial),
-      BEAM_WIDTH, MAX_GENERATION);
+  TreeBeamRunner<Problem> beam(
+      problem, initial, problem.evaluate(initial), BEAM_WIDTH);
   if (USE_KEY) {
-    beam.run_with_key();
+    beam.run_with_key(MAX_TURN);
   } else {
-    beam.run();
+    beam.run(MAX_TURN);
   }
   print_answer(problem, beam.restore());
 }

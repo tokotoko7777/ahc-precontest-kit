@@ -29,7 +29,7 @@
 // evaluate全体を必ずO(変更数)にするものではない。
 // stepを呼ぶ範囲は、最初の相違点以前の直近checkpointから新しい列の末尾まで。
 // 戻り値の参照は次のevaluate/commit/discardまで有効と考える。
-// 空関数入りの使用例: template/search/prefix-replay-annealing.cpp
+// 空関数入りの使用例: template/search/local-search/prefix-replay.cpp
 // ↓↓↓ ライブラリ本体。通常は編集しない。↓↓↓
 template <class State, class Action>
 class PrefixReplay {
