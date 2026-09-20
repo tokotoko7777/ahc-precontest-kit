@@ -221,6 +221,7 @@ LNSは独立した大分類ではなく、局所探索内の「部分破壊・�
 | ファイル | できること |
 |---|---|
 | [`rolling-hash.hpp`](library/rolling-hash.hpp) | 部分列hash・連結・LCP |
+| [`aho-corasick.hpp`](library/aho-corasick.hpp) | 整数アルファベットの複数パターン照合。重複・包含・suffixの一致IDを列挙 |
 | [`sequence-overlap.hpp`](library/sequence-overlap.hpp) | 2列を末尾・先頭で最大限重ねて連結 |
 | [`z-algorithm.hpp`](library/z-algorithm.hpp) | 各位置と先頭の最長共通接頭辞 |
 | [`prefix-function.hpp`](library/prefix-function.hpp) | KMP用prefix function・パターン出現位置 |
@@ -311,7 +312,7 @@ GitHub 上ではファイルを開き、右上のコピーアイコン、また�
 | [`practice/ahc001`](practice/ahc001/) | 領域再構築SA、受理閾値、最大空き長方形、1位との得点差レポート |
 | [`practice/ahc002`](practice/ahc002/) | 焼きなまし、多点スタート、destroy/repair |
 | [`practice/ahc003`](practice/ahc003/) | オンライン辺重み推定、不確実性付きDijkstra |
-| [`practice/ahc004`](practice/ahc004/) | 列の重ね合わせ、巡回窓の差分更新 |
+| [`practice/ahc004`](practice/ahc004/) | 共通SA、Aho-Corasickの行・列差分評価、3bit配置比較 |
 | [`practice/ahc005`](practice/ahc005/) | bitset監視点選択、重み付き最短路、巡回順改善 |
 | [`practice/ahc006`](practice/ahc006/) | 焼きなまし、間引きタイマー、経路距離差分 |
 | [`practice/ahc007`](practice/ahc007/) | Union-Find、未来辺によるオンライン連結判断 |
