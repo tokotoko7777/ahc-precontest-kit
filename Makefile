@@ -56,6 +56,7 @@ verify-copy:
 	python3 tests/ahc002_improvement_test.py
 	python3 tests/ahc003_improvement_test.py
 	python3 tests/ahc004_improvement_test.py
+	python3 tests/ahc005_improvement_test.py
 	python3 tests/beam_score_benchmark_test.py
 	python3 tests/tree_score_benchmark_test.py
 	python3 tests/lns_benchmark_test.py

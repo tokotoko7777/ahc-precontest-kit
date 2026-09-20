@@ -6,6 +6,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def main():
     entries = [
+        ("005", "ahc005_patrol_sa.cpp", ["time-based-simulated-annealing.hpp"]),
         ("004", "ahc004_genome_sa.cpp", ["time-based-simulated-annealing.hpp", "aho-corasick.hpp"]),
         ("003", "ahc003_online_fit.cpp", ["time-based-simulated-annealing.hpp"]),
         ("002", "ahc002_destroy_repair_sa.cpp", ["time-based-simulated-annealing.hpp"]),

@@ -32,7 +32,7 @@
 | AHC002 | タイル重複禁止の長経路 | kit-ready | 多点スタート＋焼きなまし＋区間repair。seed 0〜9平均56,702点 |
 | AHC003 | オンライン最短路・辺重み学習 | kit-ready | 3階層辺重み推定＋探索ボーナス付きDijkstra。seed 0〜9平均952,054,307点 |
 | AHC004 | トーラス文字盤構築 | kit-ready | 共通SA＋Aho-Corasick差分評価、5回改善。別20ケース平均68,199,166→70,255,502点、20勝。[記録](../benchmarks/AHC004_FIVE_ROUNDS_REPORT.md) |
-| AHC005 | 可視性制約付き巡回路 | kit-ready | bitset監視点選択＋重み付き最短路＋巡回順改善。公式100seed全道路可視、平均197,471点 |
+| AHC005 | 可視性制約付き巡回路 | kit-ready | 共通SAで代表点と巡回順を同時探索、5回比較。別20ケース平均195,246→225,045点、20勝。[記録](../benchmarks/AHC005_FIVE_ROUNDS_REPORT.md) |
 | AHC006 | 集荷配送付き経路選択 | kit-ready | `practice/ahc006`。焼きなましと距離差分を検証済み |
 | AHC007 | 取消不能なオンラインMST | kit-ready | `practice/ahc007`。DSUと未来辺判定を検証済み |
 | AHC008 | 人とペットの対話型領域分割 | kit-ready | 分担壁建設＋段階閉鎖。公式100seed全300ターン合法、平均4,463,342点 |

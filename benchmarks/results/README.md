@@ -1,5 +1,12 @@
 # 公式スコア比較の生データ
 
+## 2026-09-21: AHC005の5回改善
+
+`ahc005-five-rounds-{1..5}-dev.csv`と`ahc005-five-rounds-confirmation.csv`は
+3秒制限の非インタラクティブ問題で、公式visualizerと独立した経路・可視性採点を照合。
+開発seed 1000–1009、確認seed 1020–1039を分離しました。
+[採否・共通分母集計・再現手順](../AHC005_FIVE_ROUNDS_REPORT.md)を参照してください。
+
 ## 2026-09-20: AHC004の5回改善
 
 `ahc004-five-rounds-{1..5}-dev.csv`と`ahc004-five-rounds-confirmation.csv`は

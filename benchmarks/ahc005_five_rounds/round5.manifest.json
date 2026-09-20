@@ -1,0 +1,32 @@
+{
+  "first_case": 0,
+  "cases": 10,
+  "seeds": [
+    1000,
+    1001,
+    1002,
+    1003,
+    1004,
+    1005,
+    1006,
+    1007,
+    1008,
+    1009
+  ],
+  "repeats": 2,
+  "flags": [
+    "-std=c++17",
+    "-O3",
+    "-DNDEBUG",
+    "-Wall",
+    "-Wextra"
+  ],
+  "source_sha256": {
+    "round4": "6a66bdd92d32be4b866311c6f09c29e53347ac024c1e67eecce30d5d035a72b8",
+    "round5": "1b18f4a5ad2780c9a996351fe71a113f62a4fe7f93533233ddfceb3bfc70473b"
+  },
+  "seed_manifest_md5": "353bef044ee5b86ca7e59fa8f6370fb5",
+  "generator_sha256": "787626a1b4338e5ec9e4dce5bdf20f812737ea076059e7acf10576050e6ffaef",
+  "visualizer_sha256": "69f3b88384d57778d82568c03a1313d12b9b7d76a70244362388569793a0df3b",
+  "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+}
