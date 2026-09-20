@@ -1,0 +1,11 @@
+{
+  "selected": "round5",
+  "source_sha256": "1f285e1a9290d9cad36f8523db1ebd119dbca87d8695c17458f3178e8312dc04",
+  "development_complete": true,
+  "recorded_before_confirmation": true,
+  "confirmation_seeds": [
+    20,
+    39
+  ],
+  "note": "Frozen before confirmation. No solver tuning after this selection."
+}

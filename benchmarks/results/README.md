@@ -1,5 +1,12 @@
 # 公式スコア比較の生データ
 
+## 2026-09-20: AHC004の5回改善
+
+`ahc004-five-rounds-{1..5}-dev.csv`と`ahc004-five-rounds-confirmation.csv`は
+公式visualizer・独立した巡回文字列採点が一致した測定です。
+公式制限の3秒を採用し、2秒問題の記録とは混ぜません。
+[採否・共通分母集計・再現手順](../AHC004_FIVE_ROUNDS_REPORT.md)を参照してください。
+
 ## 2026-09-19: AHC003の5回改善
 
 `ahc003-five-rounds-{1..5}-dev.csv`と`ahc003-five-rounds-confirmation.csv`は
