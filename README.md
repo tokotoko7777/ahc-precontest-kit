@@ -313,7 +313,7 @@ GitHub 上ではファイルを開き、右上のコピーアイコン、また�
 | [`practice/ahc002`](practice/ahc002/) | 焼きなまし、多点スタート、destroy/repair |
 | [`practice/ahc003`](practice/ahc003/) | オンライン辺重み推定、不確実性付きDijkstra |
 | [`practice/ahc004`](practice/ahc004/) | 共通SA、Aho-Corasickの行・列差分評価、3bit配置比較 |
-| [`practice/ahc005`](practice/ahc005/) | bitset監視点選択、重み付き最短路、巡回順改善 |
+| [`practice/ahc005`](practice/ahc005/) | 共通SA、代表点と巡回順の同時探索、境界辺の差分評価 |
 | [`practice/ahc006`](practice/ahc006/) | 焼きなまし、間引きタイマー、経路距離差分 |
 | [`practice/ahc007`](practice/ahc007/) | Union-Find、未来辺によるオンライン連結判断 |
 | [`practice/ahc008`](practice/ahc008/) | 対話型の安全判定、分担壁建設、段階閉鎖 |

@@ -1,0 +1,11 @@
+{
+  "selected": "round4",
+  "source_sha256": "6a66bdd92d32be4b866311c6f09c29e53347ac024c1e67eecce30d5d035a72b8",
+  "development_complete": true,
+  "recorded_before_confirmation": true,
+  "confirmation_seeds": [
+    1020,
+    1039
+  ],
+  "note": "Round 5 packing rejected by official scores; restore round4 before confirmation."
+}
