@@ -1,0 +1,4797 @@
+{
+  "schema_version": 1,
+  "summary": {
+    "topics": 334,
+    "genres": 19,
+    "examples": 357,
+    "reviewed_implementations": 64,
+    "covered_sources": 88,
+    "withheld_teaching_notes": 0
+  },
+  "source_policy_summary": {
+    "contests": 72,
+    "eligible": 88,
+    "entries_without_candidate": 3,
+    "excluded": 16,
+    "explicit_exclusions_outside_representatives": 1,
+    "unique_representatives": 104,
+    "unverified": 0
+  },
+  "covered_submission_ids": [
+    "20926292",
+    "22075413",
+    "23016921",
+    "23751222",
+    "24829216",
+    "27260278",
+    "27880973",
+    "29654603",
+    "30423648",
+    "31233938",
+    "32267675",
+    "32961594",
+    "34085279",
+    "34095240",
+    "35264600",
+    "35326916",
+    "36660262",
+    "36688965",
+    "38643777",
+    "38655314",
+    "39142737",
+    "39276503",
+    "40290839",
+    "40300018",
+    "42196314",
+    "42958359",
+    "44783436",
+    "44798918",
+    "45441612",
+    "45449215",
+    "45917587",
+    "47308761",
+    "48359374",
+    "48408917",
+    "49255792",
+    "50447114",
+    "50450965",
+    "51936966",
+    "51940007",
+    "52156995",
+    "53942556",
+    "53968407",
+    "54643130",
+    "55852875",
+    "57377353",
+    "57404632",
+    "58801909",
+    "58808657",
+    "59660035",
+    "60609745",
+    "60618996",
+    "61871243",
+    "63119772",
+    "63121685",
+    "63126554",
+    "64611675",
+    "65957786",
+    "66623158",
+    "67393589",
+    "68711859",
+    "69285442",
+    "69728114",
+    "69732675",
+    "70299716",
+    "71030207",
+    "71036164",
+    "71292882",
+    "71725942",
+    "72330966",
+    "72942421",
+    "73562256",
+    "73569716",
+    "74068534",
+    "74935244",
+    "74942824",
+    "75295267",
+    "75827741",
+    "76520389",
+    "76532036",
+    "77562268",
+    "77738201",
+    "77748809",
+    "77751621",
+    "78259988",
+    "78283445",
+    "79251146",
+    "79793411",
+    "79805355"
+  ],
+  "checked_at_range": [
+    "2026-10-16T21:22:56.322Z",
+    "2026-10-16T21:26:32.376Z"
+  ],
+  "topics": [
+    {
+      "id": "D001",
+      "genre": "representation",
+      "topic": "実現可能性を保つ外側表現",
+      "path": "01-representation.md#topic-4c69b8c977df",
+      "source_fingerprint": "c672a5d6814467d9d6159e4d945d8c95769d10248d5962785f36d484d0961804",
+      "finding_ids": [
+        "20926292-02"
+      ]
+    },
+    {
+      "id": "D002",
+      "genre": "representation",
+      "topic": "番兵境界",
+      "path": "01-representation.md#topic-c0c4c8b620de",
+      "source_fingerprint": "d51b5a9d7da0836eed82c16bf313d68440a6de91d4a45f77e86c5ea6cc0bbe04",
+      "finding_ids": [
+        "20926292-07"
+      ]
+    },
+    {
+      "id": "D003",
+      "genre": "representation",
+      "topic": "資源IDによる訪問管理",
+      "path": "01-representation.md#topic-65210f9f9776",
+      "source_fingerprint": "b55d96810528c3fd76b3743f2b570601037966b611ceba7e3bb263af4b8e4521",
+      "finding_ids": [
+        "22075413-03"
+      ]
+    },
+    {
+      "id": "D004",
+      "genre": "representation",
+      "topic": "通路群への縮約",
+      "path": "01-representation.md#topic-8ccb77e1fe56",
+      "source_fingerprint": "08db15bb460821fad016c2c193351b87e3122e0ab28c4eabb760d4867e41bd73",
+      "finding_ids": [
+        "24829216-01"
+      ]
+    },
+    {
+      "id": "D005",
+      "genre": "representation",
+      "topic": "ペアIDと逆位置",
+      "path": "01-representation.md#topic-56c6b12479ad",
+      "source_fingerprint": "54805485cc4e87fdce18cffe32db194e191a69c1bb6d484da40c1ffadd86c159",
+      "finding_ids": [
+        "27260278-01"
+      ]
+    },
+    {
+      "id": "D006",
+      "genre": "representation",
+      "topic": "番兵付き一次元盤面",
+      "path": "01-representation.md#topic-b46c93ba41bd",
+      "source_fingerprint": "90f6ace4f6ed976fc328ea4d762fdae7445c24648f6ec15f6f330eb3091c59ed",
+      "finding_ids": [
+        "29654603-01"
+      ]
+    },
+    {
+      "id": "D007",
+      "genre": "representation",
+      "topic": "状態に方向と多重使用を持つ",
+      "path": "01-representation.md#topic-0ca58e18c7a0",
+      "source_fingerprint": "ea069470e65c9de33ed321347e6782519264570d8633ff29c8f8032ea3da0b1b",
+      "finding_ids": [
+        "31233938-01"
+      ]
+    },
+    {
+      "id": "D008",
+      "genre": "representation",
+      "topic": "探索空間の構造制限",
+      "path": "01-representation.md#topic-5dbf56e5beec",
+      "source_fingerprint": "a4c03cbb7d4be05d62da1e4c5102f4d7ff84f277b2e82310cfd6c957890d7819",
+      "finding_ids": [
+        "32961594-01"
+      ]
+    },
+    {
+      "id": "D009",
+      "genre": "representation",
+      "topic": "個数で重み付けしたヒストグラム",
+      "path": "01-representation.md#topic-970d73030d93",
+      "source_fingerprint": "0b74f4e78a33718e49137ec7651ff5226b4eda3aadddb895dceabb2c1ee01171",
+      "finding_ids": [
+        "32961594-03"
+      ]
+    },
+    {
+      "id": "D010",
+      "genre": "representation",
+      "topic": "可逆な操作履歴",
+      "path": "01-representation.md#topic-78c2cb304135",
+      "source_fingerprint": "27e7ed82c1e25504cbf95535e9dc2329811cabeac2efcfe390d7ebbf24c77f14",
+      "finding_ids": [
+        "34085279-01",
+        "34095240-01"
+      ]
+    },
+    {
+      "id": "D011",
+      "genre": "representation",
+      "topic": "置換不変性",
+      "path": "01-representation.md#topic-c0fd9d5a4095",
+      "source_fingerprint": "215bba70e7c572932dad6e19912bd20c7d19df6be597a88219425efaded031be",
+      "finding_ids": [
+        "36660262-01"
+      ]
+    },
+    {
+      "id": "D012",
+      "genre": "representation",
+      "topic": "制約を満たす状態空間",
+      "path": "01-representation.md#topic-b896727a5147",
+      "source_fingerprint": "0c0434113e1297fccfd8278341c758c1e8c4a92e927d7c5f462c7083efbe7acf",
+      "finding_ids": [
+        "40290839-01"
+      ]
+    },
+    {
+      "id": "D013",
+      "genre": "representation",
+      "topic": "構築器の入力を探索",
+      "path": "01-representation.md#topic-afded3f1e52e",
+      "source_fingerprint": "a731bc3ef2de66d6c2234bef12934da7d1bc4385df340ae18c47504aa7866a89",
+      "finding_ids": [
+        "42196314-01",
+        "47308761-01"
+      ]
+    },
+    {
+      "id": "D014",
+      "genre": "representation",
+      "topic": "時空間の状態表現",
+      "path": "01-representation.md#topic-b33d129021db",
+      "source_fingerprint": "d0f779dc22d28a78360480681bf4019a60baee26755efdf4b147bcb1c5a69553",
+      "finding_ids": [
+        "45441612-01",
+        "45449215-01"
+      ]
+    },
+    {
+      "id": "D015",
+      "genre": "representation",
+      "topic": "回転対称性の利用",
+      "path": "01-representation.md#topic-6c979c5c20cf",
+      "source_fingerprint": "b0746e2844f2b1fe8e8604bc099b76ff66fab95a85b735a05ecda36e4e9c68cd",
+      "finding_ids": [
+        "48359374-03"
+      ]
+    },
+    {
+      "id": "D016",
+      "genre": "representation",
+      "topic": "境界状態への圧縮",
+      "path": "01-representation.md#topic-46b569af9834",
+      "source_fingerprint": "4b73d96f66baea7e6aaf413f6cff9c27d2f13e155dd70ba4d279b17898339597",
+      "finding_ids": [
+        "49255792-01"
+      ]
+    },
+    {
+      "id": "D017",
+      "genre": "representation",
+      "topic": "帯への分解",
+      "path": "01-representation.md#topic-7e7efe76380c",
+      "source_fingerprint": "8328dab17f195a9e202fd297d13e9d4b5ad37cca13215bf6cc6d12958a667f74",
+      "finding_ids": [
+        "51936966-01"
+      ]
+    },
+    {
+      "id": "D018",
+      "genre": "representation",
+      "topic": "座標を可動区間で持つ",
+      "path": "01-representation.md#topic-adb557b35d41",
+      "source_fingerprint": "cb3adb967a5ebf58beb75da3465e0590f2f88263ebe1603daafb69530c89772c",
+      "finding_ids": [
+        "51936966-02"
+      ]
+    },
+    {
+      "id": "D019",
+      "genre": "representation",
+      "topic": "訪問列と操作量の分離",
+      "path": "01-representation.md#topic-99f62ebba825",
+      "source_fingerprint": "9c0e032e337d8e0400a5985e1aa3080470949cfdfb0888384bbe7d0dc3224711",
+      "finding_ids": [
+        "54643130-02"
+      ]
+    },
+    {
+      "id": "D020",
+      "genre": "representation",
+      "topic": "連結なグループの設計",
+      "path": "01-representation.md#topic-74eb149f0626",
+      "source_fingerprint": "b8cfeba594b0fbe0f496757e8c216cec7b7268ae9d5483b83f74c3dcfef68603",
+      "finding_ids": [
+        "57377353-01"
+      ]
+    },
+    {
+      "id": "D021",
+      "genre": "representation",
+      "topic": "重複区間の共有",
+      "path": "01-representation.md#topic-1c9097293039",
+      "source_fingerprint": "bbb7598bda316abe17cc625d785242390f7bafe3f9e3497339259767d504b231",
+      "finding_ids": [
+        "57377353-05"
+      ]
+    },
+    {
+      "id": "D022",
+      "genre": "representation",
+      "topic": "内外の位相維持",
+      "path": "01-representation.md#topic-1529386412a5",
+      "source_fingerprint": "349f26b55a009d3d4a7cf0fda7d7e8a8056557f5e1b3e6110ad0f013b8074944",
+      "finding_ids": [
+        "59660035-02"
+      ]
+    },
+    {
+      "id": "D023",
+      "genre": "representation",
+      "topic": "層ごとの集合選択",
+      "path": "01-representation.md#topic-20805cddc71a",
+      "source_fingerprint": "592aa7eeb3995594f1c62a02c6e2251597bcfcd2885e6c45dcd30843a57e2a61",
+      "finding_ids": [
+        "61871243-01"
+      ]
+    },
+    {
+      "id": "D024",
+      "genre": "representation",
+      "topic": "抽象解と実行解",
+      "path": "01-representation.md#topic-e924b33661ae",
+      "source_fingerprint": "312e3644e56e8e5bc9408cf3a35f06bbbe6e9b1787b888938bd0d7e95305bfe3",
+      "finding_ids": [
+        "63121685-01"
+      ]
+    },
+    {
+      "id": "D025",
+      "genre": "representation",
+      "topic": "共通プログラムの個別解釈",
+      "path": "01-representation.md#topic-de36d44487ce",
+      "source_fingerprint": "4de7e9ee795f435bc6c58968140ca570966b7fc86d2e2665205c517d245ae791",
+      "finding_ids": [
+        "68711859-01"
+      ]
+    },
+    {
+      "id": "D026",
+      "genre": "representation",
+      "topic": "観測履歴付き経路",
+      "path": "01-representation.md#topic-6cff30ebd7c1",
+      "source_fingerprint": "17387f42a42a54a372e7b3b2350f445042402a1ad4054ff687da1659a3579960",
+      "finding_ids": [
+        "69728114-01"
+      ]
+    },
+    {
+      "id": "D027",
+      "genre": "representation",
+      "topic": "依存関係の多重辺",
+      "path": "01-representation.md#topic-f5d391ec717b",
+      "source_fingerprint": "6153acbe58e4fa0838804c0eaf2bd04250535b58ab7aea5143398736e29b1a7c",
+      "finding_ids": [
+        "70299716-01"
+      ]
+    },
+    {
+      "id": "D028",
+      "genre": "representation",
+      "topic": "決定点だけを頂点化",
+      "path": "01-representation.md#topic-c3b4ce196ad3",
+      "source_fingerprint": "38caaabca962f3af0cdd14c9e11f9d8d622075468942770a4d30ceeb2e064995",
+      "finding_ids": [
+        "71030207-01"
+      ]
+    },
+    {
+      "id": "D029",
+      "genre": "representation",
+      "topic": "二種類の後続リンク",
+      "path": "01-representation.md#topic-0392d990e8a6",
+      "source_fingerprint": "ee2c1e59429942001761593b2ff0574e61a2ddc20cc8c596cd42425db4031be8",
+      "finding_ids": [
+        "71030207-03"
+      ]
+    },
+    {
+      "id": "D030",
+      "genre": "representation",
+      "topic": "合流後の共通運動",
+      "path": "01-representation.md#topic-26976e819a59",
+      "source_fingerprint": "c7e787c2325f012693408e6a99dbd7ff10623aa3b646146bad8a0ceca72f4029",
+      "finding_ids": [
+        "71292882-01"
+      ]
+    },
+    {
+      "id": "D031",
+      "genre": "representation",
+      "topic": "スタック操作の木表現",
+      "path": "01-representation.md#topic-a8121f960119",
+      "source_fingerprint": "624952d0c6ca1b945ed80c0f5be1485528222d0d0b4db55ec19cc4717ceaa2d5",
+      "finding_ids": [
+        "72330966-01"
+      ]
+    },
+    {
+      "id": "D032",
+      "genre": "representation",
+      "topic": "方策パラメータの探索",
+      "path": "01-representation.md#topic-4904fb086ba1",
+      "source_fingerprint": "a5d2a44575a2a60d605cfa83be3ce6652f4ed01a4b670e78992c92c450a9d952",
+      "finding_ids": [
+        "72942421-01"
+      ]
+    },
+    {
+      "id": "D033",
+      "genre": "representation",
+      "topic": "循環列の基準合わせ",
+      "path": "01-representation.md#topic-eb793c8e0ba8",
+      "source_fingerprint": "8c9e06d7a37dd6eb514d139c06d1ca1c77585ac31030754a0a62cf773ad92f8a",
+      "finding_ids": [
+        "75827741-02"
+      ]
+    },
+    {
+      "id": "D034",
+      "genre": "representation",
+      "topic": "最初の未処理位置",
+      "path": "01-representation.md#topic-beb8ea9ec9e9",
+      "source_fingerprint": "0abd3d48cfee04e60a346508be054b73cad62489bbe50de5b9526331e263b8f4",
+      "finding_ids": [
+        "79251146-01"
+      ]
+    },
+    {
+      "id": "D035",
+      "genre": "representation",
+      "topic": "小さいスタックの整数化",
+      "path": "01-representation.md#topic-2b1fe6287989",
+      "source_fingerprint": "2f2210ab1f52b232bad3317d67016db37e1c74bb0400614e26398c37938e7b4e",
+      "finding_ids": [
+        "79793411-01"
+      ]
+    },
+    {
+      "id": "D036",
+      "genre": "construction",
+      "topic": "ランダム化された探索順序",
+      "path": "02-construction.md#topic-891533b447fd",
+      "source_fingerprint": "50b561fac49875f2e89305ad140076e17682b226544d3106379081208b3e3334",
+      "finding_ids": [
+        "22075413-06"
+      ]
+    },
+    {
+      "id": "D037",
+      "genre": "construction",
+      "topic": "包含による縮約",
+      "path": "02-construction.md#topic-b2ca315a09b2",
+      "source_fingerprint": "c93dbe6ea1d35aeb327935d7b92184f757f0927278393478689349f963c8e5f6",
+      "finding_ids": [
+        "23751222-01"
+      ]
+    },
+    {
+      "id": "D038",
+      "genre": "construction",
+      "topic": "入力特徴によるテンプレート選択",
+      "path": "02-construction.md#topic-f4ad5db77957",
+      "source_fingerprint": "194e6850a0e25f49e030184d88fd257c83c46f7bc63366ab7b3d588ff1c9e062",
+      "finding_ids": [
+        "29654603-02"
+      ]
+    },
+    {
+      "id": "D039",
+      "genre": "construction",
+      "topic": "乱択最短路",
+      "path": "02-construction.md#topic-902192ac78b0",
+      "source_fingerprint": "2491ab230d2f0418f37f2798bea3b8e2ef0a52d7c30b7075295f98a3db9d3952",
+      "finding_ids": [
+        "30423648-01"
+      ]
+    },
+    {
+      "id": "D040",
+      "genre": "construction",
+      "topic": "失敗率に応じた冗長化",
+      "path": "02-construction.md#topic-cb9d83480cc6",
+      "source_fingerprint": "6b4bbbf230647517527dca3f64df11186b643d393b539d021a05831f5e8a9f72",
+      "finding_ids": [
+        "30423648-02"
+      ]
+    },
+    {
+      "id": "D041",
+      "genre": "construction",
+      "topic": "可解性の最小損失修復",
+      "path": "02-construction.md#topic-e51a6f503359",
+      "source_fingerprint": "88b85690f1479c471d0ac4868ed10f59b574493c1d53865f5819fc997bfce69b",
+      "finding_ids": [
+        "32267675-04"
+      ]
+    },
+    {
+      "id": "D042",
+      "genre": "construction",
+      "topic": "構築順序の変更",
+      "path": "02-construction.md#topic-b0c4c5dc6497",
+      "source_fingerprint": "d99e6dc19cedc855eaa15fb4f759633de891637ad9fba26e9be0eb790f78f13c",
+      "finding_ids": [
+        "34095240-05"
+      ]
+    },
+    {
+      "id": "D043",
+      "genre": "construction",
+      "topic": "乱択貪欲",
+      "path": "02-construction.md#topic-803d3aa64483",
+      "source_fingerprint": "a1a03f3f60e8aed370b39760ce4d13fc96e4fa7c18e4e0e0f592c0a370e92a3e",
+      "finding_ids": [
+        "35264600-03"
+      ]
+    },
+    {
+      "id": "D044",
+      "genre": "construction",
+      "topic": "構造付き乱択",
+      "path": "02-construction.md#topic-579d1c96a410",
+      "source_fingerprint": "2fdfe96599a783571feba383d538af456c84c0d94c6ec006d52b9743c6f40c16",
+      "finding_ids": [
+        "36660262-06"
+      ]
+    },
+    {
+      "id": "D045",
+      "genre": "construction",
+      "topic": "対称変換を保つ構築",
+      "path": "02-construction.md#topic-ac225094c121",
+      "source_fingerprint": "f23d3e990855544cbfc3885e65b6d592f2d58d87f4829a049e08415be476092e",
+      "finding_ids": [
+        "40290839-02"
+      ]
+    },
+    {
+      "id": "D046",
+      "genre": "construction",
+      "topic": "限界費用による貪欲",
+      "path": "02-construction.md#topic-df2248731088",
+      "source_fingerprint": "7292d8f9f91a361ac482c458de6319801a576dc3eb1c77ffd013e51374d751fc",
+      "finding_ids": [
+        "42196314-02"
+      ]
+    },
+    {
+      "id": "D047",
+      "genre": "construction",
+      "topic": "強制選択の先行",
+      "path": "02-construction.md#topic-76d6ffb12238",
+      "source_fingerprint": "5e95a6359a52b0eba02b5ef8a2ba543cc28a0f9bab92766711e13eab6bd50ee9",
+      "finding_ids": [
+        "42196314-03"
+      ]
+    },
+    {
+      "id": "D048",
+      "genre": "construction",
+      "topic": "固定点つき平滑化",
+      "path": "02-construction.md#topic-f498e114f6eb",
+      "source_fingerprint": "735db1a1b0de5a4d56e2b089351019cce4b47959bcc00ab44968541747fd4d92",
+      "finding_ids": [
+        "44783436-01"
+      ]
+    },
+    {
+      "id": "D049",
+      "genre": "construction",
+      "topic": "まとまりを保つ移動",
+      "path": "02-construction.md#topic-32dac8390eef",
+      "source_fingerprint": "e42a27914a904c7ec349090bf0d53165330971389c11feb45fb6dfa66a11fb47",
+      "finding_ids": [
+        "47308761-02"
+      ]
+    },
+    {
+      "id": "D050",
+      "genre": "construction",
+      "topic": "作業中の即時確定",
+      "path": "02-construction.md#topic-b1f2b215d242",
+      "source_fingerprint": "dcd30a4768816624919cef9c5aabdbdfdc4527b49288c2bf5a77ee1b8771acd7",
+      "finding_ids": [
+        "47308761-03"
+      ]
+    },
+    {
+      "id": "D051",
+      "genre": "construction",
+      "topic": "他の未処理群の取り込み",
+      "path": "02-construction.md#topic-86ae8b7f9aa4",
+      "source_fingerprint": "5f05f9f5e2296407455c313c2914d38527b7b9f01b4df1c875e73322e9baf500",
+      "finding_ids": [
+        "47308761-04"
+      ]
+    },
+    {
+      "id": "D052",
+      "genre": "construction",
+      "topic": "対称変換による多開始",
+      "path": "02-construction.md#topic-c92d47528194",
+      "source_fingerprint": "8d7f600b5863c91f2fd162b66ebc07a125f601888988dc3ee4b5211b20ad3734",
+      "finding_ids": [
+        "52156995-05"
+      ]
+    },
+    {
+      "id": "D053",
+      "genre": "construction",
+      "topic": "中心からの配置",
+      "path": "02-construction.md#topic-789f6e9d6d9b",
+      "source_fingerprint": "373fd00b16f3a2160415103ad9057959b24eb263515c81436774d11d9081bd52",
+      "finding_ids": [
+        "55852875-03"
+      ]
+    },
+    {
+      "id": "D054",
+      "genre": "construction",
+      "topic": "制約の厳しい要素を先行",
+      "path": "02-construction.md#topic-e5d3affa1c0d",
+      "source_fingerprint": "373133b491d20a627dd32a63d5cd9f07827d552656970177da32f11dac20de04",
+      "finding_ids": [
+        "58801909-03"
+      ]
+    },
+    {
+      "id": "D055",
+      "genre": "construction",
+      "topic": "残り深さでの被覆",
+      "path": "02-construction.md#topic-90461ed88111",
+      "source_fingerprint": "b07f198451f7009fbe083246f0f2c4fbb14b9c62614001d6f8dff3443c151b83",
+      "finding_ids": [
+        "61871243-02"
+      ]
+    },
+    {
+      "id": "D056",
+      "genre": "construction",
+      "topic": "冗長要素の除去",
+      "path": "02-construction.md#topic-1b04af99cca2",
+      "source_fingerprint": "73a1b2e9524a3e0083476a3def84abd4a8c47e4e9fc853269d0a6aa20395a756",
+      "finding_ids": [
+        "61871243-03"
+      ]
+    },
+    {
+      "id": "D057",
+      "genre": "construction",
+      "topic": "丸め誤差の制御",
+      "path": "02-construction.md#topic-938bd522f957",
+      "source_fingerprint": "c3a2b8d4bd02b360e62eccbcafa75f179591ae639bb93cf93a969ee2202b392b",
+      "finding_ids": [
+        "65957786-03"
+      ]
+    },
+    {
+      "id": "D058",
+      "genre": "construction",
+      "topic": "必要な操作だけ追加",
+      "path": "02-construction.md#topic-4f8e0f30d619",
+      "source_fingerprint": "2eaf64e0120da16aaf66aaf364b4eba92cbdbfcd84c02b7ce07565d705b79afb",
+      "finding_ids": [
+        "68711859-04"
+      ]
+    },
+    {
+      "id": "D059",
+      "genre": "construction",
+      "topic": "入力を設計する多段精度",
+      "path": "02-construction.md#topic-e11442663670",
+      "source_fingerprint": "6b594307a41db30c9f544be411517ae9503516818b10beec79d46d7a720d86c5",
+      "finding_ids": [
+        "69285442-01"
+      ]
+    },
+    {
+      "id": "D060",
+      "genre": "construction",
+      "topic": "通過頻度で候補順序",
+      "path": "02-construction.md#topic-a40db776be26",
+      "source_fingerprint": "2a9e63eeb08cbd86cfb7883271ee730ce35e058779a716de616849c67a10b92b",
+      "finding_ids": [
+        "71030207-02"
+      ]
+    },
+    {
+      "id": "D061",
+      "genre": "construction",
+      "topic": "逃げ道の少ない点を優先",
+      "path": "02-construction.md#topic-bfdd04b93f7f",
+      "source_fingerprint": "b52acd1cad69f109fc00a3254a2ea9fe983ecab110df9add4f065ba19a2675f0",
+      "finding_ids": [
+        "74068534-01"
+      ]
+    },
+    {
+      "id": "D062",
+      "genre": "construction",
+      "topic": "輸送網のテンプレート",
+      "path": "02-construction.md#topic-58d548421a83",
+      "source_fingerprint": "d5740c215bc49a87704d768178baa8d9200ced97e2d0739e2c35d90066d71603",
+      "finding_ids": [
+        "75827741-01"
+      ]
+    },
+    {
+      "id": "D063",
+      "genre": "construction",
+      "topic": "対称形の列挙",
+      "path": "02-construction.md#topic-bd3dfdebbbb8",
+      "source_fingerprint": "6cd3e4ca020de8dc1ffe063b02b986964ed99abd0e04a237ed979c867a5ec649",
+      "finding_ids": [
+        "75827741-05"
+      ]
+    },
+    {
+      "id": "D064",
+      "genre": "neighborhood",
+      "topic": "局所破壊再構築",
+      "path": "03-neighborhood.md#topic-27844d3d51d4",
+      "source_fingerprint": "128086c47e9b23d2b82111eebd75bed1cf6a0fe1080c59dbb412507426dd07e7",
+      "finding_ids": [
+        "20926292-05"
+      ]
+    },
+    {
+      "id": "D065",
+      "genre": "neighborhood",
+      "topic": "区間修復の向き反転",
+      "path": "03-neighborhood.md#topic-6e764d27b542",
+      "source_fingerprint": "7de289873eb8bde2a93cab7b21b83d874ffb4444e9e41f26cc96293fcd22856c",
+      "finding_ids": [
+        "22075413-04"
+      ]
+    },
+    {
+      "id": "D066",
+      "genre": "neighborhood",
+      "topic": "時間に応じた破壊幅",
+      "path": "03-neighborhood.md#topic-05d5ea878c99",
+      "source_fingerprint": "fc3cc99260ab69b761fdea8bc2cf192e4fcdb71180d5bff7c53f1c0ec63ac9ba",
+      "finding_ids": [
+        "22075413-05"
+      ]
+    },
+    {
+      "id": "D067",
+      "genre": "neighborhood",
+      "topic": "ランダム候補と構造候補の混合",
+      "path": "03-neighborhood.md#topic-3b21c5913714",
+      "source_fingerprint": "5b0ff0f48c604d7bf1d96c8d348adf6475bf29a23cf9c527a77fa6d7add263d1",
+      "finding_ids": [
+        "23751222-03"
+      ]
+    },
+    {
+      "id": "D068",
+      "genre": "neighborhood",
+      "topic": "代表点と順序の同時最適化",
+      "path": "03-neighborhood.md#topic-6e9d255b8d61",
+      "source_fingerprint": "89d4d19b633deeb07af5ddb228643a002218d461543fdf152652561d206c7539",
+      "finding_ids": [
+        "24829216-03"
+      ]
+    },
+    {
+      "id": "D069",
+      "genre": "neighborhood",
+      "topic": "複数要素の貪欲修復",
+      "path": "03-neighborhood.md#topic-9cf3fcec2cee",
+      "source_fingerprint": "461e7815a96105dca40dd411c6be0291eaf09dbf6cd1186e1ae6e7273541a502",
+      "finding_ids": [
+        "24829216-04"
+      ]
+    },
+    {
+      "id": "D070",
+      "genre": "neighborhood",
+      "topic": "先行制約を守る反転",
+      "path": "03-neighborhood.md#topic-aad959676912",
+      "source_fingerprint": "42b0bb4b711cc02e73b6bd271c2d19932537a07dd68df7cfe2dd7d6a6a1476e6",
+      "finding_ids": [
+        "27260278-02"
+      ]
+    },
+    {
+      "id": "D071",
+      "genre": "neighborhood",
+      "topic": "可変長コマンド列",
+      "path": "03-neighborhood.md#topic-be0c8a82c97b",
+      "source_fingerprint": "f509cd67aed597db7c64cd864cd782f49c82cf50b31d5fdc64e02467c7d05e7d",
+      "finding_ids": [
+        "30423648-05"
+      ]
+    },
+    {
+      "id": "D072",
+      "genre": "neighborhood",
+      "topic": "閉路の部分再接続",
+      "path": "03-neighborhood.md#topic-7a3b5e8cfac4",
+      "source_fingerprint": "64c57d75dc6e1a6c20a3ab43946cd9dd9dd48bc14d2ab249ce886ccf30316a59",
+      "finding_ids": [
+        "31233938-02"
+      ]
+    },
+    {
+      "id": "D073",
+      "genre": "neighborhood",
+      "topic": "木を保つ辺交換",
+      "path": "03-neighborhood.md#topic-16fff17d7fa5",
+      "source_fingerprint": "fdd7af43c62f2bc6429c7a82da6fbf793ac3d556c59da8e75f72477c73071276",
+      "finding_ids": [
+        "32267675-01"
+      ]
+    },
+    {
+      "id": "D074",
+      "genre": "neighborhood",
+      "topic": "小移動と大移動の混合",
+      "path": "03-neighborhood.md#topic-25abc680a448",
+      "source_fingerprint": "d158768a228c8d2674ec4e63f7d9894eb66580dcee3fe200cda0566a38e6c100",
+      "finding_ids": [
+        "32961594-06"
+      ]
+    },
+    {
+      "id": "D075",
+      "genre": "neighborhood",
+      "topic": "構築順序の変更",
+      "path": "03-neighborhood.md#topic-b0c4c5dc6497",
+      "source_fingerprint": "8279197ac4bf8540f899b498b33fca6541ed7ad8fb02a48e0a039f444d18d657",
+      "finding_ids": [
+        "34085279-04",
+        "34095240-04"
+      ]
+    },
+    {
+      "id": "D076",
+      "genre": "neighborhood",
+      "topic": "依存先を含む破壊",
+      "path": "03-neighborhood.md#topic-3339548cf853",
+      "source_fingerprint": "40ac2a60a064936e74622a3b441e0d9ef85be981b1210bdbdcd0a6a82d401208",
+      "finding_ids": [
+        "35264600-02"
+      ]
+    },
+    {
+      "id": "D077",
+      "genre": "neighborhood",
+      "topic": "局所領域の再割当",
+      "path": "03-neighborhood.md#topic-55f78755cae2",
+      "source_fingerprint": "a2a604945f239121e2466a38f526b6d40a626aea4b3f61e36e5a0cb75131f58d",
+      "finding_ids": [
+        "38643777-03"
+      ]
+    },
+    {
+      "id": "D078",
+      "genre": "neighborhood",
+      "topic": "他の部品からの移管",
+      "path": "03-neighborhood.md#topic-a0d5586a96a1",
+      "source_fingerprint": "f913f0162fc0087f443ce3f03a5d3d6c58b3ef3cbe2170e00974510c36bc6ccc",
+      "finding_ids": [
+        "40290839-05"
+      ]
+    },
+    {
+      "id": "D079",
+      "genre": "neighborhood",
+      "topic": "帯状の同時変更",
+      "path": "03-neighborhood.md#topic-44362225369b",
+      "source_fingerprint": "c1f69f71d6122832659a760197a687c1e79ed0762662757ab01f65294aab9b68",
+      "finding_ids": [
+        "45917587-03"
+      ]
+    },
+    {
+      "id": "D080",
+      "genre": "neighborhood",
+      "topic": "停滞時の摂動強化",
+      "path": "03-neighborhood.md#topic-49f1dca6fea7",
+      "source_fingerprint": "20d2cca45752b5e069b51de7ad11c6c08f0bca3ec6b72b4db5a7b07ecb4ad6ce",
+      "finding_ids": [
+        "47308761-05"
+      ]
+    },
+    {
+      "id": "D081",
+      "genre": "neighborhood",
+      "topic": "偶奇を保つ経路置換",
+      "path": "03-neighborhood.md#topic-8927dde88018",
+      "source_fingerprint": "a2b3a08894e9aaf139cb470886db723f1ab3f78aaee5f71d389d7c0a98d3c51c",
+      "finding_ids": [
+        "48359374-04"
+      ]
+    },
+    {
+      "id": "D082",
+      "genre": "neighborhood",
+      "topic": "有向路の区間入替",
+      "path": "03-neighborhood.md#topic-5524c95e2ff8",
+      "source_fingerprint": "99bd8f67238ae55a389d3f69b0fec0f97db7bc153015878e0654a614d77e650e",
+      "finding_ids": [
+        "49255792-03"
+      ]
+    },
+    {
+      "id": "D083",
+      "genre": "neighborhood",
+      "topic": "代表位置の変更",
+      "path": "03-neighborhood.md#topic-bd6825febd43",
+      "source_fingerprint": "5e9cd74d3c74b4658ea89f23e3c0ac8d9d959510b6d32e098783dd1220982fd1",
+      "finding_ids": [
+        "49255792-04"
+      ]
+    },
+    {
+      "id": "D084",
+      "genre": "neighborhood",
+      "topic": "短絡による経路短縮",
+      "path": "03-neighborhood.md#topic-d1ba867086be",
+      "source_fingerprint": "a432c572075d3c4d24e55ffd366a04b95bcad424631a8b37658a4a6cf0f482d0",
+      "finding_ids": [
+        "54643130-04"
+      ]
+    },
+    {
+      "id": "D085",
+      "genre": "neighborhood",
+      "topic": "必須部分の置換",
+      "path": "03-neighborhood.md#topic-89cd37baa768",
+      "source_fingerprint": "4316e124977303e659bd953a33cdebc28f999d33baf66b2fc20b9380ff1bdcff",
+      "finding_ids": [
+        "61871243-04"
+      ]
+    },
+    {
+      "id": "D086",
+      "genre": "neighborhood",
+      "topic": "接尾辞再構築",
+      "path": "03-neighborhood.md#topic-9bc19ab8dac0",
+      "source_fingerprint": "500e66ecbb63ffad244f36a232f37837355844fc7f1734eae0c9247da619090f",
+      "finding_ids": [
+        "63119772-05"
+      ]
+    },
+    {
+      "id": "D087",
+      "genre": "neighborhood",
+      "topic": "保存量を守る移動",
+      "path": "03-neighborhood.md#topic-915e33a4944b",
+      "source_fingerprint": "ccf8dac2f3ecb6fa45c8442622439613d23f074ad2482c3f548a14eafeb13705",
+      "finding_ids": [
+        "65957786-04"
+      ]
+    },
+    {
+      "id": "D088",
+      "genre": "neighborhood",
+      "topic": "後悔値による修復",
+      "path": "03-neighborhood.md#topic-a6126eddcf64",
+      "source_fingerprint": "2e1803b2fa50c2a55d58a34f4f83a8e77b9c8310d8eac02c0491e56603f86130",
+      "finding_ids": [
+        "66623158-06"
+      ]
+    },
+    {
+      "id": "D089",
+      "genre": "neighborhood",
+      "topic": "空き資源を使った再割当",
+      "path": "03-neighborhood.md#topic-b20bf818a1a0",
+      "source_fingerprint": "009885efaba9704244d0e8fc6235d986f3c0cb7b061cf5ddbaf50f1795bd97df",
+      "finding_ids": [
+        "69285442-04"
+      ]
+    },
+    {
+      "id": "D090",
+      "genre": "neighborhood",
+      "topic": "需要起点の一括変更",
+      "path": "03-neighborhood.md#topic-06a566a24484",
+      "source_fingerprint": "ec2ef2b60b25b1a433dd7e248988a0a2fcf34c4cc2eae849d0456eb7ed6c9a2a",
+      "finding_ids": [
+        "70299716-04"
+      ]
+    },
+    {
+      "id": "D091",
+      "genre": "neighborhood",
+      "topic": "固定人数を守る交換",
+      "path": "03-neighborhood.md#topic-6b4a4e5989bc",
+      "source_fingerprint": "a4f773032fa910905e6b370ff5cce67627653cf17443c7735de8589a027e1b4c",
+      "finding_ids": [
+        "71292882-04"
+      ]
+    },
+    {
+      "id": "D092",
+      "genre": "neighborhood",
+      "topic": "部分木ごとの再配置",
+      "path": "03-neighborhood.md#topic-5aa1e86d2d8e",
+      "source_fingerprint": "9b599c1a343ee9712f51d50ec2c4e756e566bd455c99495b64c314a3d7c13de0",
+      "finding_ids": [
+        "72330966-04"
+      ]
+    },
+    {
+      "id": "D093",
+      "genre": "neighborhood",
+      "topic": "操作列の等価変形",
+      "path": "03-neighborhood.md#topic-1b24a526f793",
+      "source_fingerprint": "98c626070c835e8856912cec9301d31dba095029ff9bf00d7edf77010deda6d7",
+      "finding_ids": [
+        "77562268-04"
+      ]
+    },
+    {
+      "id": "D094",
+      "genre": "neighborhood",
+      "topic": "輸送単位の破壊と修復",
+      "path": "03-neighborhood.md#topic-35668dd5c0f7",
+      "source_fingerprint": "290d0cb656f71a27dc4bf42a15dca08fe50c5a6a07809403c7162e23b9e291f0",
+      "finding_ids": [
+        "79793411-05"
+      ]
+    },
+    {
+      "id": "D095",
+      "genre": "annealing",
+      "topic": "対数受理判定",
+      "path": "04-annealing.md#topic-5013e480ba88",
+      "source_fingerprint": "a65163eeb64274a847eded53e599e06cc8e55eaebd0348b721115f8bf7726ea1",
+      "finding_ids": [
+        "22075413-01",
+        "51936966-06"
+      ]
+    },
+    {
+      "id": "D096",
+      "genre": "annealing",
+      "topic": "小確率受理の打切り",
+      "path": "04-annealing.md#topic-993382209cf6",
+      "source_fingerprint": "23c13d3befff44e95f153473a6311415c603438048a2e445f34a85221a8b5c94",
+      "finding_ids": [
+        "27260278-06"
+      ]
+    },
+    {
+      "id": "D097",
+      "genre": "annealing",
+      "topic": "安い受理判定の先行",
+      "path": "04-annealing.md#topic-732bbe4962ae",
+      "source_fingerprint": "67570dc14eddd913b97f7957622cbe03a6d08d16483c41c0b5a7ffc5bed765e8",
+      "finding_ids": [
+        "45917587-05"
+      ]
+    },
+    {
+      "id": "D098",
+      "genre": "annealing",
+      "topic": "受理確率の整数比較",
+      "path": "04-annealing.md#topic-72cf74d30eeb",
+      "source_fingerprint": "d4aee466d0c40056f8d9423950b468df30d33b5d4844281260c08248dded6602",
+      "finding_ids": [
+        "49255792-05"
+      ]
+    },
+    {
+      "id": "D099",
+      "genre": "annealing",
+      "topic": "近傍比率の時間変化",
+      "path": "04-annealing.md#topic-dc24826f338a",
+      "source_fingerprint": "ea9e14b45464192268182c971bd7d63c884ccbd2bdce3a24213e543a64586383",
+      "finding_ids": [
+        "63121685-06"
+      ]
+    },
+    {
+      "id": "D100",
+      "genre": "annealing",
+      "topic": "代理目的から本来目的へ",
+      "path": "04-annealing.md#topic-6fed033e8495",
+      "source_fingerprint": "459442d6b723e0c8025f4cc1f182f92cba60babf454a1397030c1432213c0c25",
+      "finding_ids": [
+        "65957786-05"
+      ]
+    },
+    {
+      "id": "D101",
+      "genre": "annealing",
+      "topic": "補助罰則の減衰",
+      "path": "04-annealing.md#topic-cd4f986d7c6c",
+      "source_fingerprint": "57366923213973be52d2cdac941c570ce13911dff4e653c18729f262c8eff56c",
+      "finding_ids": [
+        "70299716-03"
+      ]
+    },
+    {
+      "id": "D102",
+      "genre": "annealing",
+      "topic": "閾値付き途中評価",
+      "path": "04-annealing.md#topic-f9cda3cc7262",
+      "source_fingerprint": "e5507ad723c239fb299bede2730ca954466314a10b8ef647698fdb58c505c417",
+      "finding_ids": [
+        "71292882-02"
+      ]
+    },
+    {
+      "id": "D103",
+      "genre": "annealing",
+      "topic": "温度の自動較正",
+      "path": "04-annealing.md#topic-5204a0ba7b7b",
+      "source_fingerprint": "95342965000013d1903b24d2a93681667dc3f80c135112b18f53b8dfcdb97680",
+      "finding_ids": [
+        "71725942-04"
+      ]
+    },
+    {
+      "id": "D104",
+      "genre": "annealing",
+      "topic": "二項評価の計算順",
+      "path": "04-annealing.md#topic-a187f2669811",
+      "source_fingerprint": "a2fff6d5767bc5f65aa680634606336cf6beb8717078e8bef98e1b78ebb004a5",
+      "finding_ids": [
+        "79793411-04"
+      ]
+    },
+    {
+      "id": "D105",
+      "genre": "search",
+      "topic": "展開回数で制限するDFS",
+      "path": "05-search.md#topic-7ec6a1686710",
+      "source_fingerprint": "c1cf3a83ec1a282fd3f7513b7200e42697ae444f905cd4bd8a71f42e04a3865a",
+      "finding_ids": [
+        "22075413-02",
+        "31233938-03"
+      ]
+    },
+    {
+      "id": "D106",
+      "genre": "search",
+      "topic": "特殊構造の厳密化",
+      "path": "05-search.md#topic-060ef95fefc4",
+      "source_fingerprint": "486c95cef5f0f6305ab975be4e801b512a818b5c892fba8ddaf5bc02d1aa88c4",
+      "finding_ids": [
+        "23751222-06"
+      ]
+    },
+    {
+      "id": "D107",
+      "genre": "search",
+      "topic": "累積最小による二点挿入",
+      "path": "05-search.md#topic-bfebe64a03cb",
+      "source_fingerprint": "62a4d009bf0e686aefff7b6bf90a0570a7f5cc903c1feb0e387c55e53db9043d",
+      "finding_ids": [
+        "27260278-04"
+      ]
+    },
+    {
+      "id": "D108",
+      "genre": "search",
+      "topic": "小人数の組合せ全探索",
+      "path": "05-search.md#topic-81d84e732f32",
+      "source_fingerprint": "54ac30a17f38668f9622e565fc3c3d438cee9e90bbd6a13ba07da86133fa9f80",
+      "finding_ids": [
+        "29654603-04"
+      ]
+    },
+    {
+      "id": "D109",
+      "genre": "search",
+      "topic": "同種要素の最小費用対応",
+      "path": "05-search.md#topic-1c04f2c098f1",
+      "source_fingerprint": "ae733065e9ed2043bc5ba7998d969527069e190d2e4874f7904c9e9e2deed801",
+      "finding_ids": [
+        "32267675-03"
+      ]
+    },
+    {
+      "id": "D110",
+      "genre": "search",
+      "topic": "ハッシュ重複排除と逆手禁止",
+      "path": "05-search.md#topic-fc0f66483872",
+      "source_fingerprint": "afbe9691a8077aa72977c49480f354b76e964220a4ab615b36f3522b554e6966",
+      "finding_ids": [
+        "32267675-06"
+      ]
+    },
+    {
+      "id": "D111",
+      "genre": "search",
+      "topic": "差分履歴のビーム",
+      "path": "05-search.md#topic-742c94d59cad",
+      "source_fingerprint": "b08249f386487c7ebb5e896ccf1be0774cfab885ae2167be5e02d3abe2741443",
+      "finding_ids": [
+        "40290839-06",
+        "58801909-04"
+      ]
+    },
+    {
+      "id": "D112",
+      "genre": "search",
+      "topic": "探索木での状態共有",
+      "path": "05-search.md#topic-4cf5c73f919f",
+      "source_fingerprint": "f3cc33bc9d8afe3a0a87d0f61f72a3fb3ed2a0e57b9f8849f69af8cce12777b4",
+      "finding_ids": [
+        "42958359-02"
+      ]
+    },
+    {
+      "id": "D113",
+      "genre": "search",
+      "topic": "周期長の拡張",
+      "path": "05-search.md#topic-cc038e103389",
+      "source_fingerprint": "76ca753c3c61e79b99232ad953646ae15a70b2dfdacf73ca920a4a56ec8cc4c9",
+      "finding_ids": [
+        "48359374-06"
+      ]
+    },
+    {
+      "id": "D114",
+      "genre": "search",
+      "topic": "観測集合の局所探索",
+      "path": "05-search.md#topic-18af63ee026e",
+      "source_fingerprint": "4016ce55a278d71c0b75dd40f0f84bad43d558c04a521d3b9949511c72503189",
+      "finding_ids": [
+        "50447114-06"
+      ]
+    },
+    {
+      "id": "D115",
+      "genre": "search",
+      "topic": "確定領域のビーム評価",
+      "path": "05-search.md#topic-64e242955a57",
+      "source_fingerprint": "46e4690ffecf9dfda05598157f52785995b1e2d8cabb4900a41648878041ebff",
+      "finding_ids": [
+        "52156995-02"
+      ]
+    },
+    {
+      "id": "D116",
+      "genre": "search",
+      "topic": "時刻展開した最小費用流",
+      "path": "05-search.md#topic-9f23d7dc50e7",
+      "source_fingerprint": "3d22b8b29ee1fed177a1547cb1b41fbc137f679ec5f95e47efa519ec72d368eb",
+      "finding_ids": [
+        "54643130-01"
+      ]
+    },
+    {
+      "id": "D117",
+      "genre": "search",
+      "topic": "ビームの多様性",
+      "path": "05-search.md#topic-fe5c880c7d52",
+      "source_fingerprint": "a66b1265b0cb5120b3aa3259239a5ef75514f610727800007774a87bd8b3a666",
+      "finding_ids": [
+        "60609745-04"
+      ]
+    },
+    {
+      "id": "D118",
+      "genre": "search",
+      "topic": "粗い状態キーでの多様性制限",
+      "path": "05-search.md#topic-414e79300518",
+      "source_fingerprint": "7b2c35198264a4f37a91202f04cf72d58ee840a4b88772052f7efe5a33d8e4ff",
+      "finding_ids": [
+        "61871243-05"
+      ]
+    },
+    {
+      "id": "D119",
+      "genre": "search",
+      "topic": "深さ別ビーム幅",
+      "path": "05-search.md#topic-3ecc6afad9fb",
+      "source_fingerprint": "a505477cc90a4d55460a16c75072d4cd1a0de9665314c6170a90162cff74c7a3",
+      "finding_ids": [
+        "63119772-04"
+      ]
+    },
+    {
+      "id": "D120",
+      "genre": "search",
+      "topic": "制約違反別の探索枠",
+      "path": "05-search.md#topic-66edc7fb2682",
+      "source_fingerprint": "4abcfef587a6ca83523830a7bc554f1f39d663b3e7074d1bf2e5decd6d0922f4",
+      "finding_ids": [
+        "64611675-05"
+      ]
+    },
+    {
+      "id": "D121",
+      "genre": "search",
+      "topic": "制約達成後の目的切替",
+      "path": "05-search.md#topic-d83fca8aa757",
+      "source_fingerprint": "48caae9bab3f418744aa886f37997b7533fc9ca62a7a08f8aeba0296e2816681",
+      "finding_ids": [
+        "68711859-03"
+      ]
+    },
+    {
+      "id": "D122",
+      "genre": "search",
+      "topic": "固定個数の半分全列挙",
+      "path": "05-search.md#topic-5e5d5a3b7ac7",
+      "source_fingerprint": "d3b764564a510946b6fd99c77bf60723a9fcb5deacaf6edeb8206c2bc4f40907",
+      "finding_ids": [
+        "69285442-02"
+      ]
+    },
+    {
+      "id": "D123",
+      "genre": "search",
+      "topic": "部分領域の仕上げ",
+      "path": "05-search.md#topic-fc13723a6ed5",
+      "source_fingerprint": "7d47e799aae16041adc321c8a5ac5857fbea17d47be656e4ac5e5ee28c1cbc4a",
+      "finding_ids": [
+        "69728114-03"
+      ]
+    },
+    {
+      "id": "D124",
+      "genre": "search",
+      "topic": "代理評価と実出力評価",
+      "path": "05-search.md#topic-389de9cc377c",
+      "source_fingerprint": "5d3eaf3a2d669ec88a640e65daf46feee024a2f885e6a824a0a9f11937920ead",
+      "finding_ids": [
+        "71030207-06"
+      ]
+    },
+    {
+      "id": "D125",
+      "genre": "search",
+      "topic": "履歴を含むBFS",
+      "path": "05-search.md#topic-f1403a26bd3c",
+      "source_fingerprint": "fa4cee33054451ee2f8ba75dc8f187002a6387e40a67541807fab3b47c56dcc4",
+      "finding_ids": [
+        "72942421-02"
+      ]
+    },
+    {
+      "id": "D126",
+      "genre": "search",
+      "topic": "経路と盤面の保存分離",
+      "path": "05-search.md#topic-bdd5ab5dafbf",
+      "source_fingerprint": "e309413fb60477049799aa1f714fb168e23397bc3b1b7614852a500d2f05df61",
+      "finding_ids": [
+        "75295267-04"
+      ]
+    },
+    {
+      "id": "D127",
+      "genre": "search",
+      "topic": "単調性を仮定したパラメータ探索",
+      "path": "05-search.md#topic-434e908fdd50",
+      "source_fingerprint": "1a3ed98951c7485dbedab50c78f0a15ad2c8b9ecb29c6e43a4656ae844007d23",
+      "finding_ids": [
+        "75827741-04"
+      ]
+    },
+    {
+      "id": "D128",
+      "genre": "search",
+      "topic": "同じ次の目標への偏り防止",
+      "path": "05-search.md#topic-4aba2c9cc5c8",
+      "source_fingerprint": "c1e5b83b693e1190536cc832ec3aa725fca5c12458e4d29468a6776af614117a",
+      "finding_ids": [
+        "77562268-03"
+      ]
+    },
+    {
+      "id": "D129",
+      "genre": "evaluation",
+      "topic": "容量超過と平準化の代理目的",
+      "path": "06-evaluation.md#topic-d6e9e6f3ad79",
+      "source_fingerprint": "56b5598a2dcd5fc290a340c09dc3adad700117dd3b0e75edfd15b49a9a282c3d",
+      "finding_ids": [
+        "23751222-05"
+      ]
+    },
+    {
+      "id": "D130",
+      "genre": "evaluation",
+      "topic": "期待値に係数を掛ける採否",
+      "path": "06-evaluation.md#topic-c859bdb2a17b",
+      "source_fingerprint": "bde2dcbc54b255fc2db5c701f888c4ea15bfb4700e3b051923fe574f314b4917",
+      "finding_ids": [
+        "27880973-05"
+      ]
+    },
+    {
+      "id": "D131",
+      "genre": "evaluation",
+      "topic": "初回到達の期待得点",
+      "path": "06-evaluation.md#topic-72cf3b9803fa",
+      "source_fingerprint": "accdb85851169f2b42b249a78a07c972cb4fb3e19044b7ba7a49eeb3a441928b",
+      "finding_ids": [
+        "30423648-04"
+      ]
+    },
+    {
+      "id": "D132",
+      "genre": "evaluation",
+      "topic": "段階で代理目的を変える",
+      "path": "06-evaluation.md#topic-ea41a04628c0",
+      "source_fingerprint": "726d1c60055958720ea7d6569bfc58e0457ffac2204112827f7356db3aaab4af",
+      "finding_ids": [
+        "31233938-04"
+      ]
+    },
+    {
+      "id": "D133",
+      "genre": "evaluation",
+      "topic": "移動距離以外のビーム評価",
+      "path": "06-evaluation.md#topic-5d7a51f5bd5c",
+      "source_fingerprint": "3443c79097f88a439bb0cc66e0d56a614a40fa562bed3bf7bc60fb33e83e38cb",
+      "finding_ids": [
+        "32267675-05"
+      ]
+    },
+    {
+      "id": "D134",
+      "genre": "evaluation",
+      "topic": "分布間の輸送型距離",
+      "path": "06-evaluation.md#topic-39c9f9232337",
+      "source_fingerprint": "43cc9ff6ff17468ef12d61071ff5d58ba50fad973926543d05b1ffdfd3fbc963",
+      "finding_ids": [
+        "32961594-04"
+      ]
+    },
+    {
+      "id": "D135",
+      "genre": "evaluation",
+      "topic": "将来価値の加算",
+      "path": "06-evaluation.md#topic-a31edd0ad14e",
+      "source_fingerprint": "58876fb9fb614f733a059d88aaec04688de8999961ab7e06000e1a1dccb9bcbc",
+      "finding_ids": [
+        "35264600-04"
+      ]
+    },
+    {
+      "id": "D136",
+      "genre": "evaluation",
+      "topic": "需要と容量の累積集計",
+      "path": "06-evaluation.md#topic-4a4f76bde60f",
+      "source_fingerprint": "6434d2fe6b986d26afe836402db0fbaa04b01e6702ea8c9d5d2a2a6cf90edb63",
+      "finding_ids": [
+        "45441612-04",
+        "45449215-04"
+      ]
+    },
+    {
+      "id": "D137",
+      "genre": "evaluation",
+      "topic": "訪問間隔への変換",
+      "path": "06-evaluation.md#topic-70aa5c926b89",
+      "source_fingerprint": "8cf1c5e9a33a4e3a1693db17286d355e0d39b89e1868bf0ad50ac86b941fdd50",
+      "finding_ids": [
+        "48359374-01"
+      ]
+    },
+    {
+      "id": "D138",
+      "genre": "evaluation",
+      "topic": "待ちと寄り道の代理費用",
+      "path": "06-evaluation.md#topic-b2f03099fe3d",
+      "source_fingerprint": "c042a4b9a7c53ea46a9e457d30c5bf239baf026b089e6cd70dffac233565efaf",
+      "finding_ids": [
+        "53942556-06"
+      ]
+    },
+    {
+      "id": "D139",
+      "genre": "evaluation",
+      "topic": "希少な特徴の保存",
+      "path": "06-evaluation.md#topic-13b1659127d5",
+      "source_fingerprint": "72c7c532c089afaa2c15870df3c6bd47cb375905cd36953cc9961129ca31de5d",
+      "finding_ids": [
+        "55852875-01"
+      ]
+    },
+    {
+      "id": "D140",
+      "genre": "evaluation",
+      "topic": "相補性の評価",
+      "path": "06-evaluation.md#topic-944a6fbc7900",
+      "source_fingerprint": "6edeec1e9c9f3b8d6f94c3c6db250a7acb48446b299dea6ffb5dc5e40da8b598",
+      "finding_ids": [
+        "55852875-02"
+      ]
+    },
+    {
+      "id": "D141",
+      "genre": "evaluation",
+      "topic": "残面積の見込み",
+      "path": "06-evaluation.md#topic-762e417bf2cb",
+      "source_fingerprint": "bfb1c83c3b54c92ed12b8dc98d7c7a94e94bb39fe4ade1c78a360391220068e2",
+      "finding_ids": [
+        "60609745-05"
+      ]
+    },
+    {
+      "id": "D142",
+      "genre": "evaluation",
+      "topic": "仮説の集約距離",
+      "path": "06-evaluation.md#topic-a16a992e2105",
+      "source_fingerprint": "342f90f070d642f55120d05ca91f7585c84aa548e8b47dc6d9788a31dd907152",
+      "finding_ids": [
+        "64611675-04"
+      ]
+    },
+    {
+      "id": "D143",
+      "genre": "evaluation",
+      "topic": "長期確率の近似",
+      "path": "06-evaluation.md#topic-54a59ad764c4",
+      "source_fingerprint": "61d1a83a0b28f25d7af28b8647817118a4bee09e033aae1ce93610ed9ac4e6f8",
+      "finding_ids": [
+        "65957786-02"
+      ]
+    },
+    {
+      "id": "D144",
+      "genre": "evaluation",
+      "topic": "状態に依存する混合",
+      "path": "06-evaluation.md#topic-de7349b79b71",
+      "source_fingerprint": "74b6733e1c9d7a730578c2fffd8844e35cd9556bfb55626a9878b36505e82268",
+      "finding_ids": [
+        "66623158-05"
+      ]
+    },
+    {
+      "id": "D145",
+      "genre": "evaluation",
+      "topic": "近似拡散の集中度",
+      "path": "06-evaluation.md#topic-bd886c3feee1",
+      "source_fingerprint": "6712ab06bf63fd3ba33cd019c185b0582e2656b24d561969f3bf628253979732",
+      "finding_ids": [
+        "67393589-04"
+      ]
+    },
+    {
+      "id": "D146",
+      "genre": "evaluation",
+      "topic": "位置重みの反転差分",
+      "path": "06-evaluation.md#topic-348cb7561611",
+      "source_fingerprint": "f2362c148ddde11d31968ca8867756447d511fb4d8527c811414df2978c6ca82",
+      "finding_ids": [
+        "74068534-02"
+      ]
+    },
+    {
+      "id": "D147",
+      "genre": "evaluation",
+      "topic": "進捗と回収余地",
+      "path": "06-evaluation.md#topic-055ecba6971b",
+      "source_fingerprint": "b80bfb1cb436a28bec1d96da4168e7bc3903a37880668f0f11b63e98818a32e2",
+      "finding_ids": [
+        "74935244-05"
+      ]
+    },
+    {
+      "id": "D148",
+      "genre": "evaluation",
+      "topic": "完成に近い構造の段階評価",
+      "path": "06-evaluation.md#topic-5999ba17234f",
+      "source_fingerprint": "e11366780cc81b3ea6d75e0ab019f6c4306971f918e25394d9b0c9a8055c7579",
+      "finding_ids": [
+        "75295267-01"
+      ]
+    },
+    {
+      "id": "D149",
+      "genre": "evaluation",
+      "topic": "時空間の占有重み",
+      "path": "06-evaluation.md#topic-80a2fac144cf",
+      "source_fingerprint": "e1d0471b59d05b82e8d620014cf716cb69e27c64a8cdd01e63228874ed35cb13",
+      "finding_ids": [
+        "78259988-02"
+      ]
+    },
+    {
+      "id": "D150",
+      "genre": "incremental",
+      "topic": "接触要素だけの差分",
+      "path": "07-incremental.md#topic-987749c34ea4",
+      "source_fingerprint": "88cc7f912072c3628eb05b3d3205a00195f2bc7e565e09ca733f2fb9ae2b8d0c",
+      "finding_ids": [
+        "20926292-03"
+      ]
+    },
+    {
+      "id": "D151",
+      "genre": "incremental",
+      "topic": "連結列の隣接辺差分",
+      "path": "07-incremental.md#topic-1bfb3dd710e7",
+      "source_fingerprint": "6209a41e41e7bd24aa36a5a03cd9c80e2ff3954cc1d53f20da48248e949a7e16",
+      "finding_ids": [
+        "23751222-04"
+      ]
+    },
+    {
+      "id": "D152",
+      "genre": "incremental",
+      "topic": "隣接辺による経路差分",
+      "path": "07-incremental.md#topic-1a08cb338acf",
+      "source_fingerprint": "543a6a255c7f267ead87a9b6bac8e40ea528ea8c3c5d959c0576f12c01fb5066",
+      "finding_ids": [
+        "27260278-03"
+      ]
+    },
+    {
+      "id": "D153",
+      "genre": "incremental",
+      "topic": "確定状態からの分岐コピー",
+      "path": "07-incremental.md#topic-f8795606f1f9",
+      "source_fingerprint": "cb71098bb41d1050ef9db4bdf980372fb9197860937780b70129cbb8c441a45a",
+      "finding_ids": [
+        "27880973-04"
+      ]
+    },
+    {
+      "id": "D154",
+      "genre": "incremental",
+      "topic": "修復候補の遅延反映",
+      "path": "07-incremental.md#topic-71e57560c07c",
+      "source_fingerprint": "02cc490fe205e652be57fff66f783ebbe73b7d0f19d6fa417a6a33f01773b345",
+      "finding_ids": [
+        "31233938-05"
+      ]
+    },
+    {
+      "id": "D155",
+      "genre": "incremental",
+      "topic": "局所次数分布の差分",
+      "path": "07-incremental.md#topic-4f129f70ece6",
+      "source_fingerprint": "4681cee3927ddd84f9db7cb6dfcd807da76be5217c6d4c713511bcc198210c28",
+      "finding_ids": [
+        "32267675-02"
+      ]
+    },
+    {
+      "id": "D156",
+      "genre": "incremental",
+      "topic": "隣接帯だけの再評価",
+      "path": "07-incremental.md#topic-fc208a35260b",
+      "source_fingerprint": "c05d1cfca30222f167b06a5d220230316319495cc376a441e0ea555f3be96ff4",
+      "finding_ids": [
+        "32961594-02"
+      ]
+    },
+    {
+      "id": "D157",
+      "genre": "incremental",
+      "topic": "差分ログによるundo",
+      "path": "07-incremental.md#topic-f1937d7a74b6",
+      "source_fingerprint": "d77395b6134267388916978a6a3f534fd6406bf5f8af45d4ce7b76242957ec6f",
+      "finding_ids": [
+        "32961594-05"
+      ]
+    },
+    {
+      "id": "D158",
+      "genre": "incremental",
+      "topic": "変更周辺の更新",
+      "path": "07-incremental.md#topic-79d85f3875c9",
+      "source_fingerprint": "874b5d60cc6f518cedddc3cd391be5622167b58dd8e455d88c7acd62dad899ab",
+      "finding_ids": [
+        "34085279-02",
+        "34095240-02"
+      ]
+    },
+    {
+      "id": "D159",
+      "genre": "incremental",
+      "topic": "候補キャッシュ",
+      "path": "07-incremental.md#topic-59144739a71b",
+      "source_fingerprint": "0dfc948623c0fb55898b5a0acf3c4a1087fa90ac8821ea6ebc525a6fc50dfc2f",
+      "finding_ids": [
+        "35264600-01"
+      ]
+    },
+    {
+      "id": "D160",
+      "genre": "incremental",
+      "topic": "動的最短路",
+      "path": "07-incremental.md#topic-b85b778654e8",
+      "source_fingerprint": "6c6464cbf2bcf793dd80e6939a845783aca3072af438c77d7f7162cff29d5eb7",
+      "finding_ids": [
+        "38643777-01",
+        "57377353-04"
+      ]
+    },
+    {
+      "id": "D161",
+      "genre": "incremental",
+      "topic": "差分ログによる巻き戻し",
+      "path": "07-incremental.md#topic-cd854923df49",
+      "source_fingerprint": "212dc90c77f95f62685af321f720f5d973a111e2dbf6fbe9ef5fe6c258817ec9",
+      "finding_ids": [
+        "38643777-04",
+        "48359374-05"
+      ]
+    },
+    {
+      "id": "D162",
+      "genre": "incremental",
+      "topic": "被覆回数とビット集合",
+      "path": "07-incremental.md#topic-e952e36f4e71",
+      "source_fingerprint": "b8c62ac9888292648998fcf5668abe33ecf1963f3333a512a965949057080f38",
+      "finding_ids": [
+        "40290839-03"
+      ]
+    },
+    {
+      "id": "D163",
+      "genre": "incremental",
+      "topic": "コンパクトな巻き戻し",
+      "path": "07-incremental.md#topic-d77ffc0a093b",
+      "source_fingerprint": "52e792a2abb6296e498a6a7975eaa886e049757b03c897b9b26f61ec9d09630d",
+      "finding_ids": [
+        "42958359-03"
+      ]
+    },
+    {
+      "id": "D164",
+      "genre": "incremental",
+      "topic": "前後イベントの管理",
+      "path": "07-incremental.md#topic-609e9813ecbd",
+      "source_fingerprint": "3cb594dfc2511074fc808c760b65640fe12c267ae3f73ba3993c59d11265e17c",
+      "finding_ids": [
+        "45441612-03",
+        "45449215-03"
+      ]
+    },
+    {
+      "id": "D165",
+      "genre": "incremental",
+      "topic": "隣接の参照数",
+      "path": "07-incremental.md#topic-d00247f8c858",
+      "source_fingerprint": "35f493855cb016a700ee2eb74209440da8eeee918a3185cdefadf72c21277364",
+      "finding_ids": [
+        "45917587-01",
+        "57377353-03"
+      ]
+    },
+    {
+      "id": "D166",
+      "genre": "incremental",
+      "topic": "変更点同士の二重計数",
+      "path": "07-incremental.md#topic-58fcdc3a9ea1",
+      "source_fingerprint": "57650fccca882f81a97973070be0e6f050d6b2c69f6b27ef6dda0b1501c83d1c",
+      "finding_ids": [
+        "45917587-04"
+      ]
+    },
+    {
+      "id": "D167",
+      "genre": "incremental",
+      "topic": "共通オフセット",
+      "path": "07-incremental.md#topic-42afa342158f",
+      "source_fingerprint": "9cc48e6c7f11dc27cb6065b806e3043d4653499af9e17a6ae26ccc8b26947755",
+      "finding_ids": [
+        "48359374-02"
+      ]
+    },
+    {
+      "id": "D168",
+      "genre": "incremental",
+      "topic": "仮説ごとの観測量",
+      "path": "07-incremental.md#topic-11fac4aa13a2",
+      "source_fingerprint": "866cb78c74f55a098273a1ab221ffc95c914320f4ea95a93d705083036f407e8",
+      "finding_ids": [
+        "50447114-03"
+      ]
+    },
+    {
+      "id": "D169",
+      "genre": "incremental",
+      "topic": "区間制約の伝播",
+      "path": "07-incremental.md#topic-1452b651e57e",
+      "source_fingerprint": "275005fa82f2c4eccec0b37d20706379321a3f3aaa61ab60e1e48bf3598ef66b",
+      "finding_ids": [
+        "51936966-03"
+      ]
+    },
+    {
+      "id": "D170",
+      "genre": "incremental",
+      "topic": "操作種別つき巻き戻し",
+      "path": "07-incremental.md#topic-4deb2b90f083",
+      "source_fingerprint": "18934edee231251faf48265a28819ab1a75b4b6c5bae365250d945855d295e2d",
+      "finding_ids": [
+        "51936966-04"
+      ]
+    },
+    {
+      "id": "D171",
+      "genre": "incremental",
+      "topic": "格子境界の長さ",
+      "path": "07-incremental.md#topic-9beff6801c15",
+      "source_fingerprint": "c4283552711290f4aff1e7c7aaf7d27dfc6a3ba0fd4e8c25f4ecb3c151dedd5e",
+      "finding_ids": [
+        "59660035-03"
+      ]
+    },
+    {
+      "id": "D172",
+      "genre": "incremental",
+      "topic": "受理後の確定",
+      "path": "07-incremental.md#topic-6b5200d0e5e3",
+      "source_fingerprint": "84214014686a7a006349e81f8507ee28a963eb85dcb64be59e9ca1c90aa0810a",
+      "finding_ids": [
+        "59660035-05"
+      ]
+    },
+    {
+      "id": "D173",
+      "genre": "incremental",
+      "topic": "最初の影響位置から再計算",
+      "path": "07-incremental.md#topic-bbaf337fc6af",
+      "source_fingerprint": "26e0463503813bcc4670ddfaeafce5a751694b9e7c51691ada7dbaeea57991ab",
+      "finding_ids": [
+        "63121685-02"
+      ]
+    },
+    {
+      "id": "D174",
+      "genre": "incremental",
+      "topic": "制約の逆引き",
+      "path": "07-incremental.md#topic-e0b13cea2aa8",
+      "source_fingerprint": "fc988927542a6ea72222f7ad7c9fb6189b4aa7880f2ab272ebc9c159ea7783a5",
+      "finding_ids": [
+        "64611675-02"
+      ]
+    },
+    {
+      "id": "D175",
+      "genre": "incremental",
+      "topic": "影響資源だけ更新",
+      "path": "07-incremental.md#topic-6d3610440084",
+      "source_fingerprint": "6c06036347d90a8f389112140326f0545db4634a9fe3178db67ebbc867d4aefc",
+      "finding_ids": [
+        "66623158-03"
+      ]
+    },
+    {
+      "id": "D176",
+      "genre": "incremental",
+      "topic": "被覆回数",
+      "path": "07-incremental.md#topic-377113741205",
+      "source_fingerprint": "7504942e45eb69d9a28a4738df9c0c0067284da504404d9ec66891141b27a971",
+      "finding_ids": [
+        "68711859-02"
+      ]
+    },
+    {
+      "id": "D177",
+      "genre": "incremental",
+      "topic": "状態変更の逆依存",
+      "path": "07-incremental.md#topic-8726b924e6f4",
+      "source_fingerprint": "85acaa67bf193c78f081eaa4e5d5c7683f7224da5995114da31c8f651bf6a5b9",
+      "finding_ids": [
+        "71030207-04"
+      ]
+    },
+    {
+      "id": "D178",
+      "genre": "incremental",
+      "topic": "接頭辞状態の保存",
+      "path": "07-incremental.md#topic-bae1c3baa41d",
+      "source_fingerprint": "9e116192be3a7b615e9590c9d3df2e1c1b802d6e1348608cde040733c4d2522b",
+      "finding_ids": [
+        "71725942-03"
+      ]
+    },
+    {
+      "id": "D179",
+      "genre": "incremental",
+      "topic": "木の境界差分",
+      "path": "07-incremental.md#topic-9a1c4f60509b",
+      "source_fingerprint": "f20cb34979481a5d91ac4bb69fa172fccba9da774f0984cc1563417731641b99",
+      "finding_ids": [
+        "72330966-03"
+      ]
+    },
+    {
+      "id": "D180",
+      "genre": "incremental",
+      "topic": "意思決定境界まで巻き戻す",
+      "path": "07-incremental.md#topic-cdafdea242ef",
+      "source_fingerprint": "8c4bf62c45d431a000841173abf5e25bcc85b560f34ab7c5cc78a010740825f7",
+      "finding_ids": [
+        "72942421-03"
+      ]
+    },
+    {
+      "id": "D181",
+      "genre": "incremental",
+      "topic": "可逆な切断と回収",
+      "path": "07-incremental.md#topic-eeaddead10d1",
+      "source_fingerprint": "6fe6bb742ae070eb154304b110bfad253c3e10d02bfb7dfe03a2a009a0df1100",
+      "finding_ids": [
+        "74935244-04"
+      ]
+    },
+    {
+      "id": "D182",
+      "genre": "incremental",
+      "topic": "候補サイズを一つずつ伸ばす",
+      "path": "07-incremental.md#topic-fc111c602fe8",
+      "source_fingerprint": "c4d0f0e230d5dbeafc84ebe820028f5df120b17cf620e5aab0949913dd209e6b",
+      "finding_ids": [
+        "75295267-02"
+      ]
+    },
+    {
+      "id": "D183",
+      "genre": "incremental",
+      "topic": "動いた前進だけを巻き戻す",
+      "path": "07-incremental.md#topic-1fde1ea4955c",
+      "source_fingerprint": "ded44e0797b02b2781974ed8d430e3b93ed0c4aa3d8ccc36c5aab5e8ea848796",
+      "finding_ids": [
+        "76520389-02"
+      ]
+    },
+    {
+      "id": "D184",
+      "genre": "incremental",
+      "topic": "二行だけの評価更新",
+      "path": "07-incremental.md#topic-3d1dd16f4fb4",
+      "source_fingerprint": "21602967e5e8efb7540e63b48184af5e5e942d5aac6a452ffc405741c916b25b",
+      "finding_ids": [
+        "79251146-02"
+      ]
+    },
+    {
+      "id": "D185",
+      "genre": "incremental",
+      "topic": "XORによる可逆差分",
+      "path": "07-incremental.md#topic-0315f72024fc",
+      "source_fingerprint": "0669e15247163eb63a779392e29903d4a282a4702c2e6f51a3483c45d697be4c",
+      "finding_ids": [
+        "79251146-04"
+      ]
+    },
+    {
+      "id": "D186",
+      "genre": "incremental",
+      "topic": "修復接頭辞の共有",
+      "path": "07-incremental.md#topic-75e95dc9d5ee",
+      "source_fingerprint": "bf20790151addbe308a6577040c15982ca9c87ea371c5cdb9bae9669e1b22b64",
+      "finding_ids": [
+        "79793411-06"
+      ]
+    },
+    {
+      "id": "D187",
+      "genre": "candidates",
+      "topic": "近傍上位K",
+      "path": "08-candidates.md#topic-b6e4b837afa5",
+      "source_fingerprint": "8f530679c069f18bf8086643707031c8aef67e8d642b5181a0885f9156abcdc6",
+      "finding_ids": [
+        "20926292-04"
+      ]
+    },
+    {
+      "id": "D188",
+      "genre": "candidates",
+      "topic": "軽い評価を先にする",
+      "path": "08-candidates.md#topic-bda871b35667",
+      "source_fingerprint": "563cbc72c4d022df47adf9b273d05a48f92b86e96e0cbe1268f12276dafeaffc",
+      "finding_ids": [
+        "27260278-05"
+      ]
+    },
+    {
+      "id": "D189",
+      "genre": "candidates",
+      "topic": "閾値到達での探索終了",
+      "path": "08-candidates.md#topic-ee662a770453",
+      "source_fingerprint": "c4a7bda01cc3fd6120097eeda7e1ede55080be4478867593eea46f1a84c07298",
+      "finding_ids": [
+        "29654603-05"
+      ]
+    },
+    {
+      "id": "D190",
+      "genre": "candidates",
+      "topic": "粗い評価から精密評価へ",
+      "path": "08-candidates.md#topic-7f3588d6877c",
+      "source_fingerprint": "d2970a02a434641776daf06caf3ce0697a665a0ff348452d47d266bc77452588",
+      "finding_ids": [
+        "36660262-02",
+        "38643777-02"
+      ]
+    },
+    {
+      "id": "D191",
+      "genre": "candidates",
+      "topic": "被覆による同一視",
+      "path": "08-candidates.md#topic-3a4d26a2b522",
+      "source_fingerprint": "9a5d5c6e32f9c5b017f3bea8a8739a22afc9bd27288ed18ba306dac167cc0e7d",
+      "finding_ids": [
+        "40290839-07"
+      ]
+    },
+    {
+      "id": "D192",
+      "genre": "candidates",
+      "topic": "確定済み要素を固定",
+      "path": "08-candidates.md#topic-b58c04e39b40",
+      "source_fingerprint": "26832ad62e7ba14aaf3bdaff385e42b263b5866c754f80e2c65cf92aa87649e0",
+      "finding_ids": [
+        "42958359-01"
+      ]
+    },
+    {
+      "id": "D193",
+      "genre": "candidates",
+      "topic": "上位候補の閾値",
+      "path": "08-candidates.md#topic-a5c6c26734d3",
+      "source_fingerprint": "0d86a6246bc556a342d0634c9e73e9b3a7a571894d131da431b437089ba22306",
+      "finding_ids": [
+        "52156995-03"
+      ]
+    },
+    {
+      "id": "D194",
+      "genre": "candidates",
+      "topic": "楽観上界による枝刈り",
+      "path": "08-candidates.md#topic-16c45c7b8cc6",
+      "source_fingerprint": "5bc2ae3aa91ce44eb9842919a8301fc77177c9d3b65a911aa936e0999caeb2ee",
+      "finding_ids": [
+        "58801909-02"
+      ]
+    },
+    {
+      "id": "D195",
+      "genre": "candidates",
+      "topic": "境界候補の管理",
+      "path": "08-candidates.md#topic-00a2bd3be871",
+      "source_fingerprint": "05527f88bda8596ef5c717e9b12982f702dde507a7aaed5997754b69853ff1ba",
+      "finding_ids": [
+        "59660035-04"
+      ]
+    },
+    {
+      "id": "D196",
+      "genre": "candidates",
+      "topic": "探索規模で切替",
+      "path": "08-candidates.md#topic-383da5e1d6d2",
+      "source_fingerprint": "994bcc9d2c75770d4aa214a0740663d07e7fb52e5be5ccd4af2ba4b570284109",
+      "finding_ids": [
+        "63119772-03"
+      ]
+    },
+    {
+      "id": "D197",
+      "genre": "candidates",
+      "topic": "親ごとの候補制限",
+      "path": "08-candidates.md#topic-149fc915fa58",
+      "source_fingerprint": "af8c62bbbaefd2189cd069c466493e3a8d7b8cad421a87cf0f99dc5e96b11c6e",
+      "finding_ids": [
+        "63121685-04"
+      ]
+    },
+    {
+      "id": "D198",
+      "genre": "candidates",
+      "topic": "安価な指標で前段選別",
+      "path": "08-candidates.md#topic-9933554fa5eb",
+      "source_fingerprint": "1ca0fe059dbe958d88b0d1e79ec817d5c2b7c405fe9c41b402f128baf81c8f76",
+      "finding_ids": [
+        "67393589-03"
+      ]
+    },
+    {
+      "id": "D199",
+      "genre": "candidates",
+      "topic": "近接ペアの前計算",
+      "path": "08-candidates.md#topic-0063e41e6e58",
+      "source_fingerprint": "751312dd00eed92acfea626b200d839a3476e4265048e0f62a61424ed2f59ee0",
+      "finding_ids": [
+        "72330966-05"
+      ]
+    },
+    {
+      "id": "D200",
+      "genre": "candidates",
+      "topic": "実行頻度による重点化",
+      "path": "08-candidates.md#topic-a4fbbc03133e",
+      "source_fingerprint": "78ecaabd7922aed41a73b1552b4bcd7d8c4ec4cc4781523d67b4766ff7f78731",
+      "finding_ids": [
+        "72942421-04"
+      ]
+    },
+    {
+      "id": "D201",
+      "genre": "candidates",
+      "topic": "合法な切断点の逆引き",
+      "path": "08-candidates.md#topic-c2c8c2481c12",
+      "source_fingerprint": "df74a8ce2a7f54395d11be7dc9da4849b6c90156c53a00b6676a3b5347139d35",
+      "finding_ids": [
+        "74068534-04"
+      ]
+    },
+    {
+      "id": "D202",
+      "genre": "candidates",
+      "topic": "下界で高価な距離計算を省く",
+      "path": "08-candidates.md#topic-005cede22f5f",
+      "source_fingerprint": "05f915912afd35de42099a10103dfe5f3de26c83dd5e4efc6e284ff9b3772a94",
+      "finding_ids": [
+        "77562268-02"
+      ]
+    },
+    {
+      "id": "D203",
+      "genre": "candidates",
+      "topic": "学習器による再配置候補選別",
+      "path": "08-candidates.md#topic-6071530bd2e7",
+      "source_fingerprint": "df89b896c237c842b31fc3c388dbe8303051dc0443032035206bf1396684c426",
+      "finding_ids": [
+        "78259988-05"
+      ]
+    },
+    {
+      "id": "D204",
+      "genre": "candidates",
+      "topic": "同一中心のサイズ間選別",
+      "path": "08-candidates.md#topic-86f56b88f8bb",
+      "source_fingerprint": "3459101355d201e631f2f3372f066c85082736607d4998d35cb5c026620d8519",
+      "finding_ids": [
+        "79251146-03"
+      ]
+    },
+    {
+      "id": "D205",
+      "genre": "graph",
+      "topic": "ボトルネック接続閾値",
+      "path": "09-graph.md#topic-2b0fa9b832b6",
+      "source_fingerprint": "1e1c2317ec1c131694d07598a58ea773c9b6da70284465b39c5e70c655290646",
+      "finding_ids": [
+        "27880973-02"
+      ]
+    },
+    {
+      "id": "D206",
+      "genre": "graph",
+      "topic": "異種中継点の活用",
+      "path": "09-graph.md#topic-803566901af3",
+      "source_fingerprint": "d37be3d17b2edfe317f43f3b88f6167cb8ff0ff38dcef614ff578c54353813f1",
+      "finding_ids": [
+        "34085279-05"
+      ]
+    },
+    {
+      "id": "D207",
+      "genre": "graph",
+      "topic": "粗いグラフへの縮約",
+      "path": "09-graph.md#topic-e87ee1ab3843",
+      "source_fingerprint": "8339d76719cc5511081c51b498516d652e99e50993a51ed8ca18efec3db59bb8",
+      "finding_ids": [
+        "39142737-02"
+      ]
+    },
+    {
+      "id": "D208",
+      "genre": "graph",
+      "topic": "局所削除の連結性",
+      "path": "09-graph.md#topic-8eca151475e1",
+      "source_fingerprint": "8d6b04771dc1e6a922c90f4be75f7a196428863590053df9c242923851b9d9ee",
+      "finding_ids": [
+        "40290839-04",
+        "45917587-02"
+      ]
+    },
+    {
+      "id": "D209",
+      "genre": "graph",
+      "topic": "経路上の中継点の再利用",
+      "path": "09-graph.md#topic-0d78491e7a73",
+      "source_fingerprint": "ce078944b005de7c7ef5cd4a5fe69036660409a11e33fa413cb09f38b45f7d94",
+      "finding_ids": [
+        "42196314-05"
+      ]
+    },
+    {
+      "id": "D210",
+      "genre": "graph",
+      "topic": "競合集合の統合",
+      "path": "09-graph.md#topic-14647421f37b",
+      "source_fingerprint": "286d409e574a3cd0637d66c91e2676e44611000bf184348492b39c8236f0fab4",
+      "finding_ids": [
+        "71030207-05"
+      ]
+    },
+    {
+      "id": "D211",
+      "genre": "graph",
+      "topic": "局所表から全体検査へ",
+      "path": "09-graph.md#topic-cd0a3812efb4",
+      "source_fingerprint": "079a6abd2e1e60d0044b03007c749f55da1bbe8c50c19b33536ec281eff81ae2",
+      "finding_ids": [
+        "78259988-03"
+      ]
+    },
+    {
+      "id": "D212",
+      "genre": "geometry",
+      "topic": "多解像度の形状探索",
+      "path": "10-geometry.md#topic-672e038badb3",
+      "source_fingerprint": "e18e371065b381739f9b3f741131b85aad86359e65cf7e701ff8f59cfbf5d94b",
+      "finding_ids": [
+        "59660035-01"
+      ]
+    },
+    {
+      "id": "D213",
+      "genre": "uncertainty",
+      "topic": "低ランク共分散更新",
+      "path": "11-uncertainty.md#topic-97b98e566de1",
+      "source_fingerprint": "e4487350b26b6772918805fe4b085946c2a59b1c11ab79c6e9a032880251cb06",
+      "finding_ids": [
+        "23016921-01"
+      ]
+    },
+    {
+      "id": "D214",
+      "genre": "uncertainty",
+      "topic": "モデル平均",
+      "path": "11-uncertainty.md#topic-ce2415951ec7",
+      "source_fingerprint": "5c3a8088ca92e96d31240c84231a88f8a6d26f78221e60d06f0096c80b84ad22",
+      "finding_ids": [
+        "23016921-02"
+      ]
+    },
+    {
+      "id": "D215",
+      "genre": "uncertainty",
+      "topic": "不確実性ボーナス",
+      "path": "11-uncertainty.md#topic-119888239a61",
+      "source_fingerprint": "1bc7ce336b785672ba22085dc4635fa36fe8c3415bac2b8ce7fa906406f3a4b4",
+      "finding_ids": [
+        "23016921-04"
+      ]
+    },
+    {
+      "id": "D216",
+      "genre": "uncertainty",
+      "topic": "観測ノイズの分解",
+      "path": "11-uncertainty.md#topic-2ddc57936ae1",
+      "source_fingerprint": "3cb18928f114555036a41942119e15bb5dc99d9ff968e033d6307658ff74cc7b",
+      "finding_ids": [
+        "23016921-06"
+      ]
+    },
+    {
+      "id": "D217",
+      "genre": "uncertainty",
+      "topic": "将来シナリオのサンプリング",
+      "path": "11-uncertainty.md#topic-9fed0227864f",
+      "source_fingerprint": "5ac25b6678d475815fc533a8ac076c068055ca67fb0a1b54379cab82943d018c",
+      "finding_ids": [
+        "27880973-01"
+      ]
+    },
+    {
+      "id": "D218",
+      "genre": "uncertainty",
+      "topic": "種類別の確率伝播",
+      "path": "11-uncertainty.md#topic-37df9a41ee51",
+      "source_fingerprint": "c2df208777d44854312b470d58aa1f5ff0ecb2224913c8bfac0f6cd85a9ac2d4",
+      "finding_ids": [
+        "29654603-06"
+      ]
+    },
+    {
+      "id": "D219",
+      "genre": "uncertainty",
+      "topic": "確率質量の伝播",
+      "path": "11-uncertainty.md#topic-980096ea6bbe",
+      "source_fingerprint": "f17f89c108c9ada070119885e5f3c1c0cf5b28fec513e3837bcc59ecd5c51a0d",
+      "finding_ids": [
+        "30423648-03"
+      ]
+    },
+    {
+      "id": "D220",
+      "genre": "uncertainty",
+      "topic": "区間観測",
+      "path": "11-uncertainty.md#topic-846cfc5c667e",
+      "source_fingerprint": "fd2df9be17d5be3ba45a8244a4c050391947bd77d349aba96231c906d44d0953",
+      "finding_ids": [
+        "39142737-01"
+      ]
+    },
+    {
+      "id": "D221",
+      "genre": "uncertainty",
+      "topic": "近傍からの推定",
+      "path": "11-uncertainty.md#topic-cab6bcb7ecc4",
+      "source_fingerprint": "d336a77787e4559f069aa3f0daf178ede4b780cef5a351d1fdf381a281a06d1d",
+      "finding_ids": [
+        "39142737-05"
+      ]
+    },
+    {
+      "id": "D222",
+      "genre": "uncertainty",
+      "topic": "飽和観測の尤度",
+      "path": "11-uncertainty.md#topic-a2dc88ec7487",
+      "source_fingerprint": "766bfe771f5a140fec222c807d150719c56e2276b14f749d8c0373ff6c225f61",
+      "finding_ids": [
+        "44783436-02"
+      ]
+    },
+    {
+      "id": "D223",
+      "genre": "uncertainty",
+      "topic": "競合する対応先の補正",
+      "path": "11-uncertainty.md#topic-d03601cde5e6",
+      "source_fingerprint": "e08f1361f9387eabccc471b4e5b670f8ea429b6d8c60a1a49505c0f203611085",
+      "finding_ids": [
+        "44783436-03"
+      ]
+    },
+    {
+      "id": "D224",
+      "genre": "uncertainty",
+      "topic": "候補を分離する観測",
+      "path": "11-uncertainty.md#topic-004b0d863b31",
+      "source_fingerprint": "cb33163d9a63b7749e59199545c30ef6d4f13a8472a0aba12dad55f657f07c82",
+      "finding_ids": [
+        "44783436-04"
+      ]
+    },
+    {
+      "id": "D225",
+      "genre": "uncertainty",
+      "topic": "仮説集合の逐次拡張",
+      "path": "11-uncertainty.md#topic-a010e7982e94",
+      "source_fingerprint": "00112de3ac0968c0254a2402d93d695f6ab65f9510fffd575ae764435eae2c9f",
+      "finding_ids": [
+        "50447114-01"
+      ]
+    },
+    {
+      "id": "D226",
+      "genre": "uncertainty",
+      "topic": "情報量あたりの観測費用",
+      "path": "11-uncertainty.md#topic-db6ed0337f57",
+      "source_fingerprint": "ab833944482e8554e762b39eb372549851e24d91ebc4f6e0c72248d5dc710499",
+      "finding_ids": [
+        "50447114-02"
+      ]
+    },
+    {
+      "id": "D227",
+      "genre": "uncertainty",
+      "topic": "単一仮説の反証",
+      "path": "11-uncertainty.md#topic-5c9db0918552",
+      "source_fingerprint": "a989a634f1742df82f8cbee9023e149759f5cd21f617a90950d40f449b69e326",
+      "finding_ids": [
+        "50447114-07"
+      ]
+    },
+    {
+      "id": "D228",
+      "genre": "uncertainty",
+      "topic": "和の観測からの推定",
+      "path": "11-uncertainty.md#topic-74ad8fddf4cf",
+      "source_fingerprint": "63f5b7904273addb0a2d5f8b8eb1a696c050cb64ce5f7f5dd38892374ba8343d",
+      "finding_ids": [
+        "60609745-01"
+      ]
+    },
+    {
+      "id": "D229",
+      "genre": "uncertainty",
+      "topic": "誤差余裕つき配置",
+      "path": "11-uncertainty.md#topic-07cb4bda4567",
+      "source_fingerprint": "86383595434297166adb0ca5f4a52ba947c6a7d04310273fc83a6eadd5029f56",
+      "finding_ids": [
+        "60609745-03"
+      ]
+    },
+    {
+      "id": "D230",
+      "genre": "uncertainty",
+      "topic": "構造応答から制約抽出",
+      "path": "11-uncertainty.md#topic-7662fe652da6",
+      "source_fingerprint": "16415aaba05446b8d357305ff30c3d28a1e99b1bb5739a1aafe3a23bb5e29cba",
+      "finding_ids": [
+        "64611675-01"
+      ]
+    },
+    {
+      "id": "D231",
+      "genre": "uncertainty",
+      "topic": "識別しやすい問い合わせ",
+      "path": "11-uncertainty.md#topic-3ee3f1e2c224",
+      "source_fingerprint": "d30a6c983cb26f2f3f8b35e6f682025d9d75c9651f0d31b0697dfb88e16b37d0",
+      "finding_ids": [
+        "64611675-03"
+      ]
+    },
+    {
+      "id": "D232",
+      "genre": "uncertainty",
+      "topic": "非正規化分布",
+      "path": "11-uncertainty.md#topic-76e51dea9d45",
+      "source_fingerprint": "b38e933efa7986d556f9441be527152081864e2e0ac1566bff87365857703834",
+      "finding_ids": [
+        "67393589-01"
+      ]
+    },
+    {
+      "id": "D233",
+      "genre": "uncertainty",
+      "topic": "相手行動の逐次更新",
+      "path": "11-uncertainty.md#topic-f96699d28b97",
+      "source_fingerprint": "4ddc653f9917395e2e428c1550651ef940f6f9c02ccf3f01506fade58394fad5",
+      "finding_ids": [
+        "73562256-05"
+      ]
+    },
+    {
+      "id": "D234",
+      "genre": "uncertainty",
+      "topic": "将来需要の機会費用",
+      "path": "11-uncertainty.md#topic-044d65945203",
+      "source_fingerprint": "40194da5184cb69ffad39ecb0ebb14c4822fbf860a146ceaf3626fec32aaa98b",
+      "finding_ids": [
+        "78259988-01"
+      ]
+    },
+    {
+      "id": "D235",
+      "genre": "learning",
+      "topic": "モデルの格納と推論",
+      "path": "12-learning.md#topic-bddf6f62d216",
+      "source_fingerprint": "474098b28c5a97771eb895b1527954142547db4797e1d891439a887d8ee01b44",
+      "finding_ids": [
+        "36660262-05"
+      ]
+    },
+    {
+      "id": "D236",
+      "genre": "learning",
+      "topic": "量子化モデルの展開",
+      "path": "12-learning.md#topic-a0daed96729d",
+      "source_fingerprint": "0a1e503779807840f10a125bba6cfff2cc62cb66756d9081a9eeeb338d553bde",
+      "finding_ids": [
+        "73562256-01"
+      ]
+    },
+    {
+      "id": "D237",
+      "genre": "learning",
+      "topic": "相手ごとの特徴抽出",
+      "path": "12-learning.md#topic-bdd88c1f58b3",
+      "source_fingerprint": "d8924ded17d19430ce5780ea8e48cbbccab9877e5c490772b5c1fee2289128d0",
+      "finding_ids": [
+        "73562256-03"
+      ]
+    },
+    {
+      "id": "D238",
+      "genre": "learning",
+      "topic": "合法手マスク",
+      "path": "12-learning.md#topic-10c639feac7d",
+      "source_fingerprint": "b1ee2cc42b5c865fb55ea15cbb127facd593fab70095ecd48519af71c6cd140e",
+      "finding_ids": [
+        "73562256-04"
+      ]
+    },
+    {
+      "id": "D239",
+      "genre": "learning",
+      "topic": "解析評価への補正モデル",
+      "path": "12-learning.md#topic-9b46ea91d83d",
+      "source_fingerprint": "5745f08d16131d6f9f5a6d77c8f8c5507cbc229379af124b93204b30bcb0e32c",
+      "finding_ids": [
+        "78259988-04"
+      ]
+    },
+    {
+      "id": "D240",
+      "genre": "planning",
+      "topic": "作業拠点の被覆",
+      "path": "13-planning.md#topic-d2e455e8ae11",
+      "source_fingerprint": "c305d193dd3de36ce4bac1575cd9d523351309050f0bd2c9a4621410071cda35",
+      "finding_ids": [
+        "29654603-03"
+      ]
+    },
+    {
+      "id": "D241",
+      "genre": "planning",
+      "topic": "観測後の再計画",
+      "path": "13-planning.md#topic-130b857486ed",
+      "source_fingerprint": "c3e7f324f5809618a3a6cd71b07d5098d99d11e0a8fd82cd84b0e386d689ec39",
+      "finding_ids": [
+        "39142737-03"
+      ]
+    },
+    {
+      "id": "D242",
+      "genre": "planning",
+      "topic": "将来接続先の評価",
+      "path": "13-planning.md#topic-928b5274b69a",
+      "source_fingerprint": "4f9ec90c23a7f358d7ffdcd5578a5075d094b3291efd413c03983bbbf3ee65fc",
+      "finding_ids": [
+        "39142737-04"
+      ]
+    },
+    {
+      "id": "D243",
+      "genre": "planning",
+      "topic": "当たり確率と費用",
+      "path": "13-planning.md#topic-77e9565c0fec",
+      "source_fingerprint": "58c299d376b55ac4b1b2179912c1e473d152334645d862c461e56fa878856d62",
+      "finding_ids": [
+        "44783436-06"
+      ]
+    },
+    {
+      "id": "D244",
+      "genre": "planning",
+      "topic": "時空間の衝突回避",
+      "path": "13-planning.md#topic-e960fb2171bc",
+      "source_fingerprint": "c19ea6811c044c805bb8aa6c2929c1c9825912dfe7393d2038e042b0eabc382f",
+      "finding_ids": [
+        "53942556-02"
+      ]
+    },
+    {
+      "id": "D245",
+      "genre": "planning",
+      "topic": "作業時間を含む到達判定",
+      "path": "13-planning.md#topic-8a0dd635eb5d",
+      "source_fingerprint": "1b569149f361ae13cd1bfb61000ef109f2286d5274b88c4959b6e2eadf69780f",
+      "finding_ids": [
+        "53942556-03"
+      ]
+    },
+    {
+      "id": "D246",
+      "genre": "planning",
+      "topic": "観測ごとの再評価",
+      "path": "13-planning.md#topic-61ffb8d14a5c",
+      "source_fingerprint": "d350689c1a5532f8986690436b262b727023ac99dde89316e7fdf5133cf38632",
+      "finding_ids": [
+        "55852875-04"
+      ]
+    },
+    {
+      "id": "D247",
+      "genre": "planning",
+      "topic": "資金と待機",
+      "path": "13-planning.md#topic-169e299e905b",
+      "source_fingerprint": "1b9632ff3261ff4bdb8737d6d9e5f8100c228c1ba1d07726ebf0ee699169de7a",
+      "finding_ids": [
+        "63119772-01",
+        "63121685-03"
+      ]
+    },
+    {
+      "id": "D248",
+      "genre": "planning",
+      "topic": "終盤の資源使い切り",
+      "path": "13-planning.md#topic-cf05d4cd2643",
+      "source_fingerprint": "8171d701d60074a6cc26345e9b5983057c9b309c5df1a0c9df3ea9b28c2b846e",
+      "finding_ids": [
+        "66623158-02"
+      ]
+    },
+    {
+      "id": "D249",
+      "genre": "planning",
+      "topic": "製造順と納品順の分離",
+      "path": "13-planning.md#topic-c162d32abd5f",
+      "source_fingerprint": "3eea43704215fe512df699c12ef8eddde5f2f87840e93768e622601f1c50c7a9",
+      "finding_ids": [
+        "66623158-07"
+      ]
+    },
+    {
+      "id": "D250",
+      "genre": "planning",
+      "topic": "締切と抜け道の防止",
+      "path": "13-planning.md#topic-3897e7c1c910",
+      "source_fingerprint": "4a109a997f0bb83ae39affac0478daa17d9c84898a68390efc8a470130dd5e30",
+      "finding_ids": [
+        "69728114-02"
+      ]
+    },
+    {
+      "id": "D251",
+      "genre": "planning",
+      "topic": "部分解を置いて残りを解く",
+      "path": "13-planning.md#topic-1b8e809ca624",
+      "source_fingerprint": "32fc5b2f07b459ce9a078203e9781247cc54914df44f51b1b54b50b77deec2f2",
+      "finding_ids": [
+        "74935244-02"
+      ]
+    },
+    {
+      "id": "D252",
+      "genre": "planning",
+      "topic": "非交差同時操作のDP",
+      "path": "13-planning.md#topic-cb481cb1dada",
+      "source_fingerprint": "587c158e6322b055fe5ba77c9f3b9e4443f0a2719c7d6bc980edf662fc1625fc",
+      "finding_ids": [
+        "75295267-03"
+      ]
+    },
+    {
+      "id": "D253",
+      "genre": "planning",
+      "topic": "投入タイミングの制御",
+      "path": "13-planning.md#topic-a0f8d228f4cd",
+      "source_fingerprint": "5030c63013855707a669905a9cce36f77d761029dbe4c6937706536e3d9d696f",
+      "finding_ids": [
+        "75827741-03"
+      ]
+    },
+    {
+      "id": "D254",
+      "genre": "planning",
+      "topic": "途中解からの完了手順",
+      "path": "13-planning.md#topic-a1c60294ec75",
+      "source_fingerprint": "454f9d8a651ca30b7ff872d6f46c3b0e81a16e542fe8571f3eae4cc23ff96daf",
+      "finding_ids": [
+        "76520389-05"
+      ]
+    },
+    {
+      "id": "D255",
+      "genre": "planning",
+      "topic": "確定順の構造化",
+      "path": "13-planning.md#topic-feab90065949",
+      "source_fingerprint": "ce6f72a43e38b49fbcb0766fded3e28bae480314c0fb97b167a7e719144122e1",
+      "finding_ids": [
+        "77562268-01"
+      ]
+    },
+    {
+      "id": "D256",
+      "genre": "precompute",
+      "topic": "区間最適値の表引き",
+      "path": "14-precompute.md#topic-606d805a0ec8",
+      "source_fingerprint": "d4827cc8281741a863df2cb26eb71900898bf83f3951203f5ee0102080832284",
+      "finding_ids": [
+        "20926292-01"
+      ]
+    },
+    {
+      "id": "D257",
+      "genre": "precompute",
+      "topic": "不可能な遷移の削除",
+      "path": "14-precompute.md#topic-c6fa73a6d417",
+      "source_fingerprint": "b7b7628513ca1b5c22a1f4f79d8498f29ced19579381096860657f5c3b950dcb",
+      "finding_ids": [
+        "22075413-07"
+      ]
+    },
+    {
+      "id": "D258",
+      "genre": "precompute",
+      "topic": "接尾辞接頭辞の重なり",
+      "path": "14-precompute.md#topic-46ccc5d48b1f",
+      "source_fingerprint": "42b2285be80b57eac415d9e1364002799a0ac52d630dce116b0dc22849d1ddc5",
+      "finding_ids": [
+        "23751222-02"
+      ]
+    },
+    {
+      "id": "D259",
+      "genre": "precompute",
+      "topic": "最短路と復元の同時保存",
+      "path": "14-precompute.md#topic-c2f8dacd1515",
+      "source_fingerprint": "2a7d824ba814178b448737e28002c18117c4ee7121cba7f439d467ecf5d7fecb",
+      "finding_ids": [
+        "24829216-02"
+      ]
+    },
+    {
+      "id": "D260",
+      "genre": "precompute",
+      "topic": "同型類の表引き",
+      "path": "14-precompute.md#topic-b7c023655019",
+      "source_fingerprint": "7a59eeb991a6073eb2ec1945c64ded5047938fcead06419c1cb342ab250577f2",
+      "finding_ids": [
+        "36660262-03"
+      ]
+    },
+    {
+      "id": "D261",
+      "genre": "precompute",
+      "topic": "保守的な集合縮約",
+      "path": "14-precompute.md#topic-7913904a7526",
+      "source_fingerprint": "5e6b7ed8757329850fe1c74f5d90d10c77e5c1efcd6f6c278422073dfd897f94",
+      "finding_ids": [
+        "42196314-04"
+      ]
+    },
+    {
+      "id": "D262",
+      "genre": "precompute",
+      "topic": "尤度の表引き",
+      "path": "14-precompute.md#topic-e54571c27154",
+      "source_fingerprint": "00d5a04d1759b7f474aa1cff31fa65a340b9bf4ea45e210c2364445de30adc66",
+      "finding_ids": [
+        "44783436-05"
+      ]
+    },
+    {
+      "id": "D263",
+      "genre": "precompute",
+      "topic": "局所位相の表引き",
+      "path": "14-precompute.md#topic-cefb2a951777",
+      "source_fingerprint": "1beb11221cc313f24b4810d2690cb284bb3710e0ba12a38432076020eb2830fb",
+      "finding_ids": [
+        "45441612-02",
+        "45449215-02"
+      ]
+    },
+    {
+      "id": "D264",
+      "genre": "precompute",
+      "topic": "重なりと内部DP",
+      "path": "14-precompute.md#topic-f1262767840f",
+      "source_fingerprint": "7c521b850e635eb0dcc353a65a51ed2993d68e04bc567bc6de3821cbe1143b74",
+      "finding_ids": [
+        "49255792-02"
+      ]
+    },
+    {
+      "id": "D265",
+      "genre": "precompute",
+      "topic": "遅延生成する確率表",
+      "path": "14-precompute.md#topic-e2260d4bc003",
+      "source_fingerprint": "6cf17c2bea83cce709e2d6ce90d86b3c92e6d83d6e35ce4cf5fe58ad61b305e9",
+      "finding_ids": [
+        "50447114-04"
+      ]
+    },
+    {
+      "id": "D266",
+      "genre": "precompute",
+      "topic": "可換操作の組合せ",
+      "path": "14-precompute.md#topic-daa75bc19ec5",
+      "source_fingerprint": "4e60acd542eb9c0a08960292ce0c9a4dd14ff1f383c8b84b33a231c99d15a8f6",
+      "finding_ids": [
+        "52156995-01"
+      ]
+    },
+    {
+      "id": "D267",
+      "genre": "precompute",
+      "topic": "経路のメモ化",
+      "path": "14-precompute.md#topic-dccc65d01aff",
+      "source_fingerprint": "30dfa12821849795ab6e4cb474a791aad370911d06fed4fbe5efc2063a45f8bb",
+      "finding_ids": [
+        "54643130-03"
+      ]
+    },
+    {
+      "id": "D268",
+      "genre": "precompute",
+      "topic": "変更時だけ再計算",
+      "path": "14-precompute.md#topic-1e1873debf45",
+      "source_fingerprint": "bf39021034d24dc485b979eb38022a7a6d06d0456674d11624d340133eb34205",
+      "finding_ids": [
+        "57377353-02"
+      ]
+    },
+    {
+      "id": "D269",
+      "genre": "precompute",
+      "topic": "部分木の到達可能性",
+      "path": "14-precompute.md#topic-5f7122a1db69",
+      "source_fingerprint": "4de2b7e271986773c55f7b4581cb38b2636f2c60db66e5438ac8ce30b0f7b408",
+      "finding_ids": [
+        "58801909-01"
+      ]
+    },
+    {
+      "id": "D270",
+      "genre": "precompute",
+      "topic": "部分集合の形だけ先計算",
+      "path": "14-precompute.md#topic-91d46381538b",
+      "source_fingerprint": "1df687a3468515544d39f207d9b864565363e903d2d88a1ea5bfa0fe4502e38d",
+      "finding_ids": [
+        "69285442-03"
+      ]
+    },
+    {
+      "id": "D271",
+      "genre": "precompute",
+      "topic": "数値関数のテーブル化",
+      "path": "14-precompute.md#topic-4214ab3f2f60",
+      "source_fingerprint": "d9a8c18a9cc7d45b011030fb357f96af85992059a0d07c4fc1eb268734c40f14",
+      "finding_ids": [
+        "71292882-03"
+      ]
+    },
+    {
+      "id": "D272",
+      "genre": "performance",
+      "topic": "SIMDと整列",
+      "path": "15-performance.md#topic-f27fc1e217e8",
+      "source_fingerprint": "69e00a258a1c01fb056f8370302f1deaf9ec836399d35fc90ef0652310886f13",
+      "finding_ids": [
+        "23016921-07"
+      ]
+    },
+    {
+      "id": "D273",
+      "genre": "performance",
+      "topic": "整数キーのバケット",
+      "path": "15-performance.md#topic-f29f89d41d44",
+      "source_fingerprint": "4f09f3d60daafe93cc8ececd7aa2a48703aa375a1c4fd6770b71257b9747c49c",
+      "finding_ids": [
+        "27880973-03"
+      ]
+    },
+    {
+      "id": "D274",
+      "genre": "performance",
+      "topic": "状態の連続領域確保",
+      "path": "15-performance.md#topic-8c4e38a59aaa",
+      "source_fingerprint": "ceb849c15b0b04a6a2f8ba878b03a298069ab66ed2f73d98959707611bf1f102",
+      "finding_ids": [
+        "32267675-07"
+      ]
+    },
+    {
+      "id": "D275",
+      "genre": "performance",
+      "topic": "入力別の専用化",
+      "path": "15-performance.md#topic-69ad1efb87f7",
+      "source_fingerprint": "cf0c3d754e1e36ed27593693f056f2f12015cf52a60941deb157d680951d8523",
+      "finding_ids": [
+        "35264600-06"
+      ]
+    },
+    {
+      "id": "D276",
+      "genre": "performance",
+      "topic": "上位候補の部分選択",
+      "path": "15-performance.md#topic-d3b42f888d48",
+      "source_fingerprint": "b433b6f346088cad7fb422039e147b46449725a60b23ce180d9e8b4c54215df0",
+      "finding_ids": [
+        "42958359-04"
+      ]
+    },
+    {
+      "id": "D277",
+      "genre": "performance",
+      "topic": "乱数の浮動小数点化",
+      "path": "15-performance.md#topic-2d7c847afd26",
+      "source_fingerprint": "0b82547e10629739eb08e1a3b57033168e26412bea9ee1d486b2427018a36e88",
+      "finding_ids": [
+        "45441612-05",
+        "45449215-05"
+      ]
+    },
+    {
+      "id": "D278",
+      "genre": "performance",
+      "topic": "SIMDによる集計",
+      "path": "15-performance.md#topic-adcc08d5bc0b",
+      "source_fingerprint": "487e6e93141a57e5e39e0285d3f196d39af6d1ae18fae9de223674f760fc60da",
+      "finding_ids": [
+        "50447114-05"
+      ]
+    },
+    {
+      "id": "D279",
+      "genre": "performance",
+      "topic": "コピー後の参照修復",
+      "path": "15-performance.md#topic-df6b5e262476",
+      "source_fingerprint": "9977becdf3e0ae6ac6e9065f02d21479ecbe852e074e372aae2496cef000b089",
+      "finding_ids": [
+        "51936966-05"
+      ]
+    },
+    {
+      "id": "D280",
+      "genre": "performance",
+      "topic": "ビット集合BFS",
+      "path": "15-performance.md#topic-c6a34c22f52e",
+      "source_fingerprint": "076ba5ddc43080aa046939729b23e9072d3d559690f768cc84a8d5d2aa933dad",
+      "finding_ids": [
+        "53942556-01"
+      ]
+    },
+    {
+      "id": "D281",
+      "genre": "performance",
+      "topic": "ビット集合の隣接検索",
+      "path": "15-performance.md#topic-4ca56a6fd8b3",
+      "source_fingerprint": "eafd45cdd3a88a83842b0bf30b6a59ef5a2dc199aaaa77dfc2e46857559cb290",
+      "finding_ids": [
+        "63119772-02"
+      ]
+    },
+    {
+      "id": "D282",
+      "genre": "performance",
+      "topic": "同じ遷移先の集約",
+      "path": "15-performance.md#topic-540a07170733",
+      "source_fingerprint": "48bd5cbddbfaa44ea19a186a5120b3c63ea32752a1ca54a7c54cfe425cc7ec5c",
+      "finding_ids": [
+        "67393589-02"
+      ]
+    },
+    {
+      "id": "D283",
+      "genre": "performance",
+      "topic": "乱数固定と評価キャッシュ",
+      "path": "15-performance.md#topic-66d1957f7d4e",
+      "source_fingerprint": "3c7cd90d04fa57688fd9401f1b398406784a5915fe070256cebe94a93c534c32",
+      "finding_ids": [
+        "69728114-04"
+      ]
+    },
+    {
+      "id": "D284",
+      "genre": "performance",
+      "topic": "採用前の遅延検査",
+      "path": "15-performance.md#topic-4a586eb01223",
+      "source_fingerprint": "7f523c40a1e99b6f4190d3ea4d101acc8e3fe3996f1c54978c7fcc31b1501c50",
+      "finding_ids": [
+        "70299716-02"
+      ]
+    },
+    {
+      "id": "D285",
+      "genre": "performance",
+      "topic": "稼働要素だけ走査",
+      "path": "15-performance.md#topic-543f1bc26016",
+      "source_fingerprint": "75ced16984cac15c967755d91c613f8a2f4422d0bfb6100397796636f3ccf9d8",
+      "finding_ids": [
+        "71725942-02"
+      ]
+    },
+    {
+      "id": "D286",
+      "genre": "performance",
+      "topic": "区間挿入の接頭辞最小",
+      "path": "15-performance.md#topic-f92407820a2a",
+      "source_fingerprint": "dae49b0515a444598a5435bcc89c2a4f79333d26d0a66c08e330de253088bef4",
+      "finding_ids": [
+        "72330966-02"
+      ]
+    },
+    {
+      "id": "D287",
+      "genre": "performance",
+      "topic": "バッファの交換",
+      "path": "15-performance.md#topic-b0dc0859f211",
+      "source_fingerprint": "142054b3a416ddbb83e89c83d4f04c04635be0e1dfd24d6a5573a533acf133d6",
+      "finding_ids": [
+        "72942421-05"
+      ]
+    },
+    {
+      "id": "D288",
+      "genre": "performance",
+      "topic": "推論のブロック化",
+      "path": "15-performance.md#topic-7951c78b7689",
+      "source_fingerprint": "36f106cabcd6e1c68ef3e4ca592f9ced1d6885582768287f448448339243c408",
+      "finding_ids": [
+        "73562256-02"
+      ]
+    },
+    {
+      "id": "D289",
+      "genre": "performance",
+      "topic": "平方分割の遅延加算",
+      "path": "15-performance.md#topic-118196c06b60",
+      "source_fingerprint": "3583819d84ff9d009e11903626145ba7b8d5af280117d9f94b45cffe7c0b1efe",
+      "finding_ids": [
+        "74068534-03"
+      ]
+    },
+    {
+      "id": "D290",
+      "genre": "performance",
+      "topic": "同一操作の連続圧縮",
+      "path": "15-performance.md#topic-a41eef8a938d",
+      "source_fingerprint": "8a6e6b5a68bd15207a350301b4db0c0ebc046e0de9af6efb25e143056f78dba7",
+      "finding_ids": [
+        "76520389-01"
+      ]
+    },
+    {
+      "id": "D291",
+      "genre": "performance",
+      "topic": "出力の再圧縮",
+      "path": "15-performance.md#topic-60af82d929ab",
+      "source_fingerprint": "8e74ad58459f3fe2147a843152b0d0d77831b73bd0a89eca363e7c8ede533d07",
+      "finding_ids": [
+        "76520389-06"
+      ]
+    },
+    {
+      "id": "D292",
+      "genre": "performance",
+      "topic": "探索ノードの再利用",
+      "path": "15-performance.md#topic-332617df78d2",
+      "source_fingerprint": "00898759a33cd00830fe6d5c8639cd6de3b98898130f7dcc50785d966e5bc36f",
+      "finding_ids": [
+        "79251146-05"
+      ]
+    },
+    {
+      "id": "D293",
+      "genre": "performance",
+      "topic": "正規化した小集合の評価キャッシュ",
+      "path": "15-performance.md#topic-543ceeb96774",
+      "source_fingerprint": "3eaaddc0030ccde963f7e595ac74be72b038e92aa735c743b7298e1319b68687",
+      "finding_ids": [
+        "79793411-02"
+      ]
+    },
+    {
+      "id": "D294",
+      "genre": "performance",
+      "topic": "打切り結果もキャッシュ",
+      "path": "15-performance.md#topic-e2db81d4c61b",
+      "source_fingerprint": "abb0eae792806d9cd396bc6ff6e2107502dcde95f7d5b04a70cc423406d3ad2f",
+      "finding_ids": [
+        "79793411-03"
+      ]
+    },
+    {
+      "id": "D295",
+      "genre": "numerics",
+      "topic": "対数確率の正規化",
+      "path": "16-numerics.md#topic-6b6e9c1c4711",
+      "source_fingerprint": "b96b0abd75a5b04c6518ebc7b6369d47c3bb4a2a129a2cdfc2ae5e050e9035a9",
+      "finding_ids": [
+        "23016921-03"
+      ]
+    },
+    {
+      "id": "D296",
+      "genre": "numerics",
+      "topic": "定常分布の計算",
+      "path": "16-numerics.md#topic-0e5e6a1b3fe6",
+      "source_fingerprint": "c673bccfd1cd0016ca439c36f92748e689a207d0be9b59bc9f4248b544735947",
+      "finding_ids": [
+        "65957786-01"
+      ]
+    },
+    {
+      "id": "D297",
+      "genre": "numerics",
+      "topic": "凸結合の係数",
+      "path": "16-numerics.md#topic-70bc920056f6",
+      "source_fingerprint": "49341cd18d9816d272d19c374a5a2d59bd3f9d2a49fc796b9ee8c481b6833c40",
+      "finding_ids": [
+        "66623158-01"
+      ]
+    },
+    {
+      "id": "D298",
+      "genre": "numerics",
+      "topic": "連続解の離散化",
+      "path": "16-numerics.md#topic-f02a4510a4af",
+      "source_fingerprint": "6818564303989727d0f59ce2db2722aff5f37f1dfe590f4a4cf513e3ff465eaf",
+      "finding_ids": [
+        "66623158-04"
+      ]
+    },
+    {
+      "id": "D299",
+      "genre": "numerics",
+      "topic": "多段生産の閉形式",
+      "path": "16-numerics.md#topic-7ffcb4f2b4c8",
+      "source_fingerprint": "55b0023617cb2e889351019c6a50ea733828adb02557534515316739327ba063",
+      "finding_ids": [
+        "71725942-01"
+      ]
+    },
+    {
+      "id": "D300",
+      "genre": "numerics",
+      "topic": "巨大整数の対数評価",
+      "path": "16-numerics.md#topic-1fb915981c7d",
+      "source_fingerprint": "44d986c436de68e4e98e914d66d64c175626c504401928783a1703b93a357c5a",
+      "finding_ids": [
+        "71725942-05"
+      ]
+    },
+    {
+      "id": "D301",
+      "genre": "control",
+      "topic": "多段階探索とbest復帰",
+      "path": "17-control.md#topic-ff34dac92ab8",
+      "source_fingerprint": "0e16c0b379da8a68ff052b130d030ff903d1aca993cc8a67c5dc595c74b76a2f",
+      "finding_ids": [
+        "20926292-06"
+      ]
+    },
+    {
+      "id": "D302",
+      "genre": "control",
+      "topic": "モデル選別と計算予算",
+      "path": "17-control.md#topic-e39dcb3755dc",
+      "source_fingerprint": "cc621c31c66785b7f3e470a579c173f62b92eb7ad9b8a71c33fa2b41768abc1b",
+      "finding_ids": [
+        "23016921-05"
+      ]
+    },
+    {
+      "id": "D303",
+      "genre": "control",
+      "topic": "停滞時の受理緩和",
+      "path": "17-control.md#topic-a0d8e6d3c1bf",
+      "source_fingerprint": "5fb71770fa2d01475384d267c7f5fd27a8a428fc131bdf808bdc3501e7b97f74",
+      "finding_ids": [
+        "24829216-05"
+      ]
+    },
+    {
+      "id": "D304",
+      "genre": "control",
+      "topic": "時刻と温度更新の間引き",
+      "path": "17-control.md#topic-44a518f78dac",
+      "source_fingerprint": "4c75fe13b08a2594687294f9cbe283811eddfe594a7aa7b44b14ce8b4abd62c9",
+      "finding_ids": [
+        "27260278-07"
+      ]
+    },
+    {
+      "id": "D305",
+      "genre": "control",
+      "topic": "評価精度の段階化",
+      "path": "17-control.md#topic-2b70a782f83b",
+      "source_fingerprint": "9f2390459105a14f47480c9d98cd9a7915152400a80d6f874419813e2eefb338",
+      "finding_ids": [
+        "34085279-03",
+        "34095240-03",
+        "38643777-05",
+        "42196314-06"
+      ]
+    },
+    {
+      "id": "D306",
+      "genre": "control",
+      "topic": "代理目的から実目的へ",
+      "path": "17-control.md#topic-bc19877f0572",
+      "source_fingerprint": "145b7d6787fb1f29825a7c5d295ac97ee69b2b656e20e5cf3a2c15cecd8f80c4",
+      "finding_ids": [
+        "35264600-05"
+      ]
+    },
+    {
+      "id": "D307",
+      "genre": "control",
+      "topic": "入力別の専用化",
+      "path": "17-control.md#topic-69ad1efb87f7",
+      "source_fingerprint": "ae2dfd0b6af42cf7b24d6f68145ee5853d50eeb31c7ed82f1811565effc9e23e",
+      "finding_ids": [
+        "36660262-04"
+      ]
+    },
+    {
+      "id": "D308",
+      "genre": "control",
+      "topic": "分岐費用に応じた探索幅",
+      "path": "17-control.md#topic-8536f9f54d62",
+      "source_fingerprint": "e5462a2c1c05b9435ce75bb50456fee43f8097ce421f9d007c40cdb015b32da9",
+      "finding_ids": [
+        "52156995-04"
+      ]
+    },
+    {
+      "id": "D309",
+      "genre": "control",
+      "topic": "処理速度に応じた探索幅",
+      "path": "17-control.md#topic-dac37af2d3ac",
+      "source_fingerprint": "4526f4a00248a4ae725a9cc3c54687770ca0e6cbec59ee670e000b5976575d75",
+      "finding_ids": [
+        "53942556-05"
+      ]
+    },
+    {
+      "id": "D310",
+      "genre": "control",
+      "topic": "複数初期解への時間配分",
+      "path": "17-control.md#topic-c4f8658bdf37",
+      "source_fingerprint": "fdf30824427292497b88b8145aa103da8c084cbf054885c0f6bacdb40c177861",
+      "finding_ids": [
+        "54643130-05"
+      ]
+    },
+    {
+      "id": "D311",
+      "genre": "control",
+      "topic": "形状候補の選抜",
+      "path": "17-control.md#topic-b7d1c1796886",
+      "source_fingerprint": "8f6479d29958a7584054d4a3037789a41c8f03d0bf1eee12a4af5e13048d80e6",
+      "finding_ids": [
+        "58801909-05"
+      ]
+    },
+    {
+      "id": "D312",
+      "genre": "control",
+      "topic": "観測と提出候補の配分",
+      "path": "17-control.md#topic-7ccb7d676b0a",
+      "source_fingerprint": "08c82ca78997e22f6f7051523395ceb2bfcde67588295073c926e8d28fb7f817",
+      "finding_ids": [
+        "60609745-02"
+      ]
+    },
+    {
+      "id": "D313",
+      "genre": "control",
+      "topic": "停滞時の復帰",
+      "path": "17-control.md#topic-e123c7a94905",
+      "source_fingerprint": "e823a3dd2152737b43c3c1b55f469c80746001fde2e5d48a1f22c3106f65d498",
+      "finding_ids": [
+        "69728114-05"
+      ]
+    },
+    {
+      "id": "D314",
+      "genre": "control",
+      "topic": "入力別の戦略選択",
+      "path": "17-control.md#topic-cc016623835f",
+      "source_fingerprint": "ac3b092824e16b6facc043a852becfae5ac6722c827ce70bd94e795454d4a872",
+      "finding_ids": [
+        "74935244-01"
+      ]
+    },
+    {
+      "id": "D315",
+      "genre": "control",
+      "topic": "実測から幅を再設定",
+      "path": "17-control.md#topic-18ca3f85d5a4",
+      "source_fingerprint": "98228883b9b0283e8bfadd589faf75022876c4ae7a8be6c3a66d0c2760b8960f",
+      "finding_ids": [
+        "74935244-03"
+      ]
+    },
+    {
+      "id": "D316",
+      "genre": "control",
+      "topic": "処理時間の逐次推定",
+      "path": "17-control.md#topic-140f3efe058f",
+      "source_fingerprint": "bc73455c3c96c29147fa85dfed3c6249d4a843d28fa9f5d7640fad6b40eb8937",
+      "finding_ids": [
+        "76520389-04"
+      ]
+    },
+    {
+      "id": "D317",
+      "genre": "control",
+      "topic": "処理進捗による予算調整",
+      "path": "17-control.md#topic-4e9694a53c5e",
+      "source_fingerprint": "7c78c491499cb5eff9402af2edc78c4dfe668293d9138607b361c60a69e25d21",
+      "finding_ids": [
+        "78259988-06"
+      ]
+    },
+    {
+      "id": "D318",
+      "genre": "io",
+      "topic": "対話出力の確定",
+      "path": "18-io.md#topic-b886a19a825e",
+      "source_fingerprint": "0b194518cb10512e38c0d19cd113745ceb6af7d1e4a5f96d1932d07a795ec140",
+      "finding_ids": [
+        "27880973-06"
+      ]
+    },
+    {
+      "id": "D319",
+      "genre": "io",
+      "topic": "観測後の安全領域更新",
+      "path": "18-io.md#topic-615fdb3533a3",
+      "source_fingerprint": "8f203b3f160d5a7d955263158a81b63f1da23ff06a871ff2fbb56e405d812907",
+      "finding_ids": [
+        "29654603-07"
+      ]
+    },
+    {
+      "id": "D320",
+      "genre": "io",
+      "topic": "出力前の再実行",
+      "path": "18-io.md#topic-1889d7fac8fb",
+      "source_fingerprint": "c6ae6f7c387b2a38cd3ec9b7143e3282a9821709b2cd3dc85f8be8814ffacdf2",
+      "finding_ids": [
+        "71725942-06"
+      ]
+    },
+    {
+      "id": "D321",
+      "genre": "io",
+      "topic": "展開長上限の扱い",
+      "path": "18-io.md#topic-ece29a73e6ba",
+      "source_fingerprint": "a0d9797919481cf8d117717b1c052ae9f78b8ea98a4377f8f0a174542613f32b",
+      "finding_ids": [
+        "76520389-03"
+      ]
+    },
+    {
+      "id": "D322",
+      "genre": "diagnostics",
+      "topic": "近傍別受理率",
+      "path": "19-diagnostics.md#topic-b29d6a5cccb9",
+      "source_fingerprint": "4d68290aadeb2e9a982c9761134fa729e3e5586942b6d24386363296ca92f312",
+      "finding_ids": [
+        "30423648-06"
+      ]
+    },
+    {
+      "id": "D323",
+      "genre": "diagnostics",
+      "topic": "構造の不変条件検査",
+      "path": "19-diagnostics.md#topic-9ce678992d5a",
+      "source_fingerprint": "ef055f22c3168a495c7229efe805fc2f70b4241a2d93d73c29f8724c3e6bbf20",
+      "finding_ids": [
+        "31233938-06"
+      ]
+    },
+    {
+      "id": "D324",
+      "genre": "diagnostics",
+      "topic": "未使用処理の識別",
+      "path": "19-diagnostics.md#topic-063c8bdde5fb",
+      "source_fingerprint": "9a475098a2a3eb9b214ffcc333aed813f31af410269d3d24ff8de09e3f7a84de",
+      "finding_ids": [
+        "34095240-06",
+        "44783436-07"
+      ]
+    },
+    {
+      "id": "D325",
+      "genre": "diagnostics",
+      "topic": "差分計算の検算",
+      "path": "19-diagnostics.md#topic-c5c5774dfb6e",
+      "source_fingerprint": "b8ffa3e49ac23cb2017a31251870681e0974eb499fb3b1249487a771ba775ecd",
+      "finding_ids": [
+        "42958359-05"
+      ]
+    },
+    {
+      "id": "D326",
+      "genre": "diagnostics",
+      "topic": "評価値の型",
+      "path": "19-diagnostics.md#topic-078bf6c4d3a9",
+      "source_fingerprint": "41d7d64acee59c36c753f8240211fb8f64e04e3a1dedb04fa8476ed1f55d40e5",
+      "finding_ids": [
+        "42958359-06"
+      ]
+    },
+    {
+      "id": "D327",
+      "genre": "diagnostics",
+      "topic": "符号なし整数の差分",
+      "path": "19-diagnostics.md#topic-13b69cb49a35",
+      "source_fingerprint": "a61dbaa99b3258f70bb56c5f767168eebc3e99ccd67521860a0a4b03e7fe829e",
+      "finding_ids": [
+        "45441612-06",
+        "45449215-06"
+      ]
+    },
+    {
+      "id": "D328",
+      "genre": "diagnostics",
+      "topic": "乱択経路の再現",
+      "path": "19-diagnostics.md#topic-2c91fe68b490",
+      "source_fingerprint": "64935959fbec9db26fdf054efe00b296a62dca0e7c2d79f3c05d23afbbd1f15c",
+      "finding_ids": [
+        "53942556-04"
+      ]
+    },
+    {
+      "id": "D329",
+      "genre": "diagnostics",
+      "topic": "計算結果の採用確認",
+      "path": "19-diagnostics.md#topic-6e100618ec85",
+      "source_fingerprint": "7cddfe78447fdd495bc95d3362b68642a51e4c7950d33129ddf116209d2327dd",
+      "finding_ids": [
+        "60609745-06"
+      ]
+    },
+    {
+      "id": "D330",
+      "genre": "diagnostics",
+      "topic": "実現可能性の段階検査",
+      "path": "19-diagnostics.md#topic-83f453b25c88",
+      "source_fingerprint": "fb18cf7af44bd08a0b087366c88ff411ba702465e3a1e9f0634b2becf6695fb0",
+      "finding_ids": [
+        "63121685-05"
+      ]
+    },
+    {
+      "id": "D331",
+      "genre": "diagnostics",
+      "topic": "多段スコアの二重計上",
+      "path": "19-diagnostics.md#topic-d4c22153cd55",
+      "source_fingerprint": "02c2cc1c659390e9c11dcbe765f4cc02a5de53318a574846217020a32c322c04",
+      "finding_ids": [
+        "69285442-05"
+      ]
+    },
+    {
+      "id": "D332",
+      "genre": "diagnostics",
+      "topic": "型で消えるパラメータ",
+      "path": "19-diagnostics.md#topic-edd0978cb536",
+      "source_fingerprint": "b295258b653f83fe30ea065d186fdb01d3a6c4480e7ef9896d48cca321ea1445",
+      "finding_ids": [
+        "70299716-05"
+      ]
+    },
+    {
+      "id": "D333",
+      "genre": "diagnostics",
+      "topic": "後処理前の安全な解を保存",
+      "path": "19-diagnostics.md#topic-e1d2eb2b1242",
+      "source_fingerprint": "e2e3be5df8133db057e1ccee4daa42cffbea156d1408ac5ab48156fd84b054aa",
+      "finding_ids": [
+        "77562268-05"
+      ]
+    },
+    {
+      "id": "D334",
+      "genre": "diagnostics",
+      "topic": "最良解の独立した全再生",
+      "path": "19-diagnostics.md#topic-806eca07df1d",
+      "source_fingerprint": "754837cc386cf1c6699c0959804969f978135cade4945a4a8f34d4cbd28c546b",
+      "finding_ids": [
+        "79793411-07"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "submission_id": "20926292",
+      "contest_id": "ahc001",
+      "winner": "hakomo",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc001_a",
+      "submission_url": "https://atcoder.jp/contests/ahc001/submissions/20926292",
+      "score_verified": false,
+      "source_sha256": "e456a6ad75dab7ec029173d2504b009f0f44e41807081a839671140d7bf4ecdd",
+      "status": "no_opt_out_detected",
+      "review_id": "20926292"
+    },
+    {
+      "submission_id": "77738201",
+      "contest_id": "ahc001",
+      "winner": "hakomo",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc001_b",
+      "submission_url": "https://atcoder.jp/contests/ahc001/submissions/77738201",
+      "score_verified": false,
+      "source_sha256": "e456a6ad75dab7ec029173d2504b009f0f44e41807081a839671140d7bf4ecdd",
+      "status": "no_opt_out_detected",
+      "review_id": "20926292"
+    },
+    {
+      "submission_id": "22075413",
+      "contest_id": "ahc002",
+      "winner": "ats5515",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc002_a",
+      "submission_url": "https://atcoder.jp/contests/ahc002/submissions/22075413",
+      "score_verified": false,
+      "source_sha256": "da3befcc1e8d1e39250674b68d9178c82e9ca28facb5ffccbf72747be04b7e86",
+      "status": "no_opt_out_detected",
+      "review_id": "22075413"
+    },
+    {
+      "submission_id": "23016921",
+      "contest_id": "ahc003",
+      "winner": "eivour",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc003_a",
+      "submission_url": "https://atcoder.jp/contests/ahc003/submissions/23016921",
+      "score_verified": false,
+      "source_sha256": "373761e5457f6c52869204cb53b335d8a5500c3f4d1c6e7a6621ba873aa72cb8",
+      "status": "no_opt_out_detected",
+      "review_id": "23016921"
+    },
+    {
+      "submission_id": "77748809",
+      "contest_id": "ahc003",
+      "winner": "eivour",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc003_b",
+      "submission_url": "https://atcoder.jp/contests/ahc003/submissions/77748809",
+      "score_verified": false,
+      "source_sha256": "373761e5457f6c52869204cb53b335d8a5500c3f4d1c6e7a6621ba873aa72cb8",
+      "status": "no_opt_out_detected",
+      "review_id": "23016921"
+    },
+    {
+      "submission_id": "23751222",
+      "contest_id": "ahc004",
+      "winner": "nikaj",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc004_a",
+      "submission_url": "https://atcoder.jp/contests/ahc004/submissions/23751222",
+      "score_verified": false,
+      "source_sha256": "1a125d7bf0f02978064c998d225a91d9a231731b26060912f60889d3eade382d",
+      "status": "no_opt_out_detected",
+      "review_id": "23751222"
+    },
+    {
+      "submission_id": "24829216",
+      "contest_id": "ahc005",
+      "winner": "c7c7",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc005_a",
+      "submission_url": "https://atcoder.jp/contests/ahc005/submissions/24829216",
+      "score_verified": false,
+      "source_sha256": "33123c535d875e8d4d93ba5cdef32f26cea6185faa2f283e579d16ed8e2fd5c2",
+      "status": "no_opt_out_detected",
+      "review_id": "24829216"
+    },
+    {
+      "submission_id": "27260278",
+      "contest_id": "ahc006",
+      "winner": "Aquarius",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc006_a",
+      "submission_url": "https://atcoder.jp/contests/ahc006/submissions/27260278",
+      "score_verified": false,
+      "source_sha256": "9c446fa8613472e00ccb449eeee8dcdd73e525f092b27782472a5c991a6663e4",
+      "status": "no_opt_out_detected",
+      "review_id": "27260278"
+    },
+    {
+      "submission_id": "27880973",
+      "contest_id": "ahc007",
+      "winner": "yokozuna57",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc007_a",
+      "submission_url": "https://atcoder.jp/contests/ahc007/submissions/27880973",
+      "score_verified": false,
+      "source_sha256": "c4764ba002396a3a36bf6e0ece97e9359c377b88b6233053c2e17ffec44489c7",
+      "status": "no_opt_out_detected",
+      "review_id": "27880973"
+    },
+    {
+      "submission_id": "29654603",
+      "contest_id": "ahc008",
+      "winner": "wleite",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc008_a",
+      "submission_url": "https://atcoder.jp/contests/ahc008/submissions/29654603",
+      "score_verified": false,
+      "source_sha256": "54b8d720fc027cf164ac723e6333a3c1e549ec04708510f2cdff8582fd9b128f",
+      "status": "no_opt_out_detected",
+      "review_id": "29654603"
+    },
+    {
+      "submission_id": "30423648",
+      "contest_id": "ahc009",
+      "winner": "terry_u16",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc009_a",
+      "submission_url": "https://atcoder.jp/contests/ahc009/submissions/30423648",
+      "score_verified": false,
+      "source_sha256": "f0b3deee8df7f5c549be9d072432cc61488f96b82b6d2d6837419f959518b9f6",
+      "status": "no_opt_out_detected",
+      "review_id": "30423648"
+    },
+    {
+      "submission_id": "31233938",
+      "contest_id": "ahc010",
+      "winner": "takumi152",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc010_a",
+      "submission_url": "https://atcoder.jp/contests/ahc010/submissions/31233938",
+      "score_verified": false,
+      "source_sha256": "6cedf1b00d3ab31789bca1a9e80e0739308bff46ef20dd6b4c4d3447f2c6421b",
+      "status": "no_opt_out_detected",
+      "review_id": "31233938"
+    },
+    {
+      "submission_id": "32267675",
+      "contest_id": "ahc011",
+      "winner": "nikaj",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc011_a",
+      "submission_url": "https://atcoder.jp/contests/ahc011/submissions/32267675",
+      "score_verified": false,
+      "source_sha256": "c76fae26992dbddee04fda834132572cd456f1cfea88a1e46df484865cf786e0",
+      "status": "no_opt_out_detected",
+      "review_id": "32267675"
+    },
+    {
+      "submission_id": "77751621",
+      "contest_id": "ahc011",
+      "winner": "nikaj",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc011_b",
+      "submission_url": "https://atcoder.jp/contests/ahc011/submissions/77751621",
+      "score_verified": false,
+      "source_sha256": "c76fae26992dbddee04fda834132572cd456f1cfea88a1e46df484865cf786e0",
+      "status": "no_opt_out_detected",
+      "review_id": "32267675"
+    },
+    {
+      "submission_id": "32961594",
+      "contest_id": "ahc012",
+      "winner": "Aquarius",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc012_a",
+      "submission_url": "https://atcoder.jp/contests/ahc012/submissions/32961594",
+      "score_verified": false,
+      "source_sha256": "586ebc3aa78f4673fb47f466232c084f63be96edafec75f095f20938ce128c47",
+      "status": "no_opt_out_detected",
+      "review_id": "32961594"
+    },
+    {
+      "submission_id": "34085279",
+      "contest_id": "ahc013",
+      "winner": "bowwowforeach",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc013_a",
+      "submission_url": "https://atcoder.jp/contests/ahc013/submissions/34085279",
+      "score_verified": false,
+      "source_sha256": "37ef47e625d54320255a028d43380011bb2095d50506bc71197025d61481fa8e",
+      "status": "no_opt_out_detected",
+      "review_id": "34085279"
+    },
+    {
+      "submission_id": "34095240",
+      "contest_id": "ahc013",
+      "winner": "bowwowforeach",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc013_b",
+      "submission_url": "https://atcoder.jp/contests/ahc013/submissions/34095240",
+      "score_verified": false,
+      "source_sha256": "d67f31c8088c35579446bd93a1df2156d16c080d743f6ef95c639ae56be5fbcb",
+      "status": "no_opt_out_detected",
+      "review_id": "34095240"
+    },
+    {
+      "submission_id": "35264600",
+      "contest_id": "ahc014",
+      "winner": "bowwowforeach",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc014_a",
+      "submission_url": "https://atcoder.jp/contests/ahc014/submissions/35264600",
+      "score_verified": false,
+      "source_sha256": "bf6a7a83cd1bbc06ce21ab095e48df84ba1094a6256b8d8219efd918e1f77296",
+      "status": "no_opt_out_detected",
+      "review_id": "35264600"
+    },
+    {
+      "submission_id": "35326916",
+      "contest_id": "ahc014",
+      "winner": "bowwowforeach",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc014_b",
+      "submission_url": "https://atcoder.jp/contests/ahc014/submissions/35326916",
+      "score_verified": false,
+      "source_sha256": "bf6a7a83cd1bbc06ce21ab095e48df84ba1094a6256b8d8219efd918e1f77296",
+      "status": "no_opt_out_detected",
+      "review_id": "35264600"
+    },
+    {
+      "submission_id": "36660262",
+      "contest_id": "ahc016",
+      "winner": "nagiss",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc016_a",
+      "submission_url": "https://atcoder.jp/contests/ahc016/submissions/36660262",
+      "score_verified": false,
+      "source_sha256": "b5c396dbbb2ce7ed5f0a486826308879393d410f8afc9e331754a82e6400aa40",
+      "status": "no_opt_out_detected",
+      "review_id": "36660262"
+    },
+    {
+      "submission_id": "36688965",
+      "contest_id": "ahc016",
+      "winner": "nagiss",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc016_b",
+      "submission_url": "https://atcoder.jp/contests/ahc016/submissions/36688965",
+      "score_verified": false,
+      "source_sha256": "b5c396dbbb2ce7ed5f0a486826308879393d410f8afc9e331754a82e6400aa40",
+      "status": "no_opt_out_detected",
+      "review_id": "36660262"
+    },
+    {
+      "submission_id": "38643777",
+      "contest_id": "ahc017",
+      "winner": "bowwowforeach",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc017_a",
+      "submission_url": "https://atcoder.jp/contests/ahc017/submissions/38643777",
+      "score_verified": false,
+      "source_sha256": "102b7adbdd51450a47cc83065c3be885321600cb77c408d6d680b5bbbb6cb3cb",
+      "status": "no_opt_out_detected",
+      "review_id": "38643777"
+    },
+    {
+      "submission_id": "38655314",
+      "contest_id": "ahc017",
+      "winner": "bowwowforeach",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc017_b",
+      "submission_url": "https://atcoder.jp/contests/ahc017/submissions/38655314",
+      "score_verified": false,
+      "source_sha256": "102b7adbdd51450a47cc83065c3be885321600cb77c408d6d680b5bbbb6cb3cb",
+      "status": "no_opt_out_detected",
+      "review_id": "38643777"
+    },
+    {
+      "submission_id": "39142737",
+      "contest_id": "ahc018",
+      "winner": "Psyho",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc018_a",
+      "submission_url": "https://atcoder.jp/contests/ahc018/submissions/39142737",
+      "score_verified": false,
+      "source_sha256": "9c60cb46f2f0fe811c1285b815499adae48254d0a136e676a9205d043ceb46a9",
+      "status": "no_opt_out_detected",
+      "review_id": "39142737"
+    },
+    {
+      "submission_id": "39276503",
+      "contest_id": "ahc018",
+      "winner": "Psyho",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc018_b",
+      "submission_url": "https://atcoder.jp/contests/ahc018/submissions/39276503",
+      "score_verified": false,
+      "source_sha256": "9c60cb46f2f0fe811c1285b815499adae48254d0a136e676a9205d043ceb46a9",
+      "status": "no_opt_out_detected",
+      "review_id": "39142737"
+    },
+    {
+      "submission_id": "40290839",
+      "contest_id": "ahc019",
+      "winner": "nikaj",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc019_a",
+      "submission_url": "https://atcoder.jp/contests/ahc019/submissions/40290839",
+      "score_verified": false,
+      "source_sha256": "9be0e20e74b9a310bceb85974b50eab32d612c52aa8311ce4380b3b8d61ae17d",
+      "status": "no_opt_out_detected",
+      "review_id": "40290839"
+    },
+    {
+      "submission_id": "40300018",
+      "contest_id": "ahc019",
+      "winner": "nikaj",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc019_b",
+      "submission_url": "https://atcoder.jp/contests/ahc019/submissions/40300018",
+      "score_verified": false,
+      "source_sha256": "9be0e20e74b9a310bceb85974b50eab32d612c52aa8311ce4380b3b8d61ae17d",
+      "status": "no_opt_out_detected",
+      "review_id": "40290839"
+    },
+    {
+      "submission_id": "42196314",
+      "contest_id": "ahc020",
+      "winner": "LayCurse",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc020_a",
+      "submission_url": "https://atcoder.jp/contests/ahc020/submissions/42196314",
+      "score_verified": false,
+      "source_sha256": "c136c41d70ceca16796712f259f65a938acac7d911fba1643d3baae47c2bcd4d",
+      "status": "no_opt_out_detected",
+      "review_id": "42196314"
+    },
+    {
+      "submission_id": "42958359",
+      "contest_id": "ahc021",
+      "winner": "mtsd",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc021_a",
+      "submission_url": "https://atcoder.jp/contests/ahc021/submissions/42958359",
+      "score_verified": false,
+      "source_sha256": "a74d96d3283b6f539198643e9caef32199845ea456c1e6cbd73fcb622251250a",
+      "status": "no_opt_out_detected",
+      "review_id": "42958359"
+    },
+    {
+      "submission_id": "44783436",
+      "contest_id": "ahc022",
+      "winner": "Jirotech",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc022_a",
+      "submission_url": "https://atcoder.jp/contests/ahc022/submissions/44783436",
+      "score_verified": false,
+      "source_sha256": "c3f508150ec0d7f6b1bc66c31a5d25b83ce8df4edd722b335fa67abbc9627690",
+      "status": "no_opt_out_detected",
+      "review_id": "44783436"
+    },
+    {
+      "submission_id": "44798918",
+      "contest_id": "ahc022",
+      "winner": "Jirotech",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc022_b",
+      "submission_url": "https://atcoder.jp/contests/ahc022/submissions/44798918",
+      "score_verified": false,
+      "source_sha256": "c3f508150ec0d7f6b1bc66c31a5d25b83ce8df4edd722b335fa67abbc9627690",
+      "status": "no_opt_out_detected",
+      "review_id": "44783436"
+    },
+    {
+      "submission_id": "45441612",
+      "contest_id": "ahc023",
+      "winner": "sugim48",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "asprocon10_a",
+      "submission_url": "https://atcoder.jp/contests/ahc023/submissions/45441612",
+      "score_verified": false,
+      "source_sha256": "bbd8932edf20ec4899de9037e418103ecbcd08349b04dab2732ea3b476611963",
+      "status": "no_opt_out_detected",
+      "review_id": "45441612"
+    },
+    {
+      "submission_id": "45449215",
+      "contest_id": "ahc023",
+      "winner": "sugim48",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "asprocon10_b",
+      "submission_url": "https://atcoder.jp/contests/ahc023/submissions/45449215",
+      "score_verified": false,
+      "source_sha256": "682d1ea0f445fdaee681742934f945705dc2eb2dcca3ec4a2057612004457742",
+      "status": "no_opt_out_detected",
+      "review_id": "45449215"
+    },
+    {
+      "submission_id": "45917587",
+      "contest_id": "ahc024",
+      "winner": "suzume",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc024_a",
+      "submission_url": "https://atcoder.jp/contests/ahc024/submissions/45917587",
+      "score_verified": false,
+      "source_sha256": "7b836416f2c1ce47dd948075d099dca26c70faf50027f7f2e92ca5e7894b9f7b",
+      "status": "no_opt_out_detected",
+      "review_id": "45917587"
+    },
+    {
+      "submission_id": "47308761",
+      "contest_id": "ahc026",
+      "winner": "hitonanode",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc026_a",
+      "submission_url": "https://atcoder.jp/contests/ahc026/submissions/47308761",
+      "score_verified": false,
+      "source_sha256": "ac69008c45c2be21f67b3c3effdc6094325d122ed941e8fb5d9f269bfb10ecd9",
+      "status": "no_opt_out_detected",
+      "review_id": "47308761"
+    },
+    {
+      "submission_id": "48359374",
+      "contest_id": "ahc027",
+      "winner": "cuthbert",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc027_a",
+      "submission_url": "https://atcoder.jp/contests/ahc027/submissions/48359374",
+      "score_verified": false,
+      "source_sha256": "cdb5e4dcd81192a129683cc31ae078ccce0b40b354b922930daa3945f31e1860",
+      "status": "no_opt_out_detected",
+      "review_id": "48359374"
+    },
+    {
+      "submission_id": "48408917",
+      "contest_id": "ahc027",
+      "winner": "cuthbert",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc027_b",
+      "submission_url": "https://atcoder.jp/contests/ahc027/submissions/48408917",
+      "score_verified": false,
+      "source_sha256": "cdb5e4dcd81192a129683cc31ae078ccce0b40b354b922930daa3945f31e1860",
+      "status": "no_opt_out_detected",
+      "review_id": "48359374"
+    },
+    {
+      "submission_id": "49255792",
+      "contest_id": "ahc028",
+      "winner": "yosupo",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc028_a",
+      "submission_url": "https://atcoder.jp/contests/ahc028/submissions/49255792",
+      "score_verified": false,
+      "source_sha256": "9a60de05cf946be4e80803eb3754ff9ea07d6c4e3daab202e7d6cb05255603b6",
+      "status": "no_opt_out_detected",
+      "review_id": "49255792"
+    },
+    {
+      "submission_id": "50447114",
+      "contest_id": "ahc030",
+      "winner": "terry_u16",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc030_a",
+      "submission_url": "https://atcoder.jp/contests/ahc030/submissions/50447114",
+      "score_verified": false,
+      "source_sha256": "74197b3eca15b9b22675271b19bb289a7a0c77cc2992b9bde1ecef7b3ec230b8",
+      "status": "no_opt_out_detected",
+      "review_id": "50447114"
+    },
+    {
+      "submission_id": "50450965",
+      "contest_id": "ahc030",
+      "winner": "terry_u16",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc030_b",
+      "submission_url": "https://atcoder.jp/contests/ahc030/submissions/50450965",
+      "score_verified": false,
+      "source_sha256": "74197b3eca15b9b22675271b19bb289a7a0c77cc2992b9bde1ecef7b3ec230b8",
+      "status": "no_opt_out_detected",
+      "review_id": "50447114"
+    },
+    {
+      "submission_id": "51936966",
+      "contest_id": "ahc031",
+      "winner": "saharan",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc031_a",
+      "submission_url": "https://atcoder.jp/contests/ahc031/submissions/51936966",
+      "score_verified": false,
+      "source_sha256": "cb023857c04ff149e7a6a15667a84d82ad16eb286223701c54da169f54691744",
+      "status": "no_opt_out_detected",
+      "review_id": "51936966"
+    },
+    {
+      "submission_id": "51940007",
+      "contest_id": "ahc031",
+      "winner": "saharan",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc031_b",
+      "submission_url": "https://atcoder.jp/contests/ahc031/submissions/51940007",
+      "score_verified": false,
+      "source_sha256": "cb023857c04ff149e7a6a15667a84d82ad16eb286223701c54da169f54691744",
+      "status": "no_opt_out_detected",
+      "review_id": "51936966"
+    },
+    {
+      "submission_id": "52156995",
+      "contest_id": "ahc032",
+      "winner": "heno239",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc032_a",
+      "submission_url": "https://atcoder.jp/contests/ahc032/submissions/52156995",
+      "score_verified": false,
+      "source_sha256": "1bf86867e1dab9e3d56285a7e20fa7cfab9caa86964c284c889a29f72fd90f59",
+      "status": "no_opt_out_detected",
+      "review_id": "52156995"
+    },
+    {
+      "submission_id": "53942556",
+      "contest_id": "ahc033",
+      "winner": "bowwowforeach",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc033_a",
+      "submission_url": "https://atcoder.jp/contests/ahc033/submissions/53942556",
+      "score_verified": false,
+      "source_sha256": "5b21cf5fd6cf930e50cb4d08d9b85913e0838ef9ac4a036ee86f3edec2a86c45",
+      "status": "no_opt_out_detected",
+      "review_id": "53942556"
+    },
+    {
+      "submission_id": "53968407",
+      "contest_id": "ahc033",
+      "winner": "bowwowforeach",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc033_b",
+      "submission_url": "https://atcoder.jp/contests/ahc033/submissions/53968407",
+      "score_verified": false,
+      "source_sha256": "5b21cf5fd6cf930e50cb4d08d9b85913e0838ef9ac4a036ee86f3edec2a86c45",
+      "status": "no_opt_out_detected",
+      "review_id": "53942556"
+    },
+    {
+      "submission_id": "54643130",
+      "contest_id": "ahc034",
+      "winner": "yosupo",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc034_a",
+      "submission_url": "https://atcoder.jp/contests/ahc034/submissions/54643130",
+      "score_verified": false,
+      "source_sha256": "0ab5ddfe9b5e03c5a84626eaabbe7ef89fa7aff6f4fdacc6093c0f5d5abd485c",
+      "status": "no_opt_out_detected",
+      "review_id": "54643130"
+    },
+    {
+      "submission_id": "55852875",
+      "contest_id": "ahc035",
+      "winner": "peroon",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc035_a",
+      "submission_url": "https://atcoder.jp/contests/ahc035/submissions/55852875",
+      "score_verified": false,
+      "source_sha256": "d519956c9e50801b9b5f34ef7a1eb8cf419144d7b72253b347788c9c441bfe73",
+      "status": "no_opt_out_detected",
+      "review_id": "55852875"
+    },
+    {
+      "submission_id": "57377353",
+      "contest_id": "ahc036",
+      "winner": "soumat",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc036_a",
+      "submission_url": "https://atcoder.jp/contests/ahc036/submissions/57377353",
+      "score_verified": false,
+      "source_sha256": "aa82d7bf1ccdf384e8b296421c9e7379b19e3c8daf528dc2ba4f99318552ebec",
+      "status": "no_opt_out_detected",
+      "review_id": "57377353"
+    },
+    {
+      "submission_id": "57404632",
+      "contest_id": "ahc036",
+      "winner": "soumat",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc036_b",
+      "submission_url": "https://atcoder.jp/contests/ahc036/submissions/57404632",
+      "score_verified": false,
+      "source_sha256": "aa82d7bf1ccdf384e8b296421c9e7379b19e3c8daf528dc2ba4f99318552ebec",
+      "status": "no_opt_out_detected",
+      "review_id": "57377353"
+    },
+    {
+      "submission_id": "58801909",
+      "contest_id": "ahc038",
+      "winner": "nikaj",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc038_a",
+      "submission_url": "https://atcoder.jp/contests/ahc038/submissions/58801909",
+      "score_verified": false,
+      "source_sha256": "b9d5e5fe5df1bca2bd0f9ddf7bf5e9edb5ea3d1d5fab7c82b380637a6c9fe1e4",
+      "status": "no_opt_out_detected",
+      "review_id": "58801909"
+    },
+    {
+      "submission_id": "58808657",
+      "contest_id": "ahc038",
+      "winner": "nikaj",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc038_b",
+      "submission_url": "https://atcoder.jp/contests/ahc038/submissions/58808657",
+      "score_verified": false,
+      "source_sha256": "b9d5e5fe5df1bca2bd0f9ddf7bf5e9edb5ea3d1d5fab7c82b380637a6c9fe1e4",
+      "status": "no_opt_out_detected",
+      "review_id": "58801909"
+    },
+    {
+      "submission_id": "59660035",
+      "contest_id": "ahc039",
+      "winner": "terry_u16",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc039_a",
+      "submission_url": "https://atcoder.jp/contests/ahc039/submissions/59660035",
+      "score_verified": false,
+      "source_sha256": "dc311faa71ace061b16a8c04440afe4b60144c02d13557708ddddb8caa5ba307",
+      "status": "no_opt_out_detected",
+      "review_id": "59660035"
+    },
+    {
+      "submission_id": "60609745",
+      "contest_id": "ahc040",
+      "winner": "chokudai",
+      "winner_roles": [
+        "overall_winner"
+      ],
+      "task_id": "ahc040_a",
+      "submission_url": "https://atcoder.jp/contests/ahc040/submissions/60609745",
+      "score_verified": false,
+      "source_sha256": "363db1e2c6111334754b96a742cd3d848b37dfcbad5d381780e9c97435e3435c",
+      "status": "no_opt_out_detected",
+      "review_id": "60609745"
+    },
+    {
+      "submission_id": "60618996",
+      "contest_id": "ahc040",
+      "winner": "chokudai",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc040_b",
+      "submission_url": "https://atcoder.jp/contests/ahc040/submissions/60618996",
+      "score_verified": false,
+      "source_sha256": "363db1e2c6111334754b96a742cd3d848b37dfcbad5d381780e9c97435e3435c",
+      "status": "no_opt_out_detected",
+      "review_id": "60609745"
+    },
+    {
+      "submission_id": "61871243",
+      "contest_id": "ahc041",
+      "winner": "hitonanode",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc041_a",
+      "submission_url": "https://atcoder.jp/contests/ahc041/submissions/61871243",
+      "score_verified": false,
+      "source_sha256": "476385a6385e98a40926555acbf1cbdc273ecc5a1f7993c4c27b2102969a09de",
+      "status": "no_opt_out_detected",
+      "review_id": "61871243"
+    },
+    {
+      "submission_id": "63119772",
+      "contest_id": "ahc043",
+      "winner": "nikaj",
+      "winner_roles": [
+        "task_winner"
+      ],
+      "task_id": "ahc043_a",
+      "submission_url": "https://atcoder.jp/contests/ahc043/submissions/63119772",
+      "score_verified": false,
+      "source_sha256": "a290c8ce990a3fe6489e517a26e51536656daca3496dc44eb0b48f40c2151063",
+      "status": "no_opt_out_detected",
+      "review_id": "63119772"
+    },
+    {
+      "submission_id": "63121685",
+      "contest_id": "ahc043",
+      "winner": "saharan",
+      "winner_roles": [
+        "overall_winner"
+      ],
+      "task_id": "ahc043_a",
+      "submission_url": "https://atcoder.jp/contests/ahc043/submissions/63121685",
+      "score_verified": false,
+      "source_sha256": "2b52915fbe0ca3449ce36037bac25d3f96d58f4b60363a203c3ba57e287a7e33",
+      "status": "no_opt_out_detected",
+      "review_id": "63121685"
+    },
+    {
+      "submission_id": "63126554",
+      "contest_id": "ahc043",
+      "winner": "saharan",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc043_b",
+      "submission_url": "https://atcoder.jp/contests/ahc043/submissions/63126554",
+      "score_verified": false,
+      "source_sha256": "2b52915fbe0ca3449ce36037bac25d3f96d58f4b60363a203c3ba57e287a7e33",
+      "status": "no_opt_out_detected",
+      "review_id": "63121685"
+    },
+    {
+      "submission_id": "64611675",
+      "contest_id": "ahc045",
+      "winner": "nikaj",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc045_a",
+      "submission_url": "https://atcoder.jp/contests/ahc045/submissions/64611675",
+      "score_verified": false,
+      "source_sha256": "f96a57e8a79cc4e1f0cf85f4c9c57967cf83061fcd098a4200482d36c8dc8044",
+      "status": "no_opt_out_detected",
+      "review_id": "64611675"
+    },
+    {
+      "submission_id": "65957786",
+      "contest_id": "ahc047",
+      "winner": "itigo",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc047_a",
+      "submission_url": "https://atcoder.jp/contests/ahc047/submissions/65957786",
+      "score_verified": false,
+      "source_sha256": "ad53a168503b54e9593a73e62c75161f1abb27aee711b2943ee5b4011933a8e7",
+      "status": "no_opt_out_detected",
+      "review_id": "65957786"
+    },
+    {
+      "submission_id": "66623158",
+      "contest_id": "ahc048",
+      "winner": "montplusa",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc048_a",
+      "submission_url": "https://atcoder.jp/contests/ahc048/submissions/66623158",
+      "score_verified": false,
+      "source_sha256": "c820b4c0acfcfca18281dc03b3c0ff139227651acae6b87276cfbc8f2e9fde95",
+      "status": "no_opt_out_detected",
+      "review_id": "66623158"
+    },
+    {
+      "submission_id": "67393589",
+      "contest_id": "ahc050",
+      "winner": "yosupo",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc050_a",
+      "submission_url": "https://atcoder.jp/contests/ahc050/submissions/67393589",
+      "score_verified": false,
+      "source_sha256": "701ef6aec9edb8f1012022029f9d5fc8af98dc7c17fa9a4cb78d010c3808126a",
+      "status": "no_opt_out_detected",
+      "review_id": "67393589"
+    },
+    {
+      "submission_id": "68711859",
+      "contest_id": "ahc052",
+      "winner": "nikaj",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc052_a",
+      "submission_url": "https://atcoder.jp/contests/ahc052/submissions/68711859",
+      "score_verified": false,
+      "source_sha256": "235760d8dee3904e526d1b2c87db137ffeed322237e99efdc34e950842496b70",
+      "status": "no_opt_out_detected",
+      "review_id": "68711859"
+    },
+    {
+      "submission_id": "69285442",
+      "contest_id": "ahc053",
+      "winner": "yosupo",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc053_a",
+      "submission_url": "https://atcoder.jp/contests/ahc053/submissions/69285442",
+      "score_verified": false,
+      "source_sha256": "5b7c83bb3be92703d9fbeb9576186b30363bc4daeecc62deac8c0ffbe4dffcae",
+      "status": "no_opt_out_detected",
+      "review_id": "69285442"
+    },
+    {
+      "submission_id": "69728114",
+      "contest_id": "ahc054",
+      "winner": "saharan",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc054_a",
+      "submission_url": "https://atcoder.jp/contests/ahc054/submissions/69728114",
+      "score_verified": false,
+      "source_sha256": "ec32a511b341dc027f6ab4d37eef34cac0e46585aa44717a6d54397c2dd61cde",
+      "status": "no_opt_out_detected",
+      "review_id": "69728114"
+    },
+    {
+      "submission_id": "69732675",
+      "contest_id": "ahc054",
+      "winner": "saharan",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc054_b",
+      "submission_url": "https://atcoder.jp/contests/ahc054/submissions/69732675",
+      "score_verified": false,
+      "source_sha256": "ec32a511b341dc027f6ab4d37eef34cac0e46585aa44717a6d54397c2dd61cde",
+      "status": "no_opt_out_detected",
+      "review_id": "69728114"
+    },
+    {
+      "submission_id": "70299716",
+      "contest_id": "ahc055",
+      "winner": "nikaj",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc055_a",
+      "submission_url": "https://atcoder.jp/contests/ahc055/submissions/70299716",
+      "score_verified": false,
+      "source_sha256": "60da19c360d826b479aaa2a7a8ecbbbb24bc3eab28972076997bee3d579734e5",
+      "status": "no_opt_out_detected",
+      "review_id": "70299716"
+    },
+    {
+      "submission_id": "71030207",
+      "contest_id": "ahc056",
+      "winner": "saharan",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc056_a",
+      "submission_url": "https://atcoder.jp/contests/ahc056/submissions/71030207",
+      "score_verified": false,
+      "source_sha256": "3a5dd52632d2b2b2792f4a7f9f3f77cb96d021ecef93d15af2e11bf14ae0a08b",
+      "status": "no_opt_out_detected",
+      "review_id": "71030207"
+    },
+    {
+      "submission_id": "71036164",
+      "contest_id": "ahc056",
+      "winner": "saharan",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc056_b",
+      "submission_url": "https://atcoder.jp/contests/ahc056/submissions/71036164",
+      "score_verified": false,
+      "source_sha256": "3a5dd52632d2b2b2792f4a7f9f3f77cb96d021ecef93d15af2e11bf14ae0a08b",
+      "status": "no_opt_out_detected",
+      "review_id": "71030207"
+    },
+    {
+      "submission_id": "71292882",
+      "contest_id": "ahc057",
+      "winner": "yochan",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc057_a",
+      "submission_url": "https://atcoder.jp/contests/ahc057/submissions/71292882",
+      "score_verified": false,
+      "source_sha256": "a04639534f07c3a64dfad74fcb1ff969447ab84414ac88d93183e43b2f7f2870",
+      "status": "no_opt_out_detected",
+      "review_id": "71292882"
+    },
+    {
+      "submission_id": "71725942",
+      "contest_id": "ahc058",
+      "winner": "fishylene",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc058_a",
+      "submission_url": "https://atcoder.jp/contests/ahc058/submissions/71725942",
+      "score_verified": false,
+      "source_sha256": "d278771158a9bb6910bd5449fdd97f5d6db924c6f33f4daf3ff65cdb2e9538a7",
+      "status": "no_opt_out_detected",
+      "review_id": "71725942"
+    },
+    {
+      "submission_id": "72330966",
+      "contest_id": "ahc059",
+      "winner": "chokudai",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc059_a",
+      "submission_url": "https://atcoder.jp/contests/ahc059/submissions/72330966",
+      "score_verified": false,
+      "source_sha256": "ae83d84ef9ea316a6d1fd8b14f677464034e08ea111ef621362670e9a5e3c11f",
+      "status": "no_opt_out_detected",
+      "review_id": "72330966"
+    },
+    {
+      "submission_id": "72942421",
+      "contest_id": "ahc060",
+      "winner": "Sweet_Sweet_Soul",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc060_a",
+      "submission_url": "https://atcoder.jp/contests/ahc060/submissions/72942421",
+      "score_verified": false,
+      "source_sha256": "7805ac528e47bf86f63eecafff8c308fe11cd4a5b0e654fdb09c8eb4fbb25334",
+      "status": "no_opt_out_detected",
+      "review_id": "72942421"
+    },
+    {
+      "submission_id": "73562256",
+      "contest_id": "ahc061",
+      "winner": "cuthbert",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc061_a",
+      "submission_url": "https://atcoder.jp/contests/ahc061/submissions/73562256",
+      "score_verified": false,
+      "source_sha256": "a2ccd215b8760b98216f4beb6ec1c77910bf722b75d62f3bd63e78a79819d49e",
+      "status": "no_opt_out_detected",
+      "review_id": "73562256"
+    },
+    {
+      "submission_id": "73569716",
+      "contest_id": "ahc061",
+      "winner": "cuthbert",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc061_b",
+      "submission_url": "https://atcoder.jp/contests/ahc061/submissions/73569716",
+      "score_verified": false,
+      "source_sha256": "a2ccd215b8760b98216f4beb6ec1c77910bf722b75d62f3bd63e78a79819d49e",
+      "status": "no_opt_out_detected",
+      "review_id": "73562256"
+    },
+    {
+      "submission_id": "74068534",
+      "contest_id": "ahc062",
+      "winner": "gazelle",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc062_a",
+      "submission_url": "https://atcoder.jp/contests/ahc062/submissions/74068534",
+      "score_verified": false,
+      "source_sha256": "72960ed60f9e1bd70f12231e9d648811e015a5334d267fc8d2f0820bedb056c3",
+      "status": "no_opt_out_detected",
+      "review_id": "74068534"
+    },
+    {
+      "submission_id": "74935244",
+      "contest_id": "ahc063",
+      "winner": "rhoo",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc063_a",
+      "submission_url": "https://atcoder.jp/contests/ahc063/submissions/74935244",
+      "score_verified": false,
+      "source_sha256": "cb50f7147ddbcfb899003fc03750ced6b7c2ff4f5f6fc383f9089b8d8230c5dc",
+      "status": "no_opt_out_detected",
+      "review_id": "74935244"
+    },
+    {
+      "submission_id": "74942824",
+      "contest_id": "ahc063",
+      "winner": "rhoo",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc063_b",
+      "submission_url": "https://atcoder.jp/contests/ahc063/submissions/74942824",
+      "score_verified": false,
+      "source_sha256": "cb50f7147ddbcfb899003fc03750ced6b7c2ff4f5f6fc383f9089b8d8230c5dc",
+      "status": "no_opt_out_detected",
+      "review_id": "74935244"
+    },
+    {
+      "submission_id": "75295267",
+      "contest_id": "ahc064",
+      "winner": "chokudai",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc064_a",
+      "submission_url": "https://atcoder.jp/contests/ahc064/submissions/75295267",
+      "score_verified": false,
+      "source_sha256": "2b2694a64bad576df48fb54d9e5f10602c3eaf78bf737a5b1e2b48b84632d282",
+      "status": "no_opt_out_detected",
+      "review_id": "75295267"
+    },
+    {
+      "submission_id": "75827741",
+      "contest_id": "ahc065",
+      "winner": "rabot",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc065_a",
+      "submission_url": "https://atcoder.jp/contests/ahc065/submissions/75827741",
+      "score_verified": false,
+      "source_sha256": "3110ef939aa4047edb784800cdc62626614e5593abe09808ffcdcaddb0457624",
+      "status": "no_opt_out_detected",
+      "review_id": "75827741"
+    },
+    {
+      "submission_id": "76520389",
+      "contest_id": "ahc066",
+      "winner": "kurakura",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc066_a",
+      "submission_url": "https://atcoder.jp/contests/ahc066/submissions/76520389",
+      "score_verified": false,
+      "source_sha256": "db4dcd7334ad3ff676172bb45a92cb8986f874c17bdd9adee60097826bf0ea8c",
+      "status": "no_opt_out_detected",
+      "review_id": "76520389"
+    },
+    {
+      "submission_id": "76532036",
+      "contest_id": "ahc066",
+      "winner": "kurakura",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc066_b",
+      "submission_url": "https://atcoder.jp/contests/ahc066/submissions/76532036",
+      "score_verified": false,
+      "source_sha256": "db4dcd7334ad3ff676172bb45a92cb8986f874c17bdd9adee60097826bf0ea8c",
+      "status": "no_opt_out_detected",
+      "review_id": "76520389"
+    },
+    {
+      "submission_id": "77562268",
+      "contest_id": "ahc068",
+      "winner": "PrussianBlue",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc068_a",
+      "submission_url": "https://atcoder.jp/contests/ahc068/submissions/77562268",
+      "score_verified": false,
+      "source_sha256": "6e577c5a5577f11067744f682524a460ff53b12399c4d37b858bec68a47da9ab",
+      "status": "no_opt_out_detected",
+      "review_id": "77562268"
+    },
+    {
+      "submission_id": "78259988",
+      "contest_id": "ahc069",
+      "winner": "asi1024",
+      "winner_roles": [
+        "overall_winner"
+      ],
+      "task_id": "ahc069_a",
+      "submission_url": "https://atcoder.jp/contests/ahc069/submissions/78259988",
+      "score_verified": false,
+      "source_sha256": "50e0a9053b7bdceab006b10d53da8da8ba78707abdadc0eff9af57c12bf7e6be",
+      "status": "no_opt_out_detected",
+      "review_id": "78259988"
+    },
+    {
+      "submission_id": "78283445",
+      "contest_id": "ahc069",
+      "winner": "asi1024",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc069_b",
+      "submission_url": "https://atcoder.jp/contests/ahc069/submissions/78283445",
+      "score_verified": false,
+      "source_sha256": "50e0a9053b7bdceab006b10d53da8da8ba78707abdadc0eff9af57c12bf7e6be",
+      "status": "no_opt_out_detected",
+      "review_id": "78259988"
+    },
+    {
+      "submission_id": "79251146",
+      "contest_id": "ahc071",
+      "winner": "rhoo",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc071_a",
+      "submission_url": "https://atcoder.jp/contests/ahc071/submissions/79251146",
+      "score_verified": false,
+      "source_sha256": "3984c1da47e5ffc10ebef962156631bd8901c07f047775aeb56e2e06a90ad436",
+      "status": "no_opt_out_detected",
+      "review_id": "79251146"
+    },
+    {
+      "submission_id": "79793411",
+      "contest_id": "ahc072",
+      "winner": "mech_39",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc072_a",
+      "submission_url": "https://atcoder.jp/contests/ahc072/submissions/79793411",
+      "score_verified": false,
+      "source_sha256": "916c809a0cb73b66dff7ebc889a88ee90cf3e6884b718528b65a5b3a4575e520",
+      "status": "no_opt_out_detected",
+      "review_id": "79793411"
+    },
+    {
+      "submission_id": "79805355",
+      "contest_id": "ahc072",
+      "winner": "mech_39",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "task_id": "ahc072_b",
+      "submission_url": "https://atcoder.jp/contests/ahc072/submissions/79805355",
+      "score_verified": false,
+      "source_sha256": "916c809a0cb73b66dff7ebc889a88ee90cf3e6884b718528b65a5b3a4575e520",
+      "status": "no_opt_out_detected",
+      "review_id": "79793411"
+    }
+  ]
+}

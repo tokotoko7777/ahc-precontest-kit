@@ -4,6 +4,12 @@ AHC を中心とした競技プログラミングで、自分の `main.cpp` へ�
 C++ パーツ集です。ヒューリスティック探索だけでなく、グラフ・データ構造などの
 通常アルゴリズムも同じ形で揃えます。
 
+## 学習用の読み物
+
+[人が読むAHCテクニック解説](docs/technique-guide/README.md)では、基礎編7ジャンル・32トピックと、[詳細編19ジャンル・334トピック](docs/technique-guide/detailed/README.md)を説明しています。
+各トピックを、考え方・小さな例・適用条件・検算課題の順で学べます。詳細編には、出典を確認した88提出・64実装の357具体例を収録しています。
+[用語集](docs/technique-guide/detailed/GLOSSARY.md)と[出典・収録範囲](docs/technique-guide/detailed/SOURCES.md)も参照できます。
+
 ## 使い方
 
 コンテスト中に編集するファイルは `main.cpp` だけです。
