@@ -15,7 +15,7 @@ def main():
         "local-search": {"basic.cpp", "annealing-options.cpp", "destroy-repair.cpp",
                          "adaptive-destroy-repair.cpp", "iterated-local-search.cpp",
                          "prefix-replay.cpp", "forward-backward.cpp"},
-        "monte-carlo": {"rollout.cpp", "tree-search.cpp"},
+        "monte-carlo": {"tree-search.cpp"},
     }
     assert not list(basic.glob("*.cpp")), "put variants inside their family folder"
     for family, names in required.items():

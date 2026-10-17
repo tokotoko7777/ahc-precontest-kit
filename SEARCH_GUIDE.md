@@ -8,7 +8,7 @@ hpp本体は通常編集しません。
 |---|---|
 | 良い候補を複数残しながら、解を1手ずつ作る | [ビーム](template/search/beam/README.md)：通常・差分評価・木上など |
 | 完成解を変更して改善する | [局所探索](template/search/local-search/README.md)：焼きなまし・山登り・部分破壊再構築など |
-| 未知の未来を何本か試して、今の手を選ぶ | [モンテカルロ](template/search/monte-carlo/README.md)：rollout・木探索 |
+| 未知の未来を何本か試して、今の手を選ぶ | [モンテカルロ](template/search/monte-carlo/README.md)：木探索（UCT） |
 
 ## 共通の使い方
 
@@ -62,11 +62,8 @@ destroyとrepairを分けて書きたいときは
 
 ## モンテカルロ
 
-[monte-carlo/](template/search/monte-carlo/README.md)には、全候補を同じ未来で比べるrolloutと、
-木の枝に試行を配分するUCTを置いています。
-候補・未知の未来・遷移や仮実行の評価を問題側に書きます。
-実際に観測する前の情報を確定情報として使わないようにします。
-完成例は[AHC015](examples/search/ahc015_common_rollout.cpp)です。
+[tree-search.cpp](template/search/monte-carlo/tree-search.cpp)に、状態・合法手・遷移・報酬を記述します。
+試行結果を木に蓄積し、次に調べる枝を選ぶ形式です。引数と戻り値は各TODOを参照してください。
 
 ## 必要な形式だけ開く
 
@@ -74,5 +71,4 @@ destroyとrepairを分けて書きたいときは
 詳しいAPIは[SEARCH_REFERENCE.md](SEARCH_REFERENCE.md)へ。
 未知の未来を抽選しない[決定的な先読み](template/advanced/README.md)は別にしています。
 
-この整理では既存ヘッダのAPIやpracticeの解法・既定設定は変えていません。
-速く・強くなったという主張ではなく、選び方と編集場所の整理です。
+収録範囲の変更は[出典方針](SOURCE_POLICY.md)に記録しています。

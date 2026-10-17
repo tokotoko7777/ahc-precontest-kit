@@ -15,13 +15,11 @@
 #include "library/bellman-ford.hpp"
 #include "library/bipartite-matching.hpp"
 #include "library/bipartite-check.hpp"
-#include "library/bridge-tree.hpp"
 #include "library/binary-search-answer.hpp"
 #include "library/binary-trie.hpp"
 #include "library/best-keeper.hpp"
 #include "library/best-by-key.hpp"
 #include "library/chmin-chmax.hpp"
-#include "library/common-scenario-average.hpp"
 #include "library/coordinate-compression.hpp"
 #include "library/convex-hull.hpp"
 #include "library/cumulative-sum-2d.hpp"
@@ -42,7 +40,6 @@
 #include "library/functional-graph.hpp"
 #include "library/fixed-vector.hpp"
 #include "library/graph-bfs.hpp"
-#include "library/greedy-balanced-partition.hpp"
 #include "library/grid-bfs.hpp"
 #include "library/hungarian.hpp"
 #include "library/hilbert-order.hpp"
@@ -59,7 +56,6 @@
 #include "library/mod-combination.hpp"
 #include "library/move-statistics.hpp"
 #include "library/multi-start.hpp"
-#include "library/non-crossing-matching.hpp"
 #include "library/prime-table.hpp"
 #include "library/prefix-function.hpp"
 #include "library/point-2d.hpp"
@@ -388,43 +384,6 @@ int main() {
   assert(components.component_id[0] < components.component_id[2]);
   assert(components.component_id[2] < components.component_id[4]);
 
-  const std::vector<std::pair<int, int>> bridge_edges{
-      {0, 1}, {1, 2}, {2, 0}, {2, 3},
-      {3, 4}, {3, 4}, {4, 5}, {5, 5}};
-  const auto bridge_result = build_bridge_tree(7, bridge_edges);
-  assert(bridge_result.component_count() == 4);
-  assert(bridge_result.same_without_bridges(0, 2));
-  assert(bridge_result.same_without_bridges(3, 4));
-  assert(!bridge_result.same_without_bridges(2, 3));
-  assert(!bridge_result.same_without_bridges(4, 5));
-  assert(bridge_result.is_bridge ==
-         std::vector<char>({false, false, false, true,
-                            false, false, true, false}));
-  const int triangle_component = bridge_result.component_id[0];
-  const int middle_component = bridge_result.component_id[3];
-  const int leaf_component = bridge_result.component_id[5];
-  const int isolated_component = bridge_result.component_id[6];
-  assert(bridge_result.tree[triangle_component].size() == 1);
-  assert(bridge_result.tree[middle_component].size() == 2);
-  assert(bridge_result.tree[leaf_component].size() == 1);
-  assert(bridge_result.tree[isolated_component].empty());
-
-  const std::vector<std::vector<int>> non_crossing_weight{
-      {0, 5, 0, 10},
-      {6, 0, -4, 0},
-      {0, 0, 0, 7},
-  };
-  const std::vector<std::vector<char>> every_pair_allowed(
-      3, std::vector<char>(4, true));
-  const auto non_crossing = maximum_weight_non_crossing_matching(
-      non_crossing_weight, every_pair_allowed);
-  assert(non_crossing.score == 13);
-  assert((non_crossing.pairs ==
-          std::vector<std::pair<int, int>>({{1, 0}, {2, 3}})));
-  const auto skip_negative = maximum_weight_non_crossing_matching(
-      std::vector<std::vector<int>>{{-1, -2}, {-3, -4}});
-  assert(skip_negative.score == 0 && skip_negative.pairs.empty());
-
   const long long floyd_infinity = (1LL << 60);
   std::vector<std::vector<long long>> all_pairs(
       3, std::vector<long long>(3, floyd_infinity));
@@ -627,110 +586,6 @@ int main() {
                (reachable[a][b] && reachable[b][a]));
       }
     }
-  }
-
-  for (int iteration = 0; iteration < 200; ++iteration) {
-    const int vertex_count = random.next_int(1, 9);
-    const int edge_count = random.next_int(0, 17);
-    std::vector<std::pair<int, int>> random_edges;
-    for (int edge_id = 0; edge_id < edge_count; ++edge_id) {
-      random_edges.push_back({random.next_int(0, vertex_count),
-                              random.next_int(0, vertex_count)});
-    }
-
-    const auto tested_bridges =
-        build_bridge_tree(vertex_count, random_edges);
-    const auto count_components_without = [&](int skipped_edge) {
-      std::vector<std::vector<int>> graph_without_edge(vertex_count);
-      for (int edge_id = 0; edge_id < edge_count; ++edge_id) {
-        if (edge_id == skipped_edge) continue;
-        const auto [a, b] = random_edges[edge_id];
-        graph_without_edge[a].push_back(b);
-        graph_without_edge[b].push_back(a);
-      }
-      std::vector<char> visited(vertex_count, false);
-      std::vector<int> stack;
-      int component_count = 0;
-      for (int start = 0; start < vertex_count; ++start) {
-        if (visited[start]) continue;
-        ++component_count;
-        visited[start] = true;
-        stack.push_back(start);
-        while (!stack.empty()) {
-          const int vertex = stack.back();
-          stack.pop_back();
-          for (int next : graph_without_edge[vertex]) {
-            if (visited[next]) continue;
-            visited[next] = true;
-            stack.push_back(next);
-          }
-        }
-      }
-      return component_count;
-    };
-
-    const int original_components = count_components_without(-1);
-    int bridge_count = 0;
-    for (int edge_id = 0; edge_id < edge_count; ++edge_id) {
-      const bool brute_bridge =
-          count_components_without(edge_id) > original_components;
-      assert(static_cast<bool>(tested_bridges.is_bridge[edge_id]) ==
-             brute_bridge);
-      const auto [a, b] = random_edges[edge_id];
-      assert(tested_bridges.same_without_bridges(a, b) != brute_bridge);
-      bridge_count += brute_bridge;
-    }
-    int tree_degrees = 0;
-    for (const auto& neighbors : tested_bridges.tree) {
-      tree_degrees += static_cast<int>(neighbors.size());
-    }
-    assert(tree_degrees == 2 * bridge_count);
-  }
-
-  for (int iteration = 0; iteration < 200; ++iteration) {
-    const int left_size = random.next_int(1, 7);
-    const int right_size = random.next_int(1, 7);
-    std::vector<std::vector<int>> weight(
-        left_size, std::vector<int>(right_size));
-    std::vector<std::vector<char>> allowed(
-        left_size, std::vector<char>(right_size));
-    for (int left = 0; left < left_size; ++left) {
-      for (int right = 0; right < right_size; ++right) {
-        weight[left][right] = random.next_int(-3, 10);
-        allowed[left][right] = random.next_int(0, 4) != 0;
-      }
-    }
-
-    int brute_best = 0;
-    std::function<void(int, int, int)> brute =
-        [&](int left, int previous_right, int score) {
-          if (left == left_size) {
-            brute_best = std::max(brute_best, score);
-            return;
-          }
-          brute(left + 1, previous_right, score);
-          for (int right = previous_right + 1;
-               right < right_size; ++right) {
-            if (!allowed[left][right]) continue;
-            brute(left + 1, right, score + weight[left][right]);
-          }
-        };
-    brute(0, -1, 0);
-
-    const auto tested_matching =
-        maximum_weight_non_crossing_matching(weight, allowed);
-    assert(tested_matching.score == brute_best);
-    int restored_score = 0;
-    int previous_left = -1;
-    int previous_right = -1;
-    for (const auto& [left, right] : tested_matching.pairs) {
-      assert(previous_left < left && previous_right < right);
-      assert(allowed[left][right]);
-      restored_score += weight[left][right];
-      previous_left = left;
-      previous_right = right;
-    }
-    assert(restored_score == tested_matching.score);
   }
 
   for (int iteration = 0; iteration < 100; ++iteration) {
@@ -1857,16 +1712,6 @@ int main() {
   assert(wall_probability_dp.step(stay_in_place, 0.7F) == 0.0F);
   assert(std::abs(wall_probability_dp.probability[0] - 1.0F) < 1e-6F);
 
-  const std::vector<int> scenario_actions{0, 1, 2};
-  const std::vector<int> common_scenarios{1, 2, 3};
-  const std::vector<long double> scenario_average = common_scenario_average(
-      scenario_actions,
-      common_scenarios,
-      [](int action, int scenario) { return action * scenario; });
-  assert(scenario_average[0] == 0.0L);
-  assert(scenario_average[1] == 2.0L);
-  assert(scenario_average[2] == 4.0L);
-
   const std::vector<int> sample_positions{0, 2, 9, 10};
   const std::vector<int> spread_samples = farthest_point_sampling(
       static_cast<int>(sample_positions.size()), 3,
@@ -1885,20 +1730,6 @@ int main() {
          3037000499LL);
   assert(ceil_integer_square_root(std::numeric_limits<long long>::max()) ==
          3037000500LL);
-
-  const std::vector<long long> partition_weight{9, 8, 7, 6, 5, 4};
-  const std::vector<std::vector<int>> balanced_groups =
-      greedy_balanced_partition(partition_weight, 3);
-  std::vector<long long> partition_sum(3, 0);
-  std::vector<int> partition_seen(6, 0);
-  for (int group = 0; group < 3; ++group) {
-    for (int item : balanced_groups[group]) {
-      partition_sum[group] += partition_weight[item];
-      ++partition_seen[item];
-    }
-  }
-  assert(partition_sum == std::vector<long long>({13, 13, 13}));
-  assert(partition_seen == std::vector<int>({1, 1, 1, 1, 1, 1}));
 
   const std::vector<std::vector<long long>> assignment_cost{
       {4, 1, 3},

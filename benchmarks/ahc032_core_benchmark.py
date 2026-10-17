@@ -12,7 +12,7 @@ from pathlib import Path
 import statistics
 import subprocess
 import tempfile
-from rollout_official_benchmark import ROOT, official_score
+from official_tool_runner import ROOT, official_score
 
 BASE = "a208b60f9073e9a8599a21afc83fd483da5287b4"
 MOD = 998244353

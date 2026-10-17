@@ -15,7 +15,6 @@
 | `action-beam-search.hpp` | Actionから次状態の順位を安く計算できる | 採用N件だけ`State`をコピー |
 | `tree-beam-search.hpp` | 全行動で1世代ずつ進む。`State`のコピーが重い | `apply / revert`と履歴木 |
 | `cost-tree-beam-search.hpp` | 行動ごとに1、2、3世代など進み幅が違う | `apply / revert`と到着世代別の履歴木 |
-| `common-scenario-average.hpp` | 未知の未来を何本か試して今の1手を選ぶ | 全候補へ同じ未来sampleを使用 |
 
 迷ったら、局所変更が自然なら焼きなまし、手順を1手ずつ作るなら
 `SimpleBeamSearch`から始めます。状態コピーがボトルネックになったら、差分評価を
@@ -30,31 +29,6 @@
 [`template/search/`](template/search/README.md)を使います。hppを読み込む行、
 問題ごとの型と関数、探索の呼び出し、出力関数まで、最終的な`main.cpp`と同じ順番に
 配置しています。
-
-## 探索コアを実問題へ当てはめた完全な例
-
-| 探索コア | 問題例 | 完全な`main.cpp` |
-|---|---|---|
-| 時間焼きなましRunner | AHC002の経路destroy/repair | [`ahc002_destroy_repair_sa.cpp`](examples/search/ahc002_destroy_repair_sa.cpp) |
-| LNS（山登り/RRT/SA切替） | AHC059のカードペア再挿入 | [`ahc059_lns.cpp`](examples/search/ahc059_lns.cpp) |
-| LNS（最大化への横展開） | AHC002の経路destroy/repair | [`ahc002_destroy_repair_lns.cpp`](examples/search/ahc002_destroy_repair_lns.cpp) |
-| 時間焼きなましRunner | AHC006の配達経路 | [`ahc006_sa.cpp`](examples/search/ahc006_sa.cpp) |
-| apply/revert木上ビーム | AHC011のスライドパズル | [`ahc011_tree_beam.cpp`](examples/search/ahc011_tree_beam.cpp) |
-| 共通未来Monte Carlo Runner | AHC015の飴配置 | [`ahc015_common_rollout.cpp`](examples/search/ahc015_common_rollout.cpp) |
-| 決定的rollout Runner | AHC026の箱積み替え | [`ahc026_deterministic_rollout.cpp`](examples/search/ahc026_deterministic_rollout.cpp) |
-| 通常ビーム | Introduction to Heuristics Contest A | [`intro_heuristics_simple_beam.cpp`](examples/search/intro_heuristics_simple_beam.cpp) |
-| Action先行ビーム | Introduction to Heuristics Contest A | [`intro_heuristics_action_beam.cpp`](examples/search/intro_heuristics_action_beam.cpp) |
-| 木上ビームRunner | AHC021の山崩し | [`ahc021_tree_beam.cpp`](examples/search/ahc021_tree_beam.cpp) |
-| Action先行ビームRunner | AHC032のmodスタンプ | [`ahc032_action_beam.cpp`](examples/search/ahc032_action_beam.cpp) |
-| 世代飛ばし木上ビーム | 移動時間1〜3の締切付き宝集め | [`variable_cost_beam.cpp`](examples/search/variable_cost_beam.cpp) |
-| 世代飛ばし木上ビーム | AHC038のロボットアーム | [`ahc038_variable_cost_beam.cpp`](examples/search/ahc038_variable_cost_beam.cpp) |
-| Action先行ビーム＋行DP | AHC071の壁構築 | [`ahc071_action_beam.cpp`](examples/search/ahc071_action_beam.cpp) |
-
-どれも中心となる探索ヘッダを1個読み込む、入力から出力まで揃った例です。
-必要な例だけ、時計などの小さな補助hppも併用します。
-提出時は使用したヘッダの中身を`main.cpp`の先頭へコピーし、`#include`の1行を
-削除します。検証内容とコンパイル方法は
-[`examples/search/README.md`](examples/search/README.md) にまとめています。
 
 ## 焼きなましの最小形
 
@@ -458,61 +432,6 @@ AHC021では、途中は重み付き経路費用で並べ、最後は実際の�
 AHC021のピラミッドをこの境界で解く実例は
 [`ahc021_tree_beam_score_benchmark.cpp`](benchmarks/ahc021_tree_beam_score_benchmark.cpp)です。
 
-## 共通シナリオMonte Carlo
-
-現在の1手を、複数の未知の未来で最後まで試して選ぶ方法です。Actionごとに別の
-未来を引くと、Action差と乱数の当たり外れが混ざります。全Actionを同じScenario
-集合で評価する`CommonScenarioRolloutRunner<Problem>`を使います。
-
-```cpp
-struct Problem {
-  // TODO: 【問題ごと】現在情報、今の1手、未知の未来、評価値の型を書く。
-  using State = MyState;          // 現在までに確定している情報。
-  using Action = MyAction;        // 今選ぶ1手。
-  using Scenario = MyScenario;    // 未知の未来1本。
-  using Score = long long;        // 1 rolloutの最終評価値。
-
-  // TODO: 【問題ごと】今選べるActionを全て返す。
-  vector<Action> generate_actions(const State& state) {
-    return legal_actions(state);
-  }
-
-  // TODO: 【問題ごと】未知情報だけを1本sampleする。
-  Scenario generate_scenario(const State& state, mt19937_64& rng) {
-    return sample_unknown_future(state, rng);
-  }
-
-  // TODO: 【問題ごと】最初のaction後を終端まで進めて評価する。
-  // その後は問題固有のルール方策などで終端まで進め、
-  // 最終評価値を返す。元のstateは変更しない。
-  Score evaluate_action(
-      const State& state, const Action& action, const Scenario& scenario) {
-    State simulation = state;
-    apply(simulation, action);
-    play_to_end_with_rule_policy(simulation, scenario);
-    return official_score(simulation);
-  }
-};
-
-Problem problem;
-CommonScenarioRolloutRunner<Problem> rollout(problem, 123);
-rollout.reserve(max_action_count, sample_count);
-MyAction action = rollout.choose_action(state, sample_count);
-apply_real_state(state, action);  // 実状態の更新は呼び出し側。
-```
-
-| 人が問題に合わせて書く | ライブラリが担当する |
-|---|---|
-| `State`、`Action`、`Scenario` | 全Actionで共通のScenario生成 |
-| 未知情報のsample方法 | 各Actionの平均計算 |
-| rollout中の方策と終端評価 | 最大・最小の最良Action選択 |
-| 選択後の実状態更新 | sample・平均値のbuffer再利用 |
-
-AHC015の飴配置を終端までrolloutする実例は
-[`ahc015_monte_carlo_score_benchmark.cpp`](benchmarks/ahc015_monte_carlo_score_benchmark.cpp)です。
-sample数だけを増やしても、未来の自分の行動が弱ければ評価も弱いままです。
-未知情報のsample、未来のルール方策、1 rolloutの軽さを問題ごとに設計します。
-
 ## 決定的rollout
 
 未来が乱数や追加入力に左右されず、現在状態と方策パラメータから全て決まるなら、
@@ -808,94 +727,3 @@ LNSの`last_outcome()`は`ImprovedBest` / `ImprovedCurrent` / `Accepted` / `Reje
 AHC059の比較結果は[`ALNS_REPORT.md`](benchmarks/ALNS_REPORT.md)に記録します。
 ALNSの着想は[Røpke・Pisingerの原論文](https://doi.org/10.1287/trsc.1050.0135)で、
 このコードは考え方を参考にした独自実装です。
-
-## chokudai / UCT / ILS
-
-3方式ともhppを貼り、下のリンク先のcppにある`Problem`だけを
-問題に合わせて埋めます。空の関数にも「何を書くか・何を返すか」のTODOがあります。
-追加しただけで既存のビームやSAより強いとはしません。同一時間の公式採点結果と
-採否は[`THREE_SEARCH_REPORT.md`](benchmarks/THREE_SEARCH_REPORT.md)を参照してください。
-
-### chokudai: 深さごとの候補を残して何度も潜る
-
-[`chokudai-search.hpp`](library/chokudai-search.hpp) /
-[`穴埋め`](template/search/beam/chokudai.cpp) /
-[`AHC032の完成例`](examples/search/ahc032_chokudai.cpp)。
-各深さの候補を順位順に残し、浅い層から順に1個ずつ展開する探索です。
-後から別の枝を伸ばせる一方、順位値がよい問題では通常ビームの方が有利なこともあります。
-
-| 自分で書く関数 | 戻り値・意味 |
-|---|---|
-| `generate_actions(state)` | 合法な1手の一覧。空ならその枝はそこで終わる |
-| `evaluate_action(state, action)` | 適用後の**絶対順位値**。改善量ではない。同じ深さで比較する |
-| `apply_action(state, action)` | 盤面・cache・復元情報を更新する。戻り値なし |
-| `is_terminal(state)` | 出力可能な完成解ならtrue |
-| `final_score(state)` | 完成解の**本当の得点**。順位値とは別に比較する |
-
-`Score`は整数/浮動小数点の数値型、`State`は独立にコピーできる値型です。
-最大化/最小化は`options.maximize`で設定します。初期状態の順位値もconstructorへ渡します。
-`max_depth`は完成までの最大遷移数、`capacity_per_depth`は**層ごと**の待ち候補上限です。
-容量不足では悪い候補を捨てる近似で、完全探索ではありません。重複除去は行いません。
-
-容量に入らない子はStateをコピーせず棄却します。ただし残す候補は盤面全体を持ち、
-順序集合の管理費用もあります。巨大なStateにはapply/revert木上ビームも検討してください。
-時計は親の展開前と64候補ごとに確認します。1回のcallbackが長ければ超過し得るため、
-重い処理は問題側でも短くしてください。
-
-`best_state()`は完成解がなければ`nullopt`。合法なfallbackを先に作り、
-必要なら探索で見つかった完成解と本当の得点を比較して良い方を出力します。
-AHC032例は同じ行動集合・順位値のgreedyをfallbackに使います。
-
-### UCT: 未知の結果を抽選し、観測結果ごとの木を育てる
-
-[`monte-carlo-tree-search.hpp`](library/monte-carlo-tree-search.hpp) /
-[`穴埋め`](template/search/monte-carlo/tree-search.cpp) /
-[`AHC015の完成例`](examples/search/ahc015_uct.cpp)。
-探索中は平均報酬と探索項の和で手を選び、最後は訪問回数最大の手を返します。
-同数なら平均報酬で比較します。0反復なら最初の合法手、終局/合法手なしなら`nullopt`です。
-
-| 自分で書く関数 | 戻り値・意味 |
-|---|---|
-| `generate_actions(state)` | 合法手一覧。未試行の手はこの順で試す |
-| `is_terminal(state)` | 終局ならtrue |
-| `sample_transition(state, action, rng)` | 手と抽選結果をstateへ反映し、結果の正確な`uint64_t` IDを返す |
-| `rollout(state, rng)` | 軽い方策で仮実行し、有限の**[0,1]の絶対評価値**を返す。終局stateにも対応する |
-
-同じ親・同じ手から違う状態になった時は、必ず違う結果IDにします。
-AHC015なら次の飴を置く空きマス順位、決定的な遷移なら0です。
-このIDは単なる重複除去hashではなく、**観測後の意思決定を分けるために必要な情報**です。
-衝突を無視して別状態を混ぜるopen-loop探索とは異なります。
-内部では結果IDを線形に検索するため、多数の確率分岐がある問題では費用も増えます。
-
-`exploration`は[0,1]の評価値に対する探索の強さです。値域が違う点数をそのまま渡さず、
-問題側で正規化してください。最小化も同じ値域で`maximize=false`にします。
-`max_nodes`以降は新しいノードを作らずrolloutし、既存の辺の統計は更新します。
-`max_depth=1`は根の手だけを学ぶバンディットであり、深い木を使った効果とは区別します。
-
-木に盤面は保存せず、1試行ごとにrootをコピーして遷移を再現します。
-`choose_action`ごとに木を作り直すため、実ターンをまたぐ木の再利用はありません。
-時計は試行間で確認します。長いrolloutには問題側で手数上限を設けてください。
-対話問題では**その時点で公開された情報だけ**を読み、未来は分布から抽選します。
-AHC015の評価器も実際に1ターンずつ入力し、先の配置順位は渡しません。
-
-### ILS: 大きく変更してから小さい改善を詰める
-
-[`iterated-local-search.hpp`](library/iterated-local-search.hpp) /
-[`穴埋め`](template/search/local-search/iterated-local-search.cpp) /
-[`AHC059の完成例`](examples/search/ahc059_ils.cpp)。
-
-| 自分で書く関数 | 戻り値・意味 |
-|---|---|
-| `perturb(current, candidate, rng, budget)` | currentを変えずcandidateへ大きい変更を書く。戻る時点で合法な完成解にする |
-| `local_search(candidate, rng, budget)` | 小さい改善を重ね、その場でcandidateを更新し、完成解の**絶対スコア**を返す |
-
-最初は初期解を局所探索し、その後は摂動→局所探索を繰り返します。
-通常は現在値以上の候補を採用し、`accept_worse=true`なら悪化候補からも続行します。
-最良解は別に保存します。`restart_after`回、最良更新がない時は最良解へ戻り、
-0なら再開を無効にします。この回数は**外側の反復数**です。
-
-局所探索の内側でも`budget.expired()`を確認します。締切で途中の不正状態を返さず、
-最後の合法な候補・整合したcache・その絶対スコアを返してください。
-前計算ON/OFFや、改善不能と証明できた時の閾値打ち切りは問題側の独立した機能です。
-AHC059は区間30の摂動、区間4の局所改善、Manhattan距離の安全な打ち切りを使います。
-摂動の強さ・局所探索の停止条件・悪化採用の有無は実問題スコアで決めます。

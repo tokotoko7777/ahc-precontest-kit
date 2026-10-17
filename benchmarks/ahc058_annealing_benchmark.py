@@ -7,7 +7,7 @@ import hashlib
 from pathlib import Path
 import subprocess
 import tempfile
-from rollout_official_benchmark import ROOT, official_score
+from official_tool_runner import ROOT, official_score
 
 BASE = "f56782586166350002812bf499ec6ac7b9ce96b0"
 

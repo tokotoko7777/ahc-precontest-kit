@@ -1,0 +1,636 @@
+{
+  "schema_version": 1,
+  "checked_on": "2026-10-17",
+  "audited_commit": "8e1cd1ac940eddd069b3436d9fefd48907e7e303",
+  "excluded_submissions": [
+    {
+      "submission_id": "36097832",
+      "contest_id": "ahc015",
+      "winner": "eijirou",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "reason": "ja_atcoder_opt_out_notice",
+      "checked_at": "2026-10-16T21:23:31.521Z",
+      "url": "https://atcoder.jp/contests/ahc015/submissions/36097832"
+    },
+    {
+      "submission_id": "46852721",
+      "contest_id": "ahc025",
+      "winner": "eijirou",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "reason": "ja_atcoder_opt_out_notice",
+      "checked_at": "2026-10-16T21:24:00.775Z",
+      "url": "https://atcoder.jp/contests/ahc025/submissions/46852721"
+    },
+    {
+      "submission_id": "46859935",
+      "contest_id": "ahc025",
+      "winner": "eijirou",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "reason": "ja_atcoder_opt_out_notice",
+      "checked_at": "2026-10-16T21:24:02.858Z",
+      "url": "https://atcoder.jp/contests/ahc025/submissions/46859935"
+    },
+    {
+      "submission_id": "48859066",
+      "contest_id": "ahc029",
+      "winner": "eijirou",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "reason": "ja_atcoder_opt_out_notice",
+      "checked_at": "2026-10-16T21:24:11.407Z",
+      "url": "https://atcoder.jp/contests/ahc029/submissions/48859066"
+    },
+    {
+      "submission_id": "48866950",
+      "contest_id": "ahc029",
+      "winner": "eijirou",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "reason": "ja_atcoder_opt_out_notice",
+      "checked_at": "2026-10-16T21:24:13.341Z",
+      "url": "https://atcoder.jp/contests/ahc029/submissions/48866950"
+    },
+    {
+      "submission_id": "57822912",
+      "contest_id": "ahc037",
+      "winner": "Rafbill",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "reason": "ja_atcoder_opt_out_notice",
+      "checked_at": "2026-10-16T21:24:35.148Z",
+      "url": "https://atcoder.jp/contests/ahc037/submissions/57822912"
+    },
+    {
+      "submission_id": "60608375",
+      "contest_id": "ahc040",
+      "winner": "Shun_PI",
+      "winner_roles": [
+        "task_winner"
+      ],
+      "reason": "ja_atcoder_opt_out_notice",
+      "checked_at": "2026-10-16T21:24:43.114Z",
+      "url": "https://atcoder.jp/contests/ahc040/submissions/60608375"
+    },
+    {
+      "submission_id": "62336936",
+      "contest_id": "ahc042",
+      "winner": "Shun_PI",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "reason": "ja_atcoder_opt_out_notice",
+      "checked_at": "2026-10-16T21:24:52.124Z",
+      "url": "https://atcoder.jp/contests/ahc042/submissions/62336936"
+    },
+    {
+      "submission_id": "63891898",
+      "contest_id": "ahc044",
+      "winner": "Rafbill",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "reason": "ja_atcoder_opt_out_notice",
+      "checked_at": "2026-10-16T21:25:00.152Z",
+      "url": "https://atcoder.jp/contests/ahc044/submissions/63891898"
+    },
+    {
+      "submission_id": "65209880",
+      "contest_id": "ahc046",
+      "winner": "Rafbill",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "reason": "ja_atcoder_opt_out_notice",
+      "checked_at": "2026-10-16T21:25:04.106Z",
+      "url": "https://atcoder.jp/contests/ahc046/submissions/65209880"
+    },
+    {
+      "submission_id": "66921468",
+      "contest_id": "ahc049",
+      "winner": "Rafbill",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "reason": "ja_atcoder_opt_out_notice",
+      "checked_at": "2026-10-16T21:25:10.110Z",
+      "url": "https://atcoder.jp/contests/ahc049/submissions/66921468"
+    },
+    {
+      "submission_id": "68410906",
+      "contest_id": "ahc051",
+      "winner": "eijirou",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "reason": "ja_atcoder_opt_out_notice",
+      "checked_at": "2026-10-16T21:25:15.152Z",
+      "url": "https://atcoder.jp/contests/ahc051/submissions/68410906"
+    },
+    {
+      "submission_id": "68414370",
+      "contest_id": "ahc051",
+      "winner": "eijirou",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "reason": "ja_atcoder_opt_out_notice",
+      "checked_at": "2026-10-16T21:25:35.441Z",
+      "url": "https://atcoder.jp/contests/ahc051/submissions/68414370"
+    },
+    {
+      "submission_id": "76876400",
+      "contest_id": "ahc067",
+      "winner": "udon1206",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "reason": "ja_atcoder_opt_out_notice",
+      "checked_at": "2026-10-16T21:26:16.116Z",
+      "url": "https://atcoder.jp/contests/ahc067/submissions/76876400"
+    },
+    {
+      "submission_id": "78278042",
+      "contest_id": "ahc069",
+      "winner": "Ang107",
+      "winner_roles": [
+        "task_winner"
+      ],
+      "reason": "ja_atcoder_opt_out_notice",
+      "checked_at": "2026-10-16T21:26:22.125Z",
+      "url": "https://atcoder.jp/contests/ahc069/submissions/78278042"
+    },
+    {
+      "submission_id": "78762252",
+      "contest_id": "ahc070",
+      "winner": "eijirou",
+      "winner_roles": [
+        "overall_winner",
+        "task_winner"
+      ],
+      "reason": "ja_atcoder_opt_out_notice",
+      "checked_at": "2026-10-16T21:26:26.136Z",
+      "url": "https://atcoder.jp/contests/ahc070/submissions/78762252"
+    },
+    {
+      "submission_id": "79687416",
+      "contest_id": "ahc072",
+      "winner": null,
+      "winner_roles": null,
+      "reason": "user_reported_ai_training_opt_out",
+      "checked_at": "2026-10-06T00:00:00+09:00",
+      "url": "https://atcoder.jp/contests/ahc072/submissions/79687416"
+    }
+  ],
+  "removed_practice": {
+    "ahc015": [
+      "ahc015"
+    ],
+    "ahc025": [
+      "ahc025"
+    ],
+    "ahc029": [
+      "ahc029"
+    ],
+    "ahc034": [
+      "ahc049"
+    ],
+    "ahc037": [
+      "ahc037"
+    ],
+    "ahc040": [
+      "ahc040"
+    ],
+    "ahc042": [
+      "ahc042"
+    ],
+    "ahc043": [
+      "ahc029"
+    ],
+    "ahc044": [
+      "ahc044"
+    ],
+    "ahc046": [
+      "ahc046"
+    ],
+    "ahc048": [
+      "ahc040"
+    ],
+    "ahc049": [
+      "ahc049"
+    ],
+    "ahc050": [
+      "ahc046"
+    ],
+    "ahc051": [
+      "ahc037",
+      "ahc051"
+    ],
+    "ahc053": [
+      "ahc025"
+    ],
+    "ahc054": [
+      "ahc046"
+    ],
+    "ahc061": [
+      "ahc029"
+    ],
+    "ahc063": [
+      "ahc046"
+    ],
+    "ahc066": [
+      "ahc044"
+    ],
+    "ahc067": [
+      "ahc044",
+      "ahc067"
+    ],
+    "ahc069": [
+      "ahc069"
+    ],
+    "ahc057": [
+      "ahc037"
+    ]
+  },
+  "ambiguous_review_contests": [
+    "ahc040",
+    "ahc069"
+  ],
+  "unverified_practice": [
+    "ahc040",
+    "ahc048",
+    "ahc049",
+    "ahc069"
+  ],
+  "removed_components": {
+    "library/common-scenario-average.hpp": {
+      "related_practice": [
+        "ahc015"
+      ],
+      "reason": "shared_component_from_source_referencing_practice"
+    },
+    "library/greedy-balanced-partition.hpp": {
+      "related_practice": [
+        "ahc025"
+      ],
+      "reason": "shared_component_from_source_referencing_practice"
+    },
+    "library/bridge-tree.hpp": {
+      "related_practice": [
+        "ahc067"
+      ],
+      "reason": "origin_not_separable_from_mixed_corpus_change"
+    },
+    "library/non-crossing-matching.hpp": {
+      "related_practice": [
+        "ahc066"
+      ],
+      "reason": "origin_not_separable_from_mixed_corpus_change"
+    }
+  },
+  "blocked_component_symbols": [
+    "common_scenario_average",
+    "CommonScenarioRolloutRunner",
+    "greedy_balanced_partition",
+    "BridgeTreeResult",
+    "build_bridge_tree",
+    "NonCrossingMatchingResult",
+    "maximum_weight_non_crossing_matching"
+  ],
+  "blocked_external_references": [
+    "https://eijirou-kyopro.hatenablog.com/entry/2022/11/03/172820"
+  ],
+  "removed_files": [
+    {
+      "path": "benchmarks/THREE_SEARCH_REPORT.md",
+      "sha256": "ea893153ce67cf62395ea3dc42c0694d661f6ef438777e8d5377138abf3caa3e",
+      "git_blob_sha1": "f19115c1f1744cec68899b29304633345be281ac"
+    },
+    {
+      "path": "benchmarks/ahc015_monte_carlo_score_benchmark.cpp",
+      "sha256": "cd5a8c2ea2f679d87cfca851149d952182c29190f319ef5f61102a815e4b03a8",
+      "git_blob_sha1": "f91353837dd94223cdfb33de5b0e6bc87d12c87e"
+    },
+    {
+      "path": "benchmarks/results/ahc015-uct-confirm-20x2.csv",
+      "sha256": "fd5aff8e75625a024d3301ac701bee7c65141e2f3ff2a72a76be105a381b31aa",
+      "git_blob_sha1": "71978cf26f6ba6b306640a6173d55cfac9684bd4"
+    },
+    {
+      "path": "benchmarks/results/ahc015-uct-dev-5.csv",
+      "sha256": "bb05d7f19571dbc7ad5730bb674af666c9e5eeac151024e2703cc4539aa5533b",
+      "git_blob_sha1": "3216c0c0d091c4478918cece420b1bc79fd65565"
+    },
+    {
+      "path": "benchmarks/results/ahc015-uct-tune-5.csv",
+      "sha256": "2b3c63d824a3ccc5ea38e7bf21b0fe4b6733bb03ce06ae40223fa2e6557ce1f9",
+      "git_blob_sha1": "80801df7297ba56b58c198e25746d358a6c10db4"
+    },
+    {
+      "path": "benchmarks/results/ahc061-rollout-20260914.csv",
+      "sha256": "325a49558d7ac885e72bafc510b4a6ae05f93c835b0d756013d67756e3279a4b",
+      "git_blob_sha1": "498cf4e99c95d32ed777101d08f807c29ff616f6"
+    },
+    {
+      "path": "benchmarks/rollout_official_benchmark.py",
+      "sha256": "8673a5961c76266fe5a4dfcfe00fc3718fa525cf80910ac2f75a9f682dee000e",
+      "git_blob_sha1": "0cdb9d8998441673384e3411ab48502ff6e4504e"
+    },
+    {
+      "path": "benchmarks/three_search_benchmark.py",
+      "sha256": "693e7abec37b5fc7ea509a498f591060a50475c71322d9c6663e2213d3649aec",
+      "git_blob_sha1": "fc322cc7f7544c77cdeb5b0eaf1a432212a7e5d5"
+    },
+    {
+      "path": "examples/search/ahc015_common_rollout.cpp",
+      "sha256": "08d17da13088e54b02c660e9948db996a147840edc5b6ded8791fd63c931c2eb",
+      "git_blob_sha1": "ce05faff4171a54c369de1c6f5fc914a1e69865e"
+    },
+    {
+      "path": "examples/search/ahc015_uct.cpp",
+      "sha256": "8459a354b3c06ee9edd673ee2a2e36b56c62b47d9edfcc9275c8f359a302dd6a",
+      "git_blob_sha1": "e828cc9a04bc593502936720ac5a15e810a71775"
+    },
+    {
+      "path": "examples/search/ahc061_common_rollout.cpp",
+      "sha256": "005b382b879f1c3155255e072f6244b596afc446be01e56714d7afb96b42cfeb",
+      "git_blob_sha1": "7a5dc9bc85ead8229a028090e49cbd98b031bd6c"
+    },
+    {
+      "path": "library/bridge-tree.hpp",
+      "sha256": "42ab5a0c76659fc83abf89671c6313243f7420488ccd7a9cdabb4d9e27917831",
+      "git_blob_sha1": "ed97d0868a5f549cc680817d15cd55c44afbbee1"
+    },
+    {
+      "path": "library/common-scenario-average.hpp",
+      "sha256": "f0a66afb05f886cff3b717c0941a2aa0e1702b87adb9305567473fad8d6a74ad",
+      "git_blob_sha1": "7b60e7143616b6ab55e63fa937c9ed28df6782d1"
+    },
+    {
+      "path": "library/greedy-balanced-partition.hpp",
+      "sha256": "7e1b25921d45892a6481a99cd269c983eca8da26f1629b8cd5bf5ebf97f0d16b",
+      "git_blob_sha1": "5f39dc2f172de7df25e8911619863beb05fa5252"
+    },
+    {
+      "path": "library/non-crossing-matching.hpp",
+      "sha256": "5162298b013e773fc3a6df58a1e8e616767be3a112a2270a6a5453cb30b03dcd",
+      "git_blob_sha1": "546c2abe98a75af2779b214fac0a9d3baaa8d14b"
+    },
+    {
+      "path": "practice/ahc015/README.md",
+      "sha256": "a2ed1196584c92218911bd790ed370be29749f523551c3862b7c646a81ed70b7",
+      "git_blob_sha1": "3a6f63a7268673c94c9fc5fcc4af2d5b7361decc"
+    },
+    {
+      "path": "practice/ahc015/main.cpp",
+      "sha256": "90dc7a932d607ed6ea62a02571e62f4256c65a6366b7a49b65a415d142aa18f0",
+      "git_blob_sha1": "6eb32a35b20923ecc28e0173328b3edfa5085c2f"
+    },
+    {
+      "path": "practice/ahc025/README.md",
+      "sha256": "80398e88b1c92d35d201688e8a0f0bcc27accd211546f561d194720ca391c2bc",
+      "git_blob_sha1": "60efef2245a36687c9b763e5b5c6a6135b7d9ca5"
+    },
+    {
+      "path": "practice/ahc025/main.cpp",
+      "sha256": "cc863192e3f3ea6abcb2dcb2be61629d338d5d24e435e6e5bf4e4843078d408b",
+      "git_blob_sha1": "f822dd8488247fe0858903dc315154258e83a0a3"
+    },
+    {
+      "path": "practice/ahc029/README.md",
+      "sha256": "d573b51a9959690a4034ae0609bee2a2741f169ebb05bb481cc776df1a93dcad",
+      "git_blob_sha1": "4daa8f88f6c80a77d9136d48425f2a3a1b257632"
+    },
+    {
+      "path": "practice/ahc029/main.cpp",
+      "sha256": "27abce4028e678e2db3c6949432189d8497376b55d51d075e6aa66a561872542",
+      "git_blob_sha1": "e03b181349608911e3243d650f86a0d020ec8aae"
+    },
+    {
+      "path": "practice/ahc034/README.md",
+      "sha256": "4d029ccdbf4434d3052aa3fedd5299eb36065c880fbbfbbae6f0a749f7b5e0f9",
+      "git_blob_sha1": "857c1a2ab02d75696a7ea7902ca18c332b327913"
+    },
+    {
+      "path": "practice/ahc034/main.cpp",
+      "sha256": "cce17337026d38bc7da403cc231c69942c06b6ac29abbfc30d490f3667f81603",
+      "git_blob_sha1": "cfa546de7d49e92862ec4c8b3730e1b8495c2ef6"
+    },
+    {
+      "path": "practice/ahc037/README.md",
+      "sha256": "6842ee6af8947186cd8323a808b145bc8822c0e807d449d9cffbd000702dee20",
+      "git_blob_sha1": "f5540698b89ec94fdd396b16d126d964cb960e13"
+    },
+    {
+      "path": "practice/ahc037/main.cpp",
+      "sha256": "c2adaf918a398146bac91282895b8f8adcb789348d3e4020f8d52d1f616d8f9a",
+      "git_blob_sha1": "13042dd0068f5fedcd3d4410495df77f61cb5de3"
+    },
+    {
+      "path": "practice/ahc040/README.md",
+      "sha256": "f936e6bcb078e588e74731cb7e2d5a38f4fdd9e459498144c4d2cea2f999beed",
+      "git_blob_sha1": "0cd5eebefc4a5a6d0cee932fd8ed4b8a1affcf2d"
+    },
+    {
+      "path": "practice/ahc040/main.cpp",
+      "sha256": "53ed3fb2223865a2a4f30d987836d12c6943d5a5b5d36ce1e8880a9306fbd8a1",
+      "git_blob_sha1": "b6bbe53c2e97d9c1f8430aefbf89032d0f2c7473"
+    },
+    {
+      "path": "practice/ahc042/README.md",
+      "sha256": "4a4d90a4704aec5c27c0d2326b4335e88c7982c5f2690166aa9c5a844f4528d5",
+      "git_blob_sha1": "03e4caf8666c0aef69a3618cb7bba51bb2649824"
+    },
+    {
+      "path": "practice/ahc042/main.cpp",
+      "sha256": "3080074d103805ee862172797b9ac1f56e274566cbee9f2bc253e1929e2d1b3b",
+      "git_blob_sha1": "f73fb2cb7375ddd0d1504eb5743b9c795ce446eb"
+    },
+    {
+      "path": "practice/ahc043/README.md",
+      "sha256": "059b4f9ea6ab4c12002d67599a8b3f22520fca587faf0650c36f7100d603db32",
+      "git_blob_sha1": "aa6e30c61bb02222b63a800c69baf9db6aacd7c6"
+    },
+    {
+      "path": "practice/ahc043/main.cpp",
+      "sha256": "93583949fe38dd2cff8d910b110f131f986a14f19707399635f6be40c97e90da",
+      "git_blob_sha1": "7c2edefcae08f8a4819d49e78da1fa66e76f20fe"
+    },
+    {
+      "path": "practice/ahc044/README.md",
+      "sha256": "4e76d86d9b22e3f3358528cac2f1a3ecc2ed92102c218d3a3cc62e4078d120d0",
+      "git_blob_sha1": "3abd60d5df2ab87e2bacc7681111ba2af1a16928"
+    },
+    {
+      "path": "practice/ahc044/main.cpp",
+      "sha256": "c9a120b8ab6f519ea501fd04bff4b297ed0d50f862728d719b08f480efbcbe33",
+      "git_blob_sha1": "53485246797df10c2c3351e1fc600624d43e8e64"
+    },
+    {
+      "path": "practice/ahc046/README.md",
+      "sha256": "53fa84a2a1ce59e31f4628c5e0ebd6718c7e4d6fa6cb33729083e85788cfc74c",
+      "git_blob_sha1": "00a23c2a2e1c25e02c94df5f8a433d3119f061f4"
+    },
+    {
+      "path": "practice/ahc046/main.cpp",
+      "sha256": "c95bac9898e32239c9f93cbf09941c55adc88649d0576d1dc94789d5f1e791ff",
+      "git_blob_sha1": "0a9f1f86039c266e8caf9aecd504537ed4176753"
+    },
+    {
+      "path": "practice/ahc048/README.md",
+      "sha256": "64884d9ff750b35dba2332d47ba430a331c9a7be65740f2f96798952f81ecf27",
+      "git_blob_sha1": "89eb77c3948d774b64f256fa13002f69e0837c9a"
+    },
+    {
+      "path": "practice/ahc048/main.cpp",
+      "sha256": "9223fa1fcde8a4644dccd31c395cfb942a42d4126d8aecb05eff93f6c7dfe931",
+      "git_blob_sha1": "f3dca1e92972504ee6ac14e4cb56bf50b0052fa0"
+    },
+    {
+      "path": "practice/ahc049/README.md",
+      "sha256": "1382bcb798c7cc6d33166fa89db65f92fbe3f071b2953dcdaf89fe1e483e9b99",
+      "git_blob_sha1": "48b9acb2d32412b54562bd451f551cafff121097"
+    },
+    {
+      "path": "practice/ahc049/main.cpp",
+      "sha256": "f40dae0bcc83b560a4320bf489797c78978e7c670b2681b6749df4bef09249dc",
+      "git_blob_sha1": "ca7b0366b1b4512863e6c323c0ff444f09db1383"
+    },
+    {
+      "path": "practice/ahc050/README.md",
+      "sha256": "cce9f39be08af9f03c6af43966b291f9ceb093c7a82f22e7791b2c95b50d40ea",
+      "git_blob_sha1": "801d90167e6e3b4e217a756310b2b36315a7df9a"
+    },
+    {
+      "path": "practice/ahc050/main.cpp",
+      "sha256": "7a8454e0887ef445c5632126785606fa13e18c7f4ba1fabe05e9d892e300a22d",
+      "git_blob_sha1": "e07adf5b5bd7b970536aa0fa57a7007fca055a38"
+    },
+    {
+      "path": "practice/ahc051/README.md",
+      "sha256": "ddf5f51ef169c9dd93f889df9c3978456d926bfdcef51764c9e5f02bd335f203",
+      "git_blob_sha1": "a7856a2c6dfcb1b20f9a940efbc2b55e66abd3c7"
+    },
+    {
+      "path": "practice/ahc051/main.cpp",
+      "sha256": "49c2292b4e558a8ef728b43bc6a9641d178f680d68d31f572742352b4bfbb63e",
+      "git_blob_sha1": "8d5b1d47f11ba5d7ec0f3adf2f5999f51dc86137"
+    },
+    {
+      "path": "practice/ahc053/README.md",
+      "sha256": "d38e878a162c8ed75f3a498c05bd4c89b07b09dd7a9820e4b4b4add903c42f1f",
+      "git_blob_sha1": "dd83584a1298c81e746d63e0a883ef98beeecc64"
+    },
+    {
+      "path": "practice/ahc053/main.cpp",
+      "sha256": "ad4511cf777c7a8da5ce8fcf803043ecc66831131314de0eb20f8e9b3318c7af",
+      "git_blob_sha1": "adcd09a4776ab55a200e626c71c37aaec8102a79"
+    },
+    {
+      "path": "practice/ahc054/README.md",
+      "sha256": "dbb3af2f1c5e93746eaf18d346633f80223231b44da04fef1527ba4af4b6c77d",
+      "git_blob_sha1": "04c649c5fa0b96c82c10d776dc6bd3e6bca2f3a2"
+    },
+    {
+      "path": "practice/ahc054/main.cpp",
+      "sha256": "72d4b6ac518c8974f18a6df3e8b881f5bec44172e7942cebbc1af1e8154983db",
+      "git_blob_sha1": "d510ca6e9d9d0fd5489065afe08b1d44e1af3679"
+    },
+    {
+      "path": "practice/ahc057/README.md",
+      "sha256": "d6836c0ee3042e441734072bd8b00b2715722c50b54511e1a1874d34931e4170",
+      "git_blob_sha1": "40ae19ab45d5ce9949a8aa5d904538191642a9bc"
+    },
+    {
+      "path": "practice/ahc057/main.cpp",
+      "sha256": "5047fbda97966db1f9dfaa279c60f75d6883c4dff9e0174c4b51441bd62fbac7",
+      "git_blob_sha1": "deec6283be28c6cb3d714c2124f4a654979449f5"
+    },
+    {
+      "path": "practice/ahc061/README.md",
+      "sha256": "cde7108daf57b5b86a38b337a08de8e82a864bd3afad5a9e7d90fa2f46ee4be6",
+      "git_blob_sha1": "e3fafcefd8f1c1e3f41b13dd32089e6473b66fa3"
+    },
+    {
+      "path": "practice/ahc061/main.cpp",
+      "sha256": "ed1b4130766731310e166e6fe3677b04af2a4cdf7758d244494e827a60e3e1a4",
+      "git_blob_sha1": "22939fa9dc2caab89c775d546d56f875c6fc3cf2"
+    },
+    {
+      "path": "practice/ahc063/README.md",
+      "sha256": "f26e891dc050aac4528c8f4a4be640ead762ad65b0dfac8b6fa171b51f365068",
+      "git_blob_sha1": "7b6c2ff7e802d6d42f811b095c48d38c171a5fc3"
+    },
+    {
+      "path": "practice/ahc063/main.cpp",
+      "sha256": "ae1cef86f96d9b3955c6325ac7ab718e49542c3afcbab39509c2431f452ab659",
+      "git_blob_sha1": "56d73b91b77d55572bacd11a976677b618a81689"
+    },
+    {
+      "path": "practice/ahc066/README.md",
+      "sha256": "c024c66d085f61c951a4a99798ee9cf03e9a940c39f015ba480e0ceecfb6aba0",
+      "git_blob_sha1": "d5e4e059855af6d00635fb21f11d2c51e92e8c94"
+    },
+    {
+      "path": "practice/ahc066/main.cpp",
+      "sha256": "4f3e6dd985d9003ce8e4ea1886ae672f9494540950db0ee4dc244cc875d3f6d5",
+      "git_blob_sha1": "f63e077ce7d37ee6a7a5fc27a340bdefa7220e6c"
+    },
+    {
+      "path": "practice/ahc067/README.md",
+      "sha256": "6b68f90069613cc98d6ef0b9fd05777c4bda36375968233514517fcb2fc089b3",
+      "git_blob_sha1": "ab19fbae1c61d0c91dca3065d31b743c2efb3a1a"
+    },
+    {
+      "path": "practice/ahc067/main.cpp",
+      "sha256": "62a770a9ea05d685b4f747e6eae408ebea19c3bde2ce739387eab67bb5133f77",
+      "git_blob_sha1": "a370af4c37f8fe9e4fd46ba9011f1f116b1a215a"
+    },
+    {
+      "path": "practice/ahc069/README.md",
+      "sha256": "48acca36fc9eabcad47a4f1b696b4f921cf35ae60289ce10c49aedd1da175dd4",
+      "git_blob_sha1": "91a8e33dd8f84f060a05768bd2c4dff793a0113c"
+    },
+    {
+      "path": "practice/ahc069/main.cpp",
+      "sha256": "2b3fbd55cc9c32d52ab1bbad50766b31b376faf3bd851781da3e5cb6a309556b",
+      "git_blob_sha1": "962dd47213d4597d0a7d2c096a72b6f19e0c3168"
+    },
+    {
+      "path": "template/search/monte-carlo/rollout.cpp",
+      "sha256": "f7b8ee0698aba59ff69235e66f5cbc5914d6f3610df9de441bc91b0e5b00ca10",
+      "git_blob_sha1": "50cfe7363b00e0447697fc90cccae1749210e109"
+    },
+    {
+      "path": "tests/rollout_upgrades_test.cpp",
+      "sha256": "55f5644bffffa4cd03a407c405586e1a0b82acee80216e3e534263eaee622577",
+      "git_blob_sha1": "33620b66e57a771b2c4c43b9246674d4209c594d"
+    },
+    {
+      "path": "tests/three_search_benchmark_test.py",
+      "sha256": "79c38fb367e34b771d0c28e60cd23e7cecbae7b73cf269b77d6e53d780a76898",
+      "git_blob_sha1": "bcf348376a6821ad21021aa78b360cc36ab01e94"
+    }
+  ]
+}

@@ -10,6 +10,13 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 各トピックを、考え方・小さな例・適用条件・検算課題の順で学べます。詳細編には、出典を確認した88提出・64実装の357具体例を収録しています。
 [用語集](docs/technique-guide/detailed/GLOSSARY.md)と[出典・収録範囲](docs/technique-guide/detailed/SOURCES.md)も参照できます。
 
+## 出典の扱い
+
+AI学習を拒否している提出に由来するコード・解説・派生知識は収録しません。
+2026-10-17の確認で、該当出典への依存または出自未確認のため `practice` 22回分と関連資料を除去しました。
+現在の練習例は48回分です。除去理由と再混入チェックは[出典方針](SOURCE_POLICY.md)にまとめています。
+上の読み物は提出単位で出典を選別した別の成果物です。
+
 ## 使い方
 
 コンテスト中に編集するファイルは `main.cpp` だけです。
@@ -33,7 +40,7 @@ C++ パーツ集です。ヒューリスティック探索だけでなく、グ�
 |---|---|
 | [ビーム](template/search/beam/README.md) | 通常・差分評価・木上・世代飛ばし木上・chokudai・枝刈り設定・多点スタート |
 | [局所探索（焼きなまし・山登り）](template/search/local-search/README.md) | 共通の基本形・部分破壊再構築・近傍選択・反復局所探索・途中再生・前後DP |
-| [モンテカルロ](template/search/monte-carlo/README.md) | 共通未来rollout・木探索（UCT） |
+| [モンテカルロ](template/search/monte-carlo/README.md) | 木探索（UCT） |
 
 フォルダ内のcppを1つmain.cppにコピーし、TODOを埋めます。
 書くのは状態・候補や近傍・評価・更新・入出力です。
@@ -44,7 +51,7 @@ LNSは独立した大分類ではなく、局所探索内の「部分破壊・�
 [destroy-repair.cpp](template/search/local-search/destroy-repair.cpp)は山登りが初期設定で、
 焼きなましにも切り替えられます。各方式のバリエーションは削らず、同じフォルダに並べます。
 乱数を使わない[決定的な先読み](template/advanced/README.md)は別に残しています。
-既存のhpp・実問題例・計測履歴は維持しています。
+収録するhpp・実問題例・計測履歴にも[出典方針](SOURCE_POLICY.md)を適用します。
 
 [短いガイド](SEARCH_GUIDE.md) / [実問題の完成例](examples/search/README.md) /
 [詳細API](SEARCH_REFERENCE.md)。
@@ -64,15 +71,6 @@ LNSは独立した大分類ではなく、局所探索内の「部分破壊・�
 間接関数呼び出し、時計取得、メモリ配置も確認します。制約が厳しい高速版は、
 使える条件をファイル先頭へ明記します。詳しい判断基準は
 [`PERFORMANCE.md`](PERFORMANCE.md) にまとめています。
-
-ビームサーチは`make benchmark-search`で、AHC032「Mod Stamp」相当の固定5ケースを
-実際に解き、問題本来の得点を幅1・100・1000・3000・10000で比較できます。
-ケース数と幅は`./build/ahc032_score_benchmark 30 10000`のように変更できます。
-合成データの速度だけを測る旧ベンチマークは`make benchmark-search-speed`です。
-焼きなましはAHC001、Monte CarloはAHC015、apply/revert木上ビームはAHC021を
-実際に解くベンチマークもあります。まとめと測定値は
-[`REAL_PROBLEM_BENCHMARKS.md`](REAL_PROBLEM_BENCHMARKS.md)、一括実行は
-`make benchmark-real-search`です。
 
 ## ビームの選び方
 
@@ -112,7 +110,7 @@ LNSは独立した大分類ではなく、局所探索内の「部分破壊・�
 
 ### 基本の探索
 
-焼きなまし・山登りは同じhpp、ビームは用途別、モンテカルロは共通未来で比較する版から始めます。
+焼きなまし・山登りは同じhpp、ビームは用途別、モンテカルロは木探索（UCT）の形式を用意しています。
 
 | ファイル | できること |
 |---|---|
@@ -121,7 +119,6 @@ LNSは独立した大分類ではなく、局所探索内の「部分破壊・�
 | [`action-beam-search.hpp`](library/action-beam-search.hpp) | Actionを先に上位N件へ絞るビーム。問題依存部分をまとめるRunner付き |
 | [`tree-beam-search.hpp`](library/tree-beam-search.hpp) | 1手1世代のapply / revert型ビームサーチ。問題分離Runner付き |
 | [`cost-tree-beam-search.hpp`](library/cost-tree-beam-search.hpp) | 1手の進み幅が異なるapply / revert型ビームサーチ |
-| [`common-scenario-average.hpp`](library/common-scenario-average.hpp) | 全候補を同じ未来sampleで比較するrollout。問題分離Runner付き |
 
 <details>
 <summary>各方式のバリエーションを支える部品・専用Runner</summary>
@@ -152,7 +149,6 @@ LNSは独立した大分類ではなく、局所探索内の「部分破壊・�
 | [`fixed-vector.hpp`](library/fixed-vector.hpp) | allocationなしの固定上限vector |
 | [`radix-heap.hpp`](library/radix-heap.hpp) | 単調な非負整数キー用の高速priority queue |
 | [`farthest-point-sampling.hpp`](library/farthest-point-sampling.hpp) | 離れた代表点をO(NK)で選ぶ |
-| [`greedy-balanced-partition.hpp`](library/greedy-balanced-partition.hpp) | 大きい要素から合計の軽い組へ分ける |
 
 ### データ構造
 
@@ -197,7 +193,6 @@ LNSは独立した大分類ではなく、局所探索内の「部分破壊・�
 | [`topological-sort.hpp`](library/topological-sort.hpp) | DAGの順序と閉路検出 |
 | [`bipartite-check.hpp`](library/bipartite-check.hpp) | 無向グラフの2色塗り・二部グラフ判定 |
 | [`strongly-connected-components.hpp`](library/strongly-connected-components.hpp) | 有向グラフの強連結成分分解 |
-| [`bridge-tree.hpp`](library/bridge-tree.hpp) | 無向グラフの橋と、橋を渡らず行き来できる成分 |
 | [`functional-graph.hpp`](library/functional-graph.hpp) | 出辺1本のグラフの周期・入口・大きな回数の遷移 |
 | [`floyd-warshall.hpp`](library/floyd-warshall.hpp) | 全頂点間最短距離と負閉路検出 |
 | [`kruskal.hpp`](library/kruskal.hpp) | 最小全域木・最小全域森 |
@@ -206,7 +201,6 @@ LNSは独立した大分類ではなく、局所探索内の「部分破壊・�
 | [`max-flow.hpp`](library/max-flow.hpp) | Dinic法の最大流・最小カット |
 | [`min-cost-flow.hpp`](library/min-cost-flow.hpp) | 非負辺コスト用の最小費用流 |
 | [`bipartite-matching.hpp`](library/bipartite-matching.hpp) | 左右の頂点を1対1対応させる最大マッチング |
-| [`non-crossing-matching.hpp`](library/non-crossing-matching.hpp) | 左右の順序を保つ、交差しない重み最大の組選び |
 | [`hungarian.hpp`](library/hungarian.hpp) | 費用最小の1対1割り当て |
 | [`two-sat.hpp`](library/two-sat.hpp) | 「AまたはB」の論理条件を満たす割り当て |
 
@@ -329,7 +323,7 @@ GitHub 上ではファイルを開き、右上のコピーアイコン、また�
 | [`practice/ahc012`](practice/ahc012/) | 分位格子、histogram評価、境界relocate |
 | [`practice/ahc013`](practice/ahc013/) | 同種見通し移動、DSU、交差しない貪欲配線 |
 | [`practice/ahc014`](practice/ahc014/) | 単位辺占有、候補制限、randomized multi-start |
-| [`practice/ahc015`](practice/ahc015/) | 共通乱数rollout、固定長盤面、連結成分評価 |
+| AHC015 | 出典方針により収録除外 |
 | [`practice/ahc016`](practice/ahc016/) | 冗長グラフ符号、置換不変特徴、自己生成noise校正 |
 | [`practice/ahc017`](practice/ahc017/) | farthest-point sample、日別Dijkstra cache、swap SA |
 | [`practice/ahc018`](practice/ahc018/) | 硬さ推定、複数始点Dijkstra、rolling replan |
@@ -339,51 +333,51 @@ GitHub 上ではファイルを開き、右上のコピーアイコン、また�
 | [`practice/ahc022`](practice/ahc022/) | 2値温度符号、active measurement、Hungarian復号 |
 | [`practice/ahc023`](practice/ahc023/) | 永続通路、区間min-cost flow、区間彩色 |
 | [`practice/ahc024`](practice/ahc024/) | 接触辺数差分、局所連結判定、短時間multi-start |
-| [`practice/ahc025`](practice/ahc025/) | 順位推定、指数分布prior、保証付き均等化 |
+| AHC025 | 出典方針により収録除外 |
 | [`practice/ahc026`](practice/ahc026/) | 単独退避、完走rollout、箱位置の差分更新 |
 | [`practice/ahc027`](practice/ahc027/) | 全点間BFS、汚れの緊急度、複数周期の再評価 |
 | [`practice/ahc028`](practice/ahc028/) | 文字列overlap、盤面位置DP、挿入位置の再評価 |
-| [`practice/ahc029`](practice/ahc029/) | 全カード×案件評価、投資・購入閾値、対話fallback |
+| AHC029 | 出典方針により収録除外 |
 | [`practice/ahc030`](practice/ahc030/) | 油田配置仮説bitset、情報量query、確定セル掘削 |
 | [`practice/ahc031`](practice/ahc031/) | 共通帯DP、guillotine配置、壁区間の対称差 |
 | [`practice/ahc032`](practice/ahc032/) | Action先行ビーム幅9,000、可換stamp列挙、確定セル評価。同じ幅での高速化と幅拡大の得点差を公式入力で分離検証 |
 | [`practice/ahc033`](practice/ahc033/) | 入口退避buffer、搬出順制御、安全な単一大型crane |
-| [`practice/ahc034`](practice/ahc034/) | 循環蛇行路、積載量分割、区間操作SA |
+| AHC034 | 出典方針により収録除外 |
 | [`practice/ahc035`](practice/ahc035/) | 交配期待値、成分極値保存、盤面swap SA |
 | [`practice/ahc036`](practice/ahc036/) | 連結都市群、信号優先経路、再利用window辞書 |
-| [`practice/ahc037`](practice/ahc037/) | 単調Steiner点、階層merge、局所付け替え |
+| AHC037 | 出典方針により収録除外 |
 | [`practice/ahc038`](practice/ahc038/) | 長さ違いの星型arm、同時回転、長さ1 fallback |
 | [`practice/ahc039`](practice/ahc039/) | x単調直交多角形、多解像度境界SA、転置探索 |
-| [`practice/ahc040`](practice/ahc040/) | Gaussian寸法推定、Kalman更新、bottom-left packing |
+| AHC040 | 出典方針により収録除外 |
 | [`practice/ahc041`](practice/ahc041/) | 深さ制限DFS、価値順構築、部分木reparent |
-| [`practice/ahc042`](practice/ahc042/) | 福を守るshift、まとめ押し、盤面再生SA |
-| [`practice/ahc043`](practice/ahc043/) | 駅候補制限、複数始点BFS、資金推移の正確な再生 |
-| [`practice/ahc044`](practice/ahc044/) | rotor-router、流量割当、長期simulation座標降下 |
+| AHC042 | 出典方針により収録除外 |
+| AHC043 | 出典方針により収録除外 |
+| AHC044 | 出典方針により収録除外 |
 | [`practice/ahc045`](practice/ahc045/) | 容量付きk-d分割、分割MST query、都市交換 |
-| [`practice/ahc046`](practice/ahc046/) | 停止岩候補、bitset重複除去、幅制限beam |
+| AHC046 | 出典方針により収録除外 |
 | [`practice/ahc047`](practice/ahc047/) | 12状態Markovモデル、確率近似SA、KMP厳密評価 |
-| [`practice/ahc048`](practice/ahc048/) | 離散混色recipe、色cluster、残色reservoir再利用 |
-| [`practice/ahc049`](practice/ahc049/) | 耐久保証付き複数箱搬送、経路交換・統合改善 |
-| [`practice/ahc050`](practice/ahc050/) | 厳密確率伝播、同率最小riskのmulti-start |
-| [`practice/ahc051`](practice/ahc051/) | 平面二分木、確率分類、装置・分別器の局所改善 |
+| AHC048 | 出典方針により収録除外 |
+| AHC049 | 出典方針により収録除外 |
+| AHC050 | 出典方針により収録除外 |
+| AHC051 | 出典方針により収録除外 |
 | [`practice/ahc052`](practice/ahc052/) | 多始点BFS、共通ボタンlookahead、操作列短縮 |
-| [`practice/ahc053`](practice/ahc053/) | 共有2進カード、禁止bit桁DP、不足修理 |
-| [`practice/ahc054`](practice/ahc054/) | 花周辺guard、BFS通路、視界を狭める安全配置 |
+| AHC053 | 出典方針により収録除外 |
+| AHC054 | 出典方針により収録除外 |
 | [`practice/ahc055`](practice/ahc055/) | 依存順序、攻撃先のO(1)差分焼きなまし |
 | [`practice/ahc056`](practice/ahc056/) | BFS経路、時刻を色×状態へ平方根分割 |
-| [`practice/ahc057`](practice/ahc057/) | 容量付き時空間cluster、時刻別MST、群間swap |
+| AHC057 | 出典方針により収録除外 |
 | [`practice/ahc058`](practice/ahc058/) | 先読み初期解＋購入順序SA、prefix cache、待機区間の一括更新。公式100ケースで平均約6.24%改善 |
 | [`practice/ahc059`](practice/ahc059/) | 部分破壊・再構築（LNS、SA/RRT切替）、O(n)ペア再挿入、閾値打ち切り |
 | [`practice/ahc060`](practice/ahc060/) | 色固定化、非逆走BFS、未登録文字列の最短配送 |
-| [`practice/ahc061`](practice/ahc061/) | 共通シナリオRunner、粒子推定、3手rollout、独自乱数・同点処理 |
+| AHC061 | 出典方針により収録除外 |
 | [`practice/ahc062`](practice/ahc062/) | Hamilton閉路、prefix差分2-opt、合法swap |
-| [`practice/ahc063`](practice/ahc063/) | リングバッファ蛇状態、bitset、層別beam |
+| AHC063 | 出典方針により収録除外 |
 | [`practice/ahc064`](practice/ahc064/) | ブロック移送、差分評価、非交差DP付きbeam |
 | [`practice/ahc065`](practice/ahc065/) | Hamilton主ベルト、局所swap、円環順序対応 |
-| [`practice/ahc066`](practice/ahc066/) | 向き付きBFS、運搬順序とmacroの交互探索 |
-| [`practice/ahc067`](practice/ahc067/) | 橋の木、10ビットカウンタ、状態付きBFS |
+| AHC066 | 出典方針により収録除外 |
+| AHC067 | 出典方針により収録除外 |
 | [`practice/ahc068`](practice/ahc068/) | 境界peel、長方形swap、正確な操作再生 |
-| [`practice/ahc069`](practice/ahc069/) | compact配置、受理価格、限定的な再配置 |
+| AHC069 | 出典方針により収録除外 |
 | [`practice/ahc071`](practice/ahc071/) | 行DP、Actionビーム、費用閾値枝刈り、区間LNS |
 
 各フォルダの `main.cpp` はローカルヘッダを参照しない、提出可能な単一ファイルです。

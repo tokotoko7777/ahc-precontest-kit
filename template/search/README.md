@@ -7,7 +7,7 @@
 |---|---|
 | [beam/](beam/README.md) | 通常、差分評価、木上、世代飛ばし木上、chokudai、枝刈り設定、多点スタート |
 | [local-search/](local-search/README.md) | 焼きなまし・山登り共通、部分破壊・再構築、適応的な近傍選択、反復局所探索、途中再生、前後DP |
-| [monte-carlo/](monte-carlo/README.md) | 共通未来のrollout、木探索（UCT） |
+| [monte-carlo/](monte-carlo/README.md) | 木探索（UCT） |
 
 1. 選んだcppをmain.cppへコピーする。
 2. TODOを上から埋める。関数の位置・引数・戻り値は配置済み。
@@ -26,7 +26,7 @@ LNSも独立した大分類にはせず、[部分破壊・再構築の形式](lo
 
 基本形も設定付きの形式も同じ手法のフォルダで探せます。
 未知の未来を乱数で試さない[決定的な先読み](../advanced/README.md)は、モンテカルロとは別に残しています。
-既存のhppの場所とAPI、実問題例、ベンチマーク履歴は維持しています。
+収録範囲は[出典方針](../../SOURCE_POLICY.md)に従います。
 何も埋めていない雛形はコンパイル確認用で、問題の解答を出すものではありません。
 
 [短いガイド](../../SEARCH_GUIDE.md) / [実問題の完成例](../../examples/search/README.md)

@@ -14,7 +14,7 @@ from pathlib import Path
 import statistics
 import subprocess
 import tempfile
-from rollout_official_benchmark import ROOT, official_score
+from official_tool_runner import ROOT, official_score
 
 BASE = "9c0252c95ab4767dba538d47cdfaf45be5796ee1"
 def replay_score(input_path, output_path):

@@ -12,18 +12,12 @@
 | destroy/repair焼きなまし | AHC002 Walking on Tiles | 下記公式入力用script | 既存直書き版とRunner版の公式score |
 | LNS（山登り/RRT/SA切替） | AHC059 / AHC002 | `lns_official_benchmark.py` | 旧解・受理方式・前計算/打ち切りON/OFFの公式score |
 | ALNS（近傍の適応選択） | AHC059 | `lns_official_benchmark.py` | 同じ5近傍の等確率/適応選択と、従来単一近傍の公式score |
-| chokudai | AHC032 | `three_search_benchmark.py --task 032` | 同じ行動・順位評価の幅9000ビームと層別キュー探索 |
-| UCT（結果ごとに分岐） | AHC015 | `three_search_benchmark.py --task 015` | 同時間・同方策のflat MC、根のバンディット、深いMCTS |
-| ILS（摂動＋局所改善） | AHC059 | `three_search_benchmark.py --task 059` | 既存LNS+SAと、大区間で摂動・小区間で局所改善する方式 |
 | apply/revert木上ビーム | AHC011 Sliding Tree Puzzle | 下記入力用script | 既存直書き版とRunner版の公式score |
-| 共通シナリオMonte Carlo | AHC015 Halloween Candy | `make benchmark-monte-carlo` | rollout数による最終公式score |
 | apply/revert木上ビーム | AHC021 Pyramid Sorting | `make benchmark-tree-beam` | 幅による操作数と最終公式score |
 | 決定的rollout | AHC026 Stack of Boxes | 下記公式入力用script | 既存直書き版とRunner版の公式score |
 | Action先行ビーム | AHC032 Mod Stamp | `make benchmark-search` | 幅による最終公式score |
 | 世代飛ばし木上ビーム | AHC038 Tree Robot Arm | 下記公式ツール用script | 幅による公式操作ターン数 |
-| 決定的rollout | AHC058 Apple Incremental Game | `rollout_official_benchmark.py --task 058` | 3手先読みの移植前後・単一ファイルの公式score |
 | 購入順序SA＋途中再生 | AHC058 Apple Incremental Game | `ahc058_annealing_benchmark.py` | 旧先読み解とSA強化版の公式score |
-| 共通シナリオMonte Carlo | AHC061 Multi-Player Territory Game | `rollout_official_benchmark.py --task 061` | 対話testerによる移植前後・単一ファイルの公式score |
 | Action先行ビーム＋区間LNS | AHC071 Wall Making | 下記公式入力用script | 参考`main3.cpp`との公式score |
 
 4本を続けて実行する場合は`make benchmark-real-search`です。ケース数、制限時間、
@@ -50,16 +44,6 @@ AHC002への横展開は合法に動作しましたが、確認20ケースで旧
 適応版は反復数が増えても得点は改善せず、**AHC059の既定は変更しません**。
 選択器は問題ごとに検証して使う任意機能です。生得点・失敗した比較・再現手順は
 [`ALNS_REPORT.md`](benchmarks/ALNS_REPORT.md)に記録しています。
-
-## chokudai / UCT / ILS
-
-chokudai / UCT / ILSの条件・失敗した調整・未使用入力での確認は
-[`THREE_SEARCH_REPORT.md`](benchmarks/THREE_SEARCH_REPORT.md)にまとめています。
-それぞれ独立したhppとTODOフォーマットを持ち、採用判断は探索回数でなく公式得点で行います。
-AHC015は未知の配置を先読みさせず、1ターンずつ対話で入力します。
-設定固定後の新規20入力×2回では、chokudaiは既存ビームへ−2.096271 / 2000、
-深さ8のUCTは同時間flat MCへ−477.210461 / 2000、ILSはLNS+SAへ−0.778072 / 2000。
-計410実行のうち確認320実行は全合法・時間内ですが、既存practiceは置き換えません。
 
 ## AHC002: destroy/repair焼きなまし
 
@@ -154,24 +138,6 @@ python3 benchmarks/ahc011_official_benchmark.py \
 一般化はできませんが、フォーマット化後も同じ公式scoreへ到達し、共有Stateによる
 メモリ削減が実際に働くことを確認する回帰点として記録しています。
 
-## AHC015: 共通シナリオMonte Carlo
-
-問題側の編集箇所は`CandyRolloutProblem`に集めています。
-
-- `generate_actions`: 今このターンに選べる操作
-- `generate_scenario`: まだ見えていない飴の配置順
-- `evaluate_action`: 最初の1手を固定し、残りをルール方策で終端までsimulation
-
-全Actionに同じ未来sampleを当てる処理、平均、最良Actionの選択は
-`CommonScenarioRolloutRunner`が担当します。20ケース・512 sampleの手元測定は
-平均801,542、平均約1.91秒/ケースでした。競技参加記で報告された上位相当の
-平均806,382に近い水準です。
-
-sample数を増やした10ケースの確認では、16 sampleの平均615,652から、64で
-732,102、256で769,914、512で803,206へ改善しました。未来を最後まで完全探索する
-のではなく、未知情報だけをsampleし、未来の自分の操作には問題固有のルール方策を
-使うのが重要です。
-
 ## AHC021: apply/revert木上ビーム
 
 2026-09-16に、以前はベンチマーク内だけにあった構築ビームを使用例・practiceへ統一しました。
@@ -226,48 +192,6 @@ python3 benchmarks/ahc026_official_benchmark.py \
 
 1回ずつの壁時計測定なので小さな速度差は一般化しません。少なくとも、候補列と得点bufferを
 Runnerへ分け、`location`を仮実行へコピーする構成で品質と速度を失っていないことを確認しました。
-
-## AHC058・061: 既存rolloutのフォーマット化（2026-09-14時点）
-
-AHC058は`DeterministicRolloutRunner`、AHC061は`CommonScenarioRolloutRunner`へ
-候補比較を分離しました。`examples/search`にヘッダ分離版、`practice/ahc058/main.cpp`と
-`practice/ahc061/main.cpp`にヘッダ展開済みの提出用1ファイルを置いています。
-どちらも`TODO(AHC...)`から問題側の編集箇所をたどれます。
-
-```sh
-python3 benchmarks/rollout_official_benchmark.py --task 058 \
-  --inputs /path/to/ahc058/tools/in --tool /path/to/ahc058/tools/target/release/vis \
-  --cases 100 --output build/ahc058-rollout.csv
-python3 benchmarks/rollout_official_benchmark.py --task 061 \
-  --inputs /path/to/ahc061/in --tool /path/to/ahc061/target/release/tester \
-  --cases 100 --output build/ahc061-rollout.csv
-```
-
-比較元の既定は移植前コミット`48e905a1b61eb70051d9fb7af18d34e13390cb69`です。
-`--reference-ref`で変更できます。現行`practice`を旧版として比較してしまうことを避け、
-コミットから取り出した旧版・Runner例・提出用1ファイルを同じ入力で順番に実行します。
-主指標は公式の絶対scoreの平均・合計、補助指標は勝分敗と壁時計です。
-CSVにはseedごとのscore、時間、入力・出力・ソースのSHA-256を残します。
-既存CSVは上書きしません。公式ツールがないCIで独自の値を公式scoreとして代用しません。
-
-AHC061は相手のモデルと将来乱数を共有し、旧版のSplitMix64、`double`加算順、
-1e-12以内の同点処理を保ちます。盤面操作と粒子学習は問題依存であり、
-Runner自身が相手モデルを推測するわけではありません。AHC058は状態を固定長配列に
-してコピー時の動的確保をなくしました。探索深さ・候補数を増やす変更ではありません。
-
-2026-09-14、公式配布seed 0〜99・各版`g++ -O2 -DNDEBUG`での結果です。
-
-| 問題 | 移植前の平均score | Runner例の平均score | 単一ファイルの平均score | 勝/分/敗 |
-|---|---:|---:|---:|---|
-| AHC058 | 5,169,306.27 | 5,169,306.27 | 5,169,306.27 | 0/100/0 |
-| AHC061 | 168,377.35 | 168,377.35 | 168,377.35 | 0/100/0 |
-
-2問とも全100ケースで出力とscoreが完全一致し、公式ツールで合法に完走しました。
-得点向上ではなく、既存の探索力を保った問題依存部分の分離を確認した結果です。
-合計scoreはAHC058が516,930,627、AHC061が16,837,735でした。
-生データは[`benchmarks/results/`](benchmarks/results/README.md)に保存しています。
-AHC058の後半は他の検証も並行したため、壁時計から小さな高速化率は主張しません。
-両例のseed 0はASan/UBSanでも検出0件でした（リーク検査のみ無効）。
 
 ## AHC058: 購入順序SA＋差分再生（2026-09-15）
 
@@ -411,34 +335,3 @@ python3 benchmarks/ahc071_official_benchmark.py \
 
 両方とも壁時計で探索を停止するため数点変動します。この比較は、上位者一般との順位比較では
 なく、ユーザー指定の参考実装と同じ公式入力・時間でフォーマット版の探索力を確認したものです。
-
-## 正しさの確認
-
-各ベンチマークは探索中の差分値をそのまま信用せず、完成解を別経路で再生します。
-AHC001は長方形の境界・要求点・非重複と全score、AHC015は100ターンと公式連結成分
-score、AHC021は全交換の合法性・完成盤面・公式score、AHC026は全箱操作・energy・
-公式score、AHC032は操作数・盤面・
-差分scoreを検査します。AHC038は探索Stateとは別の盤面シミュレータと公式Rust
-visualizerの両方で、全命令・最終盤面・操作ターン数を検査します。AHC071は全レンガの
-範囲・重複・支持条件・穴の被覆と公式scoreを別の採点処理で検査します。
-
-## 参考資料
-
-- [AHC001 Advertisement](https://atcoder.jp/contests/ahc001/tasks/ahc001_a)
-- [AHC001参加記（TERRYのブログ）](https://blog.terry-u16.net/entry/ahc001)
-- [AHC002 Walking on Tiles](https://atcoder.jp/contests/ahc002/tasks/ahc002_a)
-- [AHC011 Sliding Tree Puzzle](https://atcoder.jp/contests/ahc011/tasks/ahc011_a)
-- [AHC015 Halloween Candy](https://atcoder.jp/contests/ahc015/tasks/ahc015_a)
-- [AHC015 4位解法](https://eijirou-kyopro.hatenablog.com/entry/2022/11/03/172820)
-- [AHC015 1位相当解法](https://qiita.com/thun-c/items/8e7ae0249f1907854763)
-- [AHC021 Pyramid Sorting](https://atcoder.jp/contests/ahc021/tasks/ahc021_a)
-- [AHC021 1位相当解法の記録](https://amentorimaru.hatenablog.com/entry/2024/11/30/013751)
-- [短期AHCで勝つためのテクニック](https://speakerdeck.com/shun_pi/duan-qi-ahcdesheng-tutamenotekunituku)
-- [AHC026 Stack of Boxes](https://atcoder.jp/contests/ahc026/tasks/ahc026_a)
-- [AHC032 Mod Stamp](https://atcoder.jp/contests/ahc032/tasks/ahc032_a)
-- [AHC038 Tree Robot Arm](https://atcoder.jp/contests/ahc038/tasks/ahc038_a)
-- [AHC038公式ツール](https://img.atcoder.jp/ahc038/GhBuR36w.zip)
-- [AHC058 Apple Incremental Game](https://atcoder.jp/contests/ahc058/tasks/ahc058_a)
-- [AHC058公式ツール](https://img.atcoder.jp/ahc058/UpvAVdx6.zip)
-- [AHC061 Multi-Player Territory Game](https://atcoder.jp/contests/ahc061/tasks/ahc061_a)
-- [AHC071 Wall Making](https://atcoder.jp/contests/ahc071/tasks/ahc071_a)

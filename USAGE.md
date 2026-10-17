@@ -297,25 +297,6 @@ for (const auto& [cheap_score, state] : candidates.entries) {
 
 最小化なら `TopK<double, State> candidates(20, false);` です。
 
-## 大きい順の均等分割
-
-各要素の重みが分かっていて、グループ合計を手早く近づけたい時に使います。大きい要素から
-順に、その時点で合計が最小のグループへ入れます。
-
-```cpp
-vector<long long> weight = {9, 8, 7, 6, 5, 4};
-vector<vector<int>> groups = greedy_balanced_partition(weight, 3);
-
-for (const auto& group : groups) {
-  long long sum = 0;
-  for (int item : group) sum += weight[item];
-  cout << sum << '\n';  // この例では13, 13, 13
-}
-```
-
-厳密な最適分割ではありませんが、`O(N log N + N log K)` で初期解を作れます。重みは0以上
-を想定し、`int`、`long long`、`double` などを選べます。
-
 ## Schedule
 
 進捗率に応じて、近傍の大きさや試行回数を変えられます。
@@ -840,34 +821,6 @@ for (int member : components.groups[id]) {
 
 `groups` は成分間の辺が前から後ろへ向く順番です。
 
-## Bridge Tree
-
-無向グラフから、1本取り除くだけで連結性が変わる辺（橋）を探します。さらに、橋を渡らず行き来できる頂点を1つの成分へまとめ、成分間を森にします。
-
-```cpp
-vector<pair<int, int>> edges = {
-    {0, 1}, {1, 2}, {2, 0},  // 三角形なので橋ではない
-    {2, 3},                   // この辺だけが橋
-};
-
-auto result = build_bridge_tree(4, edges);
-
-if (result.is_bridge[3]) {
-  // edges[3]を消すと0,1,2と3が分かれる
-}
-
-int id = result.component_id[vertex];
-for (int member : result.groups[id]) {
-  // vertexから橋を渡らず到達できる頂点
-}
-
-for (auto [next_component, original_edge_id] : result.tree[id]) {
-  // 縮約後の隣の成分と、その間にあった元の橋
-}
-```
-
-計算量は `O(N + M)` です。多重辺と自己ループにも対応します。入力が非連結なら `tree` は木1本ではなく森になります。簡潔な実装にするためDFSは再帰なので、非常に長い一本道では再帰スタック上限に注意してください。
-
 ## Floyd–Warshall
 
 小さなグラフの全頂点間最短距離をまとめて求めます。`O(N^3)` なので、頂点数が
@@ -980,30 +933,6 @@ auto [sent, minimum_cost] = flow.flow(0, 3, 3);
 
 `Cost` には逆向き残余辺の負コストを保存するため、`long long` など符号付き型を
 使います。`flow` は1つのインスタンスに対し1回だけ呼びます。
-
-## Non-Crossing Matching
-
-左右に順番のある項目から、同じ項目を2回使わず、結んだ線も交差しない組を選びます。選んだ組の重み合計が最大になる答えと、その組を `O(LR)` で復元します。
-
-```cpp
-vector<vector<long long>> weight(left_size,
-                                 vector<long long>(right_size));
-vector<vector<char>> allowed(left_size,
-                             vector<char>(right_size, true));
-
-weight[a][b] = 20;       // aとbを組にする価値
-allowed[x][y] = false;   // この組は選べない
-
-auto result = maximum_weight_non_crossing_matching(weight, allowed);
-cout << result.score << '\n';
-for (auto [left, right] : result.pairs) {
-  // leftもrightも狭義単調増加なので、組同士は交差しない
-}
-```
-
-全組を選択可能にする場合は、第2引数を省略できます。負の重みの組は無理に選びません。
-「何組選んでもよい中で価値を最大化する」ためのパーツなので、必ず決まった組数を
-選ぶ最小化問題にはそのまま使えません。
 
 ## Bipartite Matching
 
@@ -1203,27 +1132,6 @@ double not_arrived = dp.remaining_probability();
 選んだ配列を `step` へ渡します。壁へ進む状態では遷移先を自分自身にすれば、成功側と
 失敗側の確率が正しく同じ状態へ足されます。確率型は標準の `double` のほか、必要なら
 `long double` や `float` に変更できます。
-
-## Common Scenario Average
-
-複数の行動をMonte Carloで比べる時、各行動へ同じ未来sampleを渡します。
-
-```cpp
-vector<Action> actions = make_actions();
-vector<Scenario> futures = make_future_samples();
-
-vector<long double> average = common_scenario_average(
-    actions, futures,
-    [](const Action& action, const Scenario& future) {
-      return simulate(action, future);
-    });
-
-int best = max_element(average.begin(), average.end()) - average.begin();
-```
-
-`simulate` は渡された `future` だけを使い、内部で候補ごとに別乱数を振らないようにします。
-この関数は平均だけを計算します。最悪値や分位点を重視したい場合は、同じ二重loopを元に
-問題用の集約方法へ変えてください。
 
 ## Rolling Hash
 
