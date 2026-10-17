@@ -55,6 +55,7 @@ verify-copy:
 	python3 tests/standalone_search_test.py
 	python3 tests/gcc_optimization_test.py
 	python3 tests/search_layout_test.py
+	python3 tests/official_tool_runner_test.py
 	python3 tests/ahc001_gap_test.py
 	python3 tests/ahc001_improvement_test.py
 	python3 tests/ahc002_improvement_test.py

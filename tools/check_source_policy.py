@@ -24,7 +24,8 @@ def check(root: Path, policy: dict, paths: list[str]) -> list[tuple[str, str]]:
     hashes = {row["sha256"] for row in removed.values()}
     prefixes = tuple(f"practice/{contest}/" for contest in policy["removed_practice"])
     ids = {str(row["submission_id"]) for row in policy["excluded_submissions"]}
-    symbols = policy["blocked_component_symbols"]
+    symbols = [*policy["blocked_component_symbols"],
+               *(Path(name).stem for name in removed if name.endswith(".py"))]
     references = policy["blocked_external_references"]
     for name in sorted(set(paths)):
         path = root / name

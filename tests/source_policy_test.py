@@ -19,7 +19,9 @@ class SourcePolicyTest(unittest.TestCase):
         self.synthetic = b"invented fixture, no submission content\n"
         self.policy = {
             "removed_files": [{"path": "practice/ahc999/main.cpp",
-                "sha256": hashlib.sha256(self.synthetic).hexdigest()}],
+                "sha256": hashlib.sha256(self.synthetic).hexdigest()},
+                {"path": "benchmarks/retired_driver.py",
+                 "sha256": hashlib.sha256(b"second invented fixture").hexdigest()}],
             "removed_practice": {"ahc999": ["ahc998"]},
             "excluded_submissions": [{"submission_id": "999999999"}],
             "blocked_component_symbols": ["invented_removed_component"],
@@ -45,7 +47,8 @@ class SourcePolicyTest(unittest.TestCase):
     def test_excluded_references_and_symbols_fail_without_printing_text(self):
         for data in ["https://atcoder.jp/contests/ahc999/submissions/999999999",
                      "https://example.invalid/denied", "invented_removed_component()",
-                     "[old code](practice/ahc999/main.cpp)"]:
+                     "[old code](practice/ahc999/main.cpp)",
+                     "from retired_driver import helper"]:
             issues = self.findings("new.md", data)
             self.assertTrue(issues)
             self.assertNotIn(data, repr(issues))

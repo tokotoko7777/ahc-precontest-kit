@@ -10,7 +10,7 @@ import subprocess
 import tempfile
 import time
 from ahc001_gap_report import ROOT, REFERENCE, gap
-from rollout_official_benchmark import run
+from official_tool_runner import run
 
 BASE = "1e3e144ad9289ce0a0ccc5d52e6b2a6d13094f6a"
 
