@@ -5,11 +5,6 @@ AHCでは、同じ制限時間で評価できる候補数が増えること自�
 
 ## 標準のコンパイル最適化
 
-提出用`practice/*/main.cpp`、`template/`、`examples/`、C++ベンチマークには、
-先頭に`#pragma GCC optimize("O3")`を置きます。`unroll-loops`や`Ofast`は付けません。
-AHC069はこの一括変更の対象外で、既存の設定を保持しています。
-Makefileの通常ビルドも`-O3`です。
-
 pragmaは**それ以降の関数定義**へ作用するため、hppを貼る位置より前に置きます。
 各hppへは重複して埋め込まず、`tools/copy_part.py`の出力先頭にも同じブロックを付けます。
 オンライン・オフラインとも共通です。手動でhppだけを使う場合もmain.cppの先頭へ置いてください。
@@ -137,12 +132,6 @@ CSVの`reference_commit`はharnessの旧版取得用既定値であり、この2
 2. 同じ入力・同じ乱数seedで、変更した部分だけを比較する。
 3. `-O2 -std=c++17` など提出時と近い条件で測る。
 4. 速くならない置き換えは戻す。
-
-探索方式そのものの強さは合成速度だけで決めず、その方式が実際に使われた問題の
-最終scoreで測ります。AHC001の焼きなまし、AHC015のMonte Carlo、AHC021の
-apply/revert木上ビーム、AHC032のAction先行ビームの測定方法と結果は
-[`REAL_PROBLEM_BENCHMARKS.md`](REAL_PROBLEM_BENCHMARKS.md)にまとめています。
-一括実行は`make benchmark-real-search`です。
 
 AHC021では共通経路保持の試作だけでは明確な短縮を確認できず、採用しませんでした。
 実測の主な負荷だった問題側の候補生成を、前線cache・最短路の厳密な途中終了・

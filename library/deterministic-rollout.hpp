@@ -6,7 +6,6 @@
 // https://github.com/tokotoko7777/ahc-precontest-kit/blob/main/library/deterministic-rollout.hpp
 
 // 候補をそれぞれ終端まで仮実行し、評価が最良の1手を返す薄いRunner。
-// 乱数で未来を作る問題には common-scenario-average.hpp を使い、
 // 未来が現在状態とActionから全て決まる問題にはこちらを使う。
 //
 // 【使う人がmain.cpp側へ書く場所】

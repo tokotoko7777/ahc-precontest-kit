@@ -1,5 +1,8 @@
 # 手法別の実戦例とスコア回帰
 
+AI学習拒否の出典への依存、または出自未確認のため、22回分の練習例を除去しました。
+現在は48回分を収録しています。[出典方針と除外理由](../SOURCE_POLICY.md)を参照してください。
+
 全AHCを網羅することは目標にしません。**共通フォーマットを使い、その手法の強さと
 高速化を実問題のスコアで確認できる問題**を重点的に整備します。
 既存の他問題は参照用として残しますが、全件の継続強化は必須にしません。
@@ -12,7 +15,6 @@
 | 差分Actionビーム | AHC032 | [Mod Stamp](../examples/search/ahc032_action_beam.cpp) |
 | apply/revert木上ビーム | AHC021 | [Pyramid Sorting](../examples/search/ahc021_tree_beam.cpp) |
 | 世代が飛ぶ木上ビーム | AHC038 | [Tree Robot Arm](../examples/search/ahc038_variable_cost_beam.cpp) |
-| Monte Carlo | AHC015 | [共通未来rollout](../examples/search/ahc015_common_rollout.cpp) |
 
 表は整備・比較の優先対象であり、全方式の最新高速化が完了したという意味ではありません。
 提出用`main.cpp`と原本の一致を自動検査しているのは、現在AHC001・021・032・058・059です。

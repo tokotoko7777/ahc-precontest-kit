@@ -4,18 +4,6 @@
 小さなAPI例ではなく、入力、状態、近傍または遷移、得点計算、
 解の保存、出力まで含みます。差分更新が有効な例では、その実装も確認できます。
 
-## まず読む例
-
-| 入口 | 最初の例 |
-|---|---|
-| ビーム | [通常版](intro_heuristics_simple_beam.cpp)、[木上版](ahc021_tree_beam.cpp) |
-| 局所探索 | [AHC006の差分更新](ahc006_sa.cpp)。[基本形](../../template/search/local-search/basic.cpp)で焼きなまし／山登りを切替 |
-| モンテカルロ | [AHC015](ahc015_common_rollout.cpp) |
-
-LNSのような部分破壊・再構築も近傍として扱います。
-[AHC002](ahc002_destroy_repair_sa.cpp)では焼きなましのProblem内に実装しています。
-この整理は既存の実問題解法・測定結果を変更するものではありません。
-
 ## ビーム
 
 [穴埋めテンプレート](../../template/search/beam/README.md)
@@ -54,82 +42,6 @@ AHC001〜005の5回改善記録: [001](../../benchmarks/AHC001_FIVE_ROUNDS_REPOR
 | [`ahc059_lns.cpp`](ahc059_lns.cpp) | `LargeNeighborhoodSearch` + `AdaptiveOperatorSelector`（任意） | AHC059 | ペアを削除しO(n)最良再挿入。SA/RRT/山登り、前計算、打ち切り。単一近傍/等確率/適応選択を比較可能 |
 | [`ahc059_ils.cpp`](ahc059_ils.cpp) | `IteratedLocalSearch` | AHC059 | 区間30の摂動と区間4の局所改善を分離。局所探索の連続失敗上限・受理方式を比較 |
 | [`ahc058_prefix_sa.cpp`](ahc058_prefix_sa.cpp) | `TimeBasedAnnealingRunner`＋`PrefixReplay` | AHC058 | 3手先読みを初期解に購入順序をSA。途中再生・待機一括更新を使い、公式100ケースで平均約6.24%改善 |
-
-## モンテカルロ
-
-[穴埋めテンプレート](../../template/search/monte-carlo/README.md)
-
-| ファイル | 使う探索 | 題材 | 確認したこと |
-|---|---|---|---|
-| [`ahc015_common_rollout.cpp`](ahc015_common_rollout.cpp) | `CommonScenarioRolloutRunner` | AHC015 | 4方向を同じ未来配置で比較。盤面操作・Scenario・rollout評価と共通乱数処理の境界を明示 |
-| [`ahc061_common_rollout.cpp`](ahc061_common_rollout.cpp) | `CommonScenarioRolloutRunner` | AHC061 | 相手の粒子推定と衝突simulationを問題側へ分離。独自乱数・double加算・近似同点を保存 |
-| [`ahc015_uct.cpp`](ahc015_uct.cpp) | `MonteCarloTreeSearch` | AHC015 | 1手ずつ対話入力。未知の配置順位を抽選し、その結果ごとに木を分岐。共通未来flat MCとも比較 |
-
-## 決定的な先読み
-
-[穴埋めテンプレート](../../template/advanced/README.md)
-
-| ファイル | 使う探索 | 題材 | 確認したこと |
-|---|---|---|---|
-| [`ahc026_deterministic_rollout.cpp`](ahc026_deterministic_rollout.cpp) | `DeterministicRolloutRunner` | AHC026 | 全先読み幅を最後まで同じ貪欲で仮実行。山操作・候補幅・完走評価と最小値選択の境界を明示 |
-| [`ahc058_deterministic_rollout.cpp`](ahc058_deterministic_rollout.cpp) | `DeterministicRolloutRunner` | AHC058 | 固定長状態を3手先読み。合法手・投資・生産式はProblemへ、候補比較はRunnerへ分離 |
-
-数値はライブラリの適用確認用で、AtCoder上の順位やスコアを主張するものでは
-ありません。乱数seedは固定ですが、壁時計で終了するAHC006例の反復回数と結果は
-実行負荷によって多少変わります。
-
-AHC002・006・011・015・021・026・032のRunner形式7本は、決定的な入力を使った短時間
-スモークテストで、出力行数・値域・操作数を確認しています。AHC002・006は経路、
-AHC011は全スライドと木サイズ、AHC021は操作再生後の差分score、AHC026は全ての
-箱移動と消費energy、AHC032は盤面と
-最終scoreも全再計算と照合します。
-これは入出力と実装整合性の確認であり、公式seedの得点比較ではありません。
-
-AHC058・061の旧rollout移植比較は[`rollout_official_benchmark.py`](../../benchmarks/rollout_official_benchmark.py)
-で再実行できます。AHC058の`practice`はSAへ強化したため、この移植比較だけは旧commitの
-単一ファイルを固定して使います。新SAとの比較は
-[`ahc058_annealing_benchmark.py`](../../benchmarks/ahc058_annealing_benchmark.py)です。
-AHC061は対話問題なので、公式`tester`が必須です。AHC058の閉形式の生産量は
-独立した1ターンずつの再生ともCIで照合します。
-
-ビーム幅による問題本来の得点差は、`make benchmark-search`でAHC032
-「Mod Stamp」相当の固定5ケースを解いて確認できます。これは公式入力ではなく、
-公式仕様と同じ値域・分布で独自生成した回帰ベンチマークです。
-`ActionBeamRunner`が上位N個の選択・Stateの生成・探索ループを担当し、
-問題側には確定順、候補生成、差分評価、反映だけを書いています。
-
-焼きなまし、Monte Carlo、apply/revert木上ビームにも同じ境界のRunnerと実問題
-ベンチマークがあります。各方式で人が書く箇所、ライブラリが担当する箇所、得点は
-[`REAL_PROBLEM_BENCHMARKS.md`](../../REAL_PROBLEM_BENCHMARKS.md)を参照してください。
-
-## コンパイル
-
-リポジトリのルートで実行します。
-
-```sh
-g++ -std=c++17 -O2 -Wall -Wextra -pedantic examples/search/ahc001_region_sa.cpp -o /tmp/ahc001_sa
-g++ -std=c++17 -O2 -Wall -Wextra -pedantic examples/search/ahc002_destroy_repair_sa.cpp -o /tmp/ahc002_sa
-g++ -std=c++17 -O2 -Wall -Wextra -pedantic examples/search/ahc006_sa.cpp -o /tmp/ahc006_sa
-g++ -std=c++17 -O2 -Wall -Wextra -pedantic examples/search/ahc011_tree_beam.cpp -o /tmp/ahc011_beam
-g++ -std=c++17 -O2 -Wall -Wextra -pedantic examples/search/ahc015_common_rollout.cpp -o /tmp/ahc015_rollout
-g++ -std=c++17 -O2 -Wall -Wextra -pedantic examples/search/ahc026_deterministic_rollout.cpp -o /tmp/ahc026_rollout
-g++ -std=c++17 -O2 -Wall -Wextra -pedantic examples/search/intro_heuristics_simple_beam.cpp -o /tmp/intro_beam
-g++ -std=c++17 -O2 -Wall -Wextra -pedantic examples/search/intro_heuristics_action_beam.cpp -o /tmp/action_beam
-g++ -std=c++17 -O2 -Wall -Wextra -pedantic examples/search/ahc021_tree_beam.cpp -o /tmp/ahc021_beam
-g++ -std=c++17 -O2 -Wall -Wextra -pedantic examples/search/ahc032_action_beam.cpp -o /tmp/ahc032_beam
-g++ -std=c++17 -O2 -Wall -Wextra -pedantic examples/search/variable_cost_beam.cpp -o /tmp/cost_beam
-g++ -std=c++17 -O2 -Wall -Wextra -pedantic examples/search/ahc038_variable_cost_beam.cpp -o /tmp/ahc038_beam
-g++ -std=c++17 -O2 -Wall -Wextra -pedantic examples/search/ahc071_action_beam.cpp -o /tmp/ahc071_beam
-```
-
-世代飛ばし版には小さい厳密DPとの自己テストも同じファイルに入っています。
-
-```sh
-g++ -std=c++17 -O2 -Wall -Wextra -pedantic \
-  -DVARIABLE_COST_BEAM_SELF_TEST examples/search/variable_cost_beam.cpp \
-  -o /tmp/cost_beam_test
-/tmp/cost_beam_test
-```
 
 ## 提出用の1ファイルにする
 
@@ -198,3 +110,10 @@ python3 benchmarks/ahc071_official_benchmark.py \
 
 Rust toolchainを使えない環境では`--ported-score`を付けると、公式`src/lib.rs`の
 合法性検査とscore式を移植したPython版で採点します。
+
+## 決定的な先読みの例
+
+| ファイル | パーツ | 問題 | 内容 |
+|---|---|---|---|
+| [`ahc026_deterministic_rollout.cpp`](ahc026_deterministic_rollout.cpp) | `DeterministicRolloutRunner` | AHC026 | 全先読み幅を最後まで同じ貪欲で仮実行。山操作・候補幅・完走評価と最小値選択の境界を明示 |
+| [`ahc058_deterministic_rollout.cpp`](ahc058_deterministic_rollout.cpp) | `DeterministicRolloutRunner` | AHC058 | 固定長状態を3手先読み。合法手・投資・生産式はProblemへ、候補比較はRunnerへ分離 |

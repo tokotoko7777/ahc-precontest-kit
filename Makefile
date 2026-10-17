@@ -10,12 +10,12 @@ SANITIZER_TESTS := tests/parts_test.cpp tests/search_engines_test.cpp $(UPGRADE_
 SANITIZER_FLAGS := -std=c++17 -O1 -g -Wall -Wextra -pedantic \
 	-fsanitize=address,undefined -fno-omit-frame-pointer -DAHC_DISABLE_GCC_OPTIMIZE
 
-.PHONY: verify verify-practice verify-copy verify-debug verify-sanitize \
+.PHONY: verify verify-source-policy verify-practice verify-copy verify-debug verify-sanitize \
 	benchmark-search benchmark-search-speed \
-	benchmark-sa benchmark-tree-beam benchmark-monte-carlo \
+	benchmark-sa benchmark-tree-beam \
 	benchmark-real-search clean
 
-verify: verify-practice verify-copy verify-debug
+verify: verify-source-policy verify-practice verify-copy verify-debug
 	mkdir -p build
 	for header in $(HEADERS); do $(CXX) $(CXXFLAGS) -x c++ -fsyntax-only $$header || exit 1; done
 	$(CXX) $(CXXFLAGS) -I. tests/parts_test.cpp -o build/parts_test
@@ -44,6 +44,10 @@ verify: verify-practice verify-copy verify-debug
 	./build/variable_cost_beam_test
 	$(CXX) $(CXXFLAGS) template/main.cpp -o build/template
 
+verify-source-policy:
+	python3 tools/check_source_policy.py
+	python3 tests/source_policy_test.py
+
 verify-copy:
 	mkdir -p build
 	python3 tests/copy_part_test.py
@@ -60,7 +64,6 @@ verify-copy:
 	python3 tests/beam_score_benchmark_test.py
 	python3 tests/tree_score_benchmark_test.py
 	python3 tests/lns_benchmark_test.py
-	python3 tests/three_search_benchmark_test.py
 	python3 tests/ahc006_benchmark_test.py
 	python3 tests/repository_bundle_test.py
 	python3 tools/copy_part.py --ref HEAD \
@@ -148,15 +151,7 @@ benchmark-tree-beam:
 		-o build/ahc021_tree_beam_score_benchmark
 	./build/ahc021_tree_beam_score_benchmark
 
-benchmark-monte-carlo:
-	mkdir -p build
-	$(CXX) $(CXXFLAGS) -O3 -DNDEBUG -I. \
-		benchmarks/ahc015_monte_carlo_score_benchmark.cpp \
-		-o build/ahc015_monte_carlo_score_benchmark
-	./build/ahc015_monte_carlo_score_benchmark
-
-benchmark-real-search: benchmark-sa benchmark-tree-beam \
-	benchmark-monte-carlo benchmark-search
+benchmark-real-search: benchmark-sa benchmark-tree-beam benchmark-search
 
 clean:
 	rm -rf build

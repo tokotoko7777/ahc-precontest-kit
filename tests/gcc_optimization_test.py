@@ -13,11 +13,8 @@ from copy_part import GCC_OPTIMIZATION_PROLOGUE, FrozenPart, render_parts
 def main():
     paths = sorted([*ROOT.glob("template/**/*.cpp"), *ROOT.glob("examples/**/*.cpp"),
                     *ROOT.glob("practice/ahc*/main.cpp"), *ROOT.glob("benchmarks/*.cpp")])
-    excluded = ROOT / "practice/ahc069/main.cpp"  # 現行コンテストは変更対象外。
     checked = 0
     for path in paths:
-        if path == excluded:
-            continue
         data = path.read_bytes()
         assert data.startswith(GCC_OPTIMIZATION_PROLOGUE), path
         assert data.count(b"#pragma GCC optimize") == 1, path
